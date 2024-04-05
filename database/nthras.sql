@@ -46,6 +46,38 @@ By following these best practices, developers can ensure that the database layer
 
 */
 
+/* Country Table */
+-- Stores all countries info
+CREATE TABLE IF NOT EXISTS country (
+    country_id INT AUTO_INCREMENT PRIMARY KEY,
+    country_name VARCHAR(100) NOT NULL,
+    country_code VARCHAR(10) NOT NULL
+) ENGINE=InnoDB;
+
+/* State Table */
+-- Stores all states info
+CREATE TABLE IF NOT EXISTS state (
+    state_id INT AUTO_INCREMENT PRIMARY KEY,
+    country_id INT,
+    state_name VARCHAR(100) NOT NULL,
+    state_code VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_country_id FOREIGN KEY (country_id) REFERENCES country(country_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+/* City Table */
+-- Stores all city info
+CREATE TABLE IF NOT EXISTS city (
+    city_id INT AUTO_INCREMENT PRIMARY KEY,
+    state_id INT,
+    city_name VARCHAR(100) NOT NULL,
+    city_code VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_state_id FOREIGN KEY (state_id) REFERENCES state(state_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 
 /* Companies Table */
 -- Stores comprehensive information about each company, including contact info, identification numbers, and social media links.
@@ -56,11 +88,10 @@ CREATE TABLE IF NOT EXISTS companies (
     short_name VARCHAR(100),
     code VARCHAR(50),
     num_branches INT DEFAULT 0,
+    num_employees INT,
     logo VARCHAR(255), -- URL to logo image stored externally
     address TEXT,
-    country VARCHAR(100),
-    state VARCHAR(100),
-    city VARCHAR(100),
+    city_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
     email VARCHAR(255),
@@ -86,7 +117,7 @@ CREATE TABLE IF NOT EXISTS companies (
     gstn_username VARCHAR(100),
     gstn_password VARCHAR(100),
     vat_gst_status ENUM('Active', 'Inactive', 'Pending'),
-    gst_type ENUM('Goods', 'Service'),
+    gst_type ENUM('Goods', 'Service', 'Both'),
     einvoice_approved_only TINYINT(1) DEFAULT 0,
     marketplace_url VARCHAR(255),
     drug_license_no VARCHAR(50),
@@ -95,7 +126,8 @@ CREATE TABLE IF NOT EXISTS companies (
     turnover_less_than_5cr TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted TINYINT(1) DEFAULT 0
+    is_deleted TINYINT(1) DEFAULT 0,
+    CONSTRAINT fk_city_code FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* Statuses Table */
