@@ -309,3 +309,182 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     CONSTRAINT fk_action FOREIGN KEY (action_id) REFERENCES actions(action_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+/* Ledger Groups Table */
+-- Stores information about ledger groups used in accounting.
+CREATE TABLE IF NOT EXISTS ledger_groups (
+    ledger_group_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    inactive BOOLEAN,
+    under_group VARCHAR(255),
+    nature VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Ledger Accounts Table */
+-- Stores information about ledger accounts used in accounting.
+CREATE TABLE IF NOT EXISTS ledger_accounts (
+    ledger_account_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    is_subledger BOOLEAN,
+    ledger_group_id INT,
+    inactive BOOLEAN,
+    type VARCHAR(50),
+    account_no VARCHAR(50),
+    rtgs_ifsc_code VARCHAR(50),
+    classification VARCHAR(50),
+    is_loan_account BOOLEAN,
+    tds_applicable BOOLEAN,
+    address VARCHAR(255),
+    pan VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id)
+);
+
+/* Firm Statuses Table */
+-- Stores information about different statuses of firms.
+CREATE TABLE IF NOT EXISTS firm_statuses (
+    firm_status_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Territory Table */
+-- Stores information about territories.
+CREATE TABLE IF NOT EXISTS territory (
+    territory_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Customer Categories Table */
+-- Stores information about customer categories.
+CREATE TABLE IF NOT EXISTS customer_categories (
+    customer_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* GST Categories Table */
+-- Stores information about GST categories.
+CREATE TABLE IF NOT EXISTS gst_categories (
+    gst_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Customer Payment Terms Table */
+-- Stores information about payment terms for customers.
+CREATE TABLE IF NOT EXISTS customer_payment_terms (
+    payment_term_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    fixed_days INT,
+    no_of_fixed_days INT,
+    payment_cycle VARCHAR(255),
+    run_on VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Price Categories Table */
+-- Stores information about price categories.
+CREATE TABLE IF NOT EXISTS price_categories (
+    price_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Transporters Table */
+-- Stores information about transporters.
+CREATE TABLE IF NOT EXISTS transporters (
+    transporter_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    gst_no VARCHAR(50),
+    website_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Customers Table */
+-- Stores information about customers.
+CREATE TABLE IF NOT EXISTS customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    print_name VARCHAR(255),
+    identification VARCHAR(255),
+    code VARCHAR(50),
+    ledger_account_id INT,
+    customer_common_for_sales_purchase BOOLEAN,
+    is_sub_customer BOOLEAN,
+    firm_status_id INT,
+    territory_id INT,
+    customer_category_id INT,
+    contact_person VARCHAR(255),
+    picture VARCHAR(255),
+    gst VARCHAR(50),
+    registration_date DATE,
+    cin VARCHAR(50),
+    pan VARCHAR(50),
+    gst_category_id INT,
+    gst_suspend BOOLEAN,
+    tax_type ENUM('Inclusive', 'Exclusive') DEFAULT 'Inclusive',
+    distance FLOAT,
+    tds_on_gst_applicable BOOLEAN,
+    tds_applicable BOOLEAN,
+    website VARCHAR(255),
+    facebook VARCHAR(255),
+    skype VARCHAR(255),
+    twitter VARCHAR(255),
+    linked_in VARCHAR(255),
+    payment_term_id INT,
+    price_category_id INT,
+    batch_rate_category VARCHAR(50),
+    transporter_id INT,
+    credit_limit DECIMAL(18,2),
+    max_credit_days INT,
+    interest_rate_yearly DECIMAL(5,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id),
+    FOREIGN KEY (firm_status_id) REFERENCES firm_statuses(firm_status_id),
+    FOREIGN KEY (territory_id) REFERENCES territory(territory_id),
+    FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
+    FOREIGN KEY (gst_category_id) REFERENCES gst_categories(gst_category_id),
+    FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
+    FOREIGN KEY (price_category_id) REFERENCES price_categories(price_category_id),
+    FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id)
+);
+
+/* Customer Addresses Table */
+-- Stores information about customer addresses.
+CREATE TABLE IF NOT EXISTS customer_addresses (
+    customer_address_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    address_type ENUM('Billing', 'Shipping'),
+    address VARCHAR(255),
+    country VARCHAR(255),
+    state VARCHAR(255),
+    city VARCHAR(255),
+    pin_code VARCHAR(50),
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    longitude DECIMAL(10,6),
+    latitude DECIMAL(10,6),
+    route_map VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
