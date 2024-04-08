@@ -46,6 +46,38 @@ By following these best practices, developers can ensure that the database layer
 
 */
 
+/* Country Table */
+-- Stores all countries info
+CREATE TABLE IF NOT EXISTS country (
+    country_id INT AUTO_INCREMENT PRIMARY KEY,
+    country_name VARCHAR(100) NOT NULL,
+    country_code VARCHAR(10) NOT NULL
+) ENGINE=InnoDB;
+
+/* State Table */
+-- Stores all states info
+CREATE TABLE IF NOT EXISTS state (
+    state_id INT AUTO_INCREMENT PRIMARY KEY,
+    country_id INT,
+    state_name VARCHAR(100) NOT NULL,
+    state_code VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_country_id FOREIGN KEY (country_id) REFERENCES country(country_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+/* City Table */
+-- Stores all city info
+CREATE TABLE IF NOT EXISTS city (
+    city_id INT AUTO_INCREMENT PRIMARY KEY,
+    state_id INT,
+    city_name VARCHAR(100) NOT NULL,
+    city_code VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_state_id FOREIGN KEY (state_id) REFERENCES state(state_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
 
 /* Companies Table */
 -- Stores comprehensive information about each company, including contact info, identification numbers, and social media links.
@@ -56,11 +88,10 @@ CREATE TABLE IF NOT EXISTS companies (
     short_name VARCHAR(100),
     code VARCHAR(50),
     num_branches INT DEFAULT 0,
+    num_employees INT,
     logo VARCHAR(255), -- URL to logo image stored externally
     address TEXT,
-    country VARCHAR(100),
-    state VARCHAR(100),
-    city VARCHAR(100),
+    city_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
     email VARCHAR(255),
@@ -86,7 +117,7 @@ CREATE TABLE IF NOT EXISTS companies (
     gstn_username VARCHAR(100),
     gstn_password VARCHAR(100),
     vat_gst_status ENUM('Active', 'Inactive', 'Pending'),
-    gst_type ENUM('Goods', 'Service'),
+    gst_type ENUM('Goods', 'Service', 'Both'),
     einvoice_approved_only TINYINT(1) DEFAULT 0,
     marketplace_url VARCHAR(255),
     drug_license_no VARCHAR(50),
@@ -95,7 +126,8 @@ CREATE TABLE IF NOT EXISTS companies (
     turnover_less_than_5cr TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted TINYINT(1) DEFAULT 0
+    is_deleted TINYINT(1) DEFAULT 0,
+    CONSTRAINT fk_city_code FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* Statuses Table */
@@ -277,3 +309,403 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     CONSTRAINT fk_action FOREIGN KEY (action_id) REFERENCES actions(action_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+/* Ledger Groups Table */
+-- Stores information about ledger groups used in accounting.
+CREATE TABLE IF NOT EXISTS ledger_groups (
+    ledger_group_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    inactive BOOLEAN,
+    under_group VARCHAR(255),
+    nature VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Ledger Accounts Table */
+-- Stores information about ledger accounts used in accounting.
+CREATE TABLE IF NOT EXISTS ledger_accounts (
+    ledger_account_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    is_subledger BOOLEAN,
+    ledger_group_id INT,
+    inactive BOOLEAN,
+    type VARCHAR(50),
+    account_no VARCHAR(50),
+    rtgs_ifsc_code VARCHAR(50),
+    classification VARCHAR(50),
+    is_loan_account BOOLEAN,
+    tds_applicable BOOLEAN,
+    address VARCHAR(255),
+    pan VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id)
+);
+
+/* Firm Statuses Table */
+-- Stores information about different statuses of firms.
+CREATE TABLE IF NOT EXISTS firm_statuses (
+    firm_status_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Territory Table */
+-- Stores information about territories.
+CREATE TABLE IF NOT EXISTS territory (
+    territory_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Customer Categories Table */
+-- Stores information about customer categories.
+CREATE TABLE IF NOT EXISTS customer_categories (
+    customer_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* GST Categories Table */
+-- Stores information about GST categories.
+CREATE TABLE IF NOT EXISTS gst_categories (
+    gst_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Customer Payment Terms Table */
+-- Stores information about payment terms for customers.
+CREATE TABLE IF NOT EXISTS customer_payment_terms (
+    payment_term_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    fixed_days INT,
+    no_of_fixed_days INT,
+    payment_cycle VARCHAR(255),
+    run_on VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Price Categories Table */
+-- Stores information about price categories.
+CREATE TABLE IF NOT EXISTS price_categories (
+    price_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Transporters Table */
+-- Stores information about transporters.
+CREATE TABLE IF NOT EXISTS transporters (
+    transporter_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    gst_no VARCHAR(50),
+    website_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Customers Table */
+-- Stores information about customers.
+CREATE TABLE IF NOT EXISTS customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    print_name VARCHAR(255),
+    identification VARCHAR(255),
+    code VARCHAR(50),
+    ledger_account_id INT,
+    customer_common_for_sales_purchase BOOLEAN,
+    is_sub_customer BOOLEAN,
+    firm_status_id INT,
+    territory_id INT,
+    customer_category_id INT,
+    contact_person VARCHAR(255),
+    picture VARCHAR(255),
+    gst VARCHAR(50),
+    registration_date DATE,
+    cin VARCHAR(50),
+    pan VARCHAR(50),
+    gst_category_id INT,
+    gst_suspend BOOLEAN,
+    tax_type ENUM('Inclusive', 'Exclusive') DEFAULT 'Inclusive',
+    distance FLOAT,
+    tds_on_gst_applicable BOOLEAN,
+    tds_applicable BOOLEAN,
+    website VARCHAR(255),
+    facebook VARCHAR(255),
+    skype VARCHAR(255),
+    twitter VARCHAR(255),
+    linked_in VARCHAR(255),
+    payment_term_id INT,
+    price_category_id INT,
+    batch_rate_category VARCHAR(50),
+    transporter_id INT,
+    credit_limit DECIMAL(18,2),
+    max_credit_days INT,
+    interest_rate_yearly DECIMAL(5,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id),
+    FOREIGN KEY (firm_status_id) REFERENCES firm_statuses(firm_status_id),
+    FOREIGN KEY (territory_id) REFERENCES territory(territory_id),
+    FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
+    FOREIGN KEY (gst_category_id) REFERENCES gst_categories(gst_category_id),
+    FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
+    FOREIGN KEY (price_category_id) REFERENCES price_categories(price_category_id),
+    FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id)
+);
+
+/* Customer Addresses Table */
+-- Stores information about customer addresses.
+CREATE TABLE IF NOT EXISTS customer_addresses (
+    customer_address_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    address_type ENUM('Billing', 'Shipping'),
+    address VARCHAR(255),
+    country VARCHAR(255),
+    state VARCHAR(255),
+    city VARCHAR(255),
+    pin_code VARCHAR(50),
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    longitude DECIMAL(10,6),
+    latitude DECIMAL(10,6),
+    route_map VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+/* Product Groups Table */
+-- Stores information about different groups of products.
+CREATE TABLE IF NOT EXISTS product_groups (
+    group_id INT AUTO_INCREMENT PRIMARY KEY,
+    group_name VARCHAR(255),
+    description TEXT,
+    picture VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Product Categories Table */
+-- Stores information about different categories of products.
+CREATE TABLE IF NOT EXISTS product_categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(255),
+    picture VARCHAR(255),
+    code VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Product Types Table */
+-- Stores information about different types of products.
+CREATE TABLE IF NOT EXISTS product_types (
+    type_id INT AUTO_INCREMENT PRIMARY KEY,
+    type_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Product Unique Quantity Codes Table */
+-- Stores information about unique quantity codes for products.
+CREATE TABLE IF NOT EXISTS product_unique_quantity_codes (
+    quantity_code_id INT AUTO_INCREMENT PRIMARY KEY,
+    quantity_code_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Unit Options Table */
+-- Stores information about unit options.
+CREATE TABLE IF NOT EXISTS unit_options (
+    unit_options_id INT AUTO_INCREMENT PRIMARY KEY,
+    unit_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+/* Product Stock Units Table */
+-- Stores information about stock units for products.
+CREATE TABLE IF NOT EXISTS product_stock_units (
+    stock_unit_id INT AUTO_INCREMENT PRIMARY KEY,
+    stock_unit_name VARCHAR(255),
+    description TEXT,
+    quantity_code_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (quantity_code_id) REFERENCES product_unique_quantity_codes(quantity_code_id)
+);
+
+/* Product GST Classifications Table */
+-- Stores information about GST classifications for products.
+CREATE TABLE IF NOT EXISTS product_gst_classifications (
+    gst_classification_id INT AUTO_INCREMENT PRIMARY KEY,
+    type ENUM('HSN', 'SAC'),
+    code VARCHAR(50),
+    hsn_or_sac_code VARCHAR(50),
+    hsn_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Product Sales GL Table */
+-- Stores information about sales GL accounts for products.
+CREATE TABLE IF NOT EXISTS product_sales_gl (
+    sales_gl_id INT AUTO_INCREMENT PRIMARY KEY,
+    ledger_group_id INT,
+    name VARCHAR(255),
+    sales_accounts VARCHAR(255),
+    code VARCHAR(50),
+    is_subledger BOOLEAN,
+    inactive BOOLEAN,
+    type VARCHAR(255),
+    account_no VARCHAR(255),
+    rtgs_ifsc_code VARCHAR(255),
+    classification VARCHAR(255),
+    is_loan_account BOOLEAN,
+    tds_applicable BOOLEAN,
+    address VARCHAR(255),
+    pan VARCHAR(50),
+    employee BOOLEAN,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id)
+);
+
+/* Product Drug Types Table */
+-- Stores information about drug types for products.
+CREATE TABLE IF NOT EXISTS product_drug_types (
+    drug_type_id INT AUTO_INCREMENT PRIMARY KEY,
+    drug_type_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Product Purchase GL Table */
+-- Stores information about purchase GL accounts for products.
+CREATE TABLE IF NOT EXISTS product_purchase_gl (
+    purchase_gl_id INT AUTO_INCREMENT PRIMARY KEY,
+    ledger_group_id INT,
+    name VARCHAR(255),
+    purchase_accounts VARCHAR(255),
+    code VARCHAR(50),
+    is_subledger BOOLEAN,
+    inactive BOOLEAN,
+    type VARCHAR(255),
+    account_no VARCHAR(255),
+    rtgs_ifsc_code VARCHAR(255),
+    classification VARCHAR(255),
+    is_loan_account BOOLEAN,
+    tds_applicable BOOLEAN,
+    address VARCHAR(255),
+    pan VARCHAR(50),
+    employee BOOLEAN,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id)
+);
+
+/* Product Item Types Table */
+-- Stores information about item types for products.
+CREATE TABLE IF NOT EXISTS product_item_type (
+    item_type_id INT AUTO_INCREMENT PRIMARY KEY,
+    item_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Brand Salesman Table */
+-- Stores information about salesmen for brands.
+CREATE TABLE IF NOT EXISTS brand_salesman (
+    brand_salesman_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    commission_rate DECIMAL(18,2),
+    rate_on ENUM("Qty", "Amount"),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Product Brands Table */
+-- Stores information about brands for products.
+CREATE TABLE IF NOT EXISTS product_brands (
+    brand_id INT AUTO_INCREMENT PRIMARY KEY,
+    brand_name VARCHAR(255),
+    code VARCHAR(50),
+    picture VARCHAR(255),
+    brand_salesman_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (brand_salesman_id) REFERENCES brand_salesman(brand_salesman_id)
+);
+
+/* Products Table */
+-- Stores information about products.
+CREATE TABLE IF NOT EXISTS products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    ledger_group_id INT,
+    category_id INT,
+    type_id INT,
+    code VARCHAR(50),
+    barcode VARCHAR(50),
+    unit_options_id INT,
+    gst_input VARCHAR(255),
+    stock_unit_id INT,
+	print_barcode BOOLEAN,
+    gst_classification_id INT,
+    picture VARCHAR(255),
+    sales_description TEXT,
+    sales_gl_id INT,
+    mrp DECIMAL(18,2),
+    minimum_price DECIMAL(18,2),
+    sales_rate DECIMAL(18,2),
+    wholesale_rate DECIMAL(18,2),
+    dealer_rate DECIMAL(18,2),
+    rate_factor DECIMAL(18,2),
+    discount DECIMAL(18,2),
+    dis_amount DECIMAL(18,2),
+    purchase_description TEXT,
+    purchase_gl_id INT,
+    purchase_rate DECIMAL(18,2),
+    purchase_rate_factor DECIMAL(18,2),
+    purchase_discount DECIMAL(18,2),
+    item_type_id INT,
+    minimum_level INT,
+    maximum_level INT,
+    salt_composition TEXT,
+    drug_type_id INT,
+    weighscale_mapping_code VARCHAR(50),
+    brand_id INT,
+    purchase_warranty_months INT,
+    sales_warranty_months INT,
+    status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id),
+    FOREIGN KEY (category_id) REFERENCES product_categories(category_id),
+    FOREIGN KEY (type_id) REFERENCES product_types(type_id),
+    FOREIGN KEY (unit_options_id) REFERENCES unit_options(unit_options_id),
+    FOREIGN KEY (stock_unit_id) REFERENCES product_stock_units(stock_unit_id),
+    FOREIGN KEY (gst_classification_id) REFERENCES product_gst_classifications(gst_classification_id),
+    FOREIGN KEY (sales_gl_id) REFERENCES product_sales_gl(sales_gl_id),
+    FOREIGN KEY (purchase_gl_id) REFERENCES product_purchase_gl(purchase_gl_id),
+    FOREIGN KEY (item_type_id) REFERENCES product_item_type(item_type_id),
+    FOREIGN KEY (drug_type_id) REFERENCES product_drug_types(drug_type_id),
+    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
+);
