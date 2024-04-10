@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS ledger_accounts (
     is_subledger BOOLEAN,
     ledger_group_id INT,
     inactive BOOLEAN,
-    type VARCHAR(50),
+    type ENUM("General", "Bank", "Cash"),
     account_no VARCHAR(50),
     rtgs_ifsc_code VARCHAR(50),
     classification VARCHAR(50),
@@ -466,6 +466,18 @@ CREATE TABLE IF NOT EXISTS customers (
     FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
     FOREIGN KEY (price_category_id) REFERENCES price_categories(price_category_id),
     FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id)
+);
+
+/* Customer Attachments Table */
+-- Stores attachments associated with Customer.
+CREATE TABLE IF NOT EXISTS customer_attachments (
+    attachment_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    attachment_name VARCHAR(255),
+    attachment_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
 
 /* Customer Addresses Table */
