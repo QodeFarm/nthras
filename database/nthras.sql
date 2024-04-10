@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS ledger_accounts (
     is_subledger BOOLEAN,
     ledger_group_id INT,
     inactive BOOLEAN,
-    type VARCHAR(50),
+    type ENUM("General", "Bank", "Cash"),
     account_no VARCHAR(50),
     rtgs_ifsc_code VARCHAR(50),
     classification VARCHAR(50),
@@ -466,6 +466,18 @@ CREATE TABLE IF NOT EXISTS customers (
     FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
     FOREIGN KEY (price_category_id) REFERENCES price_categories(price_category_id),
     FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id)
+);
+
+/* Customer Attachments Table */
+-- Stores attachments associated with Customer.
+CREATE TABLE IF NOT EXISTS customer_attachments (
+    attachment_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    attachment_name VARCHAR(255),
+    attachment_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
 
 /* Customer Addresses Table */
@@ -708,4 +720,130 @@ CREATE TABLE IF NOT EXISTS products (
     FOREIGN KEY (item_type_id) REFERENCES product_item_type(item_type_id),
     FOREIGN KEY (drug_type_id) REFERENCES product_drug_types(drug_type_id),
     FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
+);
+
+/* Vendor Category Table */
+-- Stores vendor categories, providing classification for vendors.
+CREATE TABLE IF NOT EXISTS vendor_category (
+    vendor_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Vendor Payment Terms Table */
+-- Stores payment terms applicable to vendors.
+CREATE TABLE IF NOT EXISTS vendor_payment_terms (
+    payment_term_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(50),
+    fixed_days INT,
+    no_of_fixed_days INT,
+    payment_cycle VARCHAR(255),
+    run_on VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Vendor Agent Table */
+-- Stores information about vendor agents, including commission rates and types.
+CREATE TABLE IF NOT EXISTS vendor_agent (
+    vendor_agent_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255),
+    commission_rate DECIMAL(18, 2),
+    rate_on ENUM("Qty", "Amount"),
+    amount_type ENUM("Taxable", "BillAmount"),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Vendor Table */
+-- Stores information about vendors including their details, contacts, and financial information.
+CREATE TABLE IF NOT EXISTS vendor (
+    vendor_id INT AUTO_INCREMENT PRIMARY KEY,
+    gst_no VARCHAR(255),
+    name VARCHAR(255),
+    print_name VARCHAR(255),
+    identification VARCHAR(255),
+    code VARCHAR(255),
+    ledger_account_id INT,
+    vendor_common_for_sales_purchase BOOLEAN,
+    is_sub_vendor BOOLEAN,
+    firm_status_id INT,
+    territory_id INT,
+    vendor_category_id INT,
+    contact_person VARCHAR(255),
+    picture VARCHAR(255),
+    gst VARCHAR(255),
+    registration_date DATE,
+    cin VARCHAR(255),
+    pan VARCHAR(255),
+    gst_category_id INT,
+    gst_suspend BOOLEAN,
+    tax_type ENUM('Inclusive', 'Exclusive') DEFAULT 'Inclusive',
+    distance DECIMAL(18, 2),
+    tds_on_gst_applicable BOOLEAN,
+    tds_applicable BOOLEAN,
+    website VARCHAR(255),
+    facebook VARCHAR(255),
+    skype VARCHAR(255),
+    twitter VARCHAR(255),
+    linked_in VARCHAR(255),
+    payment_term_id INT,
+    price_category_id INT,
+    vendor_agent_id INT,
+    transporter_id INT,
+    credit_limit DECIMAL(18, 2),
+    max_credit_days INT,
+    interest_rate_yearly DECIMAL(18, 2),
+    rtgs_ifsc_code VARCHAR(255),
+    accounts_number VARCHAR(255),
+    bank_name VARCHAR(255),
+    branch VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id),
+    FOREIGN KEY (firm_status_id) REFERENCES firm_statuses(firm_status_id),
+    FOREIGN KEY (territory_id) REFERENCES territory(territory_id),
+    FOREIGN KEY (vendor_category_id) REFERENCES vendor_category(vendor_category_id),
+    FOREIGN KEY (gst_category_id) REFERENCES gst_categories(gst_category_id),
+    FOREIGN KEY (payment_term_id) REFERENCES vendor_payment_terms(payment_term_id),
+    FOREIGN KEY (price_category_id) REFERENCES price_categories(price_category_id),
+    FOREIGN KEY (vendor_agent_id) REFERENCES vendor_agent(vendor_agent_id),
+    FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id)
+);
+
+/* Vendor Attachments Table */
+-- Stores attachments associated with vendors.
+CREATE TABLE IF NOT EXISTS vendor_attachments (
+    attachment_id INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_id INT,
+    attachment_name VARCHAR(255),
+    attachment_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
+);
+
+/* Vendor Addresses Table */
+-- Stores addresses associated with vendors.
+CREATE TABLE IF NOT EXISTS vendor_addresses (
+    vendor_address_id INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_id INT,
+    address_type ENUM('Billing', 'Shipping'),
+    address VARCHAR(255),
+    country VARCHAR(255),
+    state VARCHAR(255),
+    city VARCHAR(255),
+    pin_code VARCHAR(50),
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    longitude DECIMAL(10,6),
+    latitude DECIMAL(10,6),
+    route_map VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
 );
