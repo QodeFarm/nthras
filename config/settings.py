@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     #apps
     'apps.authentication',
+    'apps.auth1',
     
     #third party apps
     'rest_framework_simplejwt',
@@ -83,6 +84,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# #for used of UserManager models
+#AUTH_USER_MODEL = 'authentication.User'
+
+
 REST_FRAMEWORK = {    
     'DEFAULT_AUTHENTICATION_CLASSES': (     
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -101,7 +106,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "erp",
+        "NAME": "nthras",
         "USER": "root",
         "PASSWORD": "root",
         "HOST": "127.0.0.1",
@@ -129,6 +134,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
+]
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -139,10 +153,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
-
-# #for used of UserManager models
-AUTH_USER_MODEL = 'authentication.User'
 
 
 #write this before migrate
