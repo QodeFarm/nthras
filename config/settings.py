@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'rest_framework',
     #modules
-    'apps.general'
+    'apps.general',
+    'apps.masters',
 ]
 
 MIDDLEWARE = [
@@ -82,9 +83,9 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "db_name",
+        "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "password",
+        "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
