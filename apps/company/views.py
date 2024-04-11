@@ -4,9 +4,9 @@ from .models import *
 from .serializers import *
 from utils import *
 
-class CountryViewSet(viewsets.ModelViewSet):
-    queryset = Country.objects.all()
-    serializer_class = CountrySerializer
+class CompaniesViewSet(viewsets.ModelViewSet):
+    queryset = Companies.objects.all()
+    serializer_class = CompaniesSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -17,9 +17,9 @@ class CountryViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
-class StateViewSet(viewsets.ModelViewSet):
-    queryset = State.objects.all()
-    serializer_class = StateSerializer
+class BranchesViewSet(viewsets.ModelViewSet):
+    queryset = Branches.objects.all()
+    serializer_class = BranchesSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -30,22 +30,9 @@ class StateViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
-class CityViewSet(viewsets.ModelViewSet):
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
-
-class StatusesViewset(viewsets.ModelViewSet):
-    queryset = Statuses.objects.all()
-    serializer_class = StatusesSerializer
+class BranchBankDetailsViewSet(viewsets.ModelViewSet):
+    queryset = BranchBankDetails.objects.all()
+    serializer_class = BranchBankDetailsSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)

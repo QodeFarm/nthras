@@ -1,12 +1,22 @@
+from django import utils
 from django.db import models
 from django.core.validators import RegexValidator
 from passlib.hash import bcrypt 
-import bcrypt,uuid,base64
+import bcrypt,uuid,base64,os
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+import uuid
+from utils import EncryptedTextField
+from utils import *
 
 def company_logos(instance, filename):
-    company_name = instance.name.replace(' ', '_')
-    unique_id = uuid.uuid4().hex[:6] #Generates a unique identifier
-    return f"company_logos/{company_name}_{unique_id}/{filename}"
+    # Get the file extension
+    file_extension = os.path.splitext(filename)[-1]
+    # Generate a unique identifier
+    unique_id = uuid.uuid4().hex[:6]
+    # Construct the filename
+    original_filename = os.path.splitext(filename)[0]  # Get the filename without extension
+    return f"company/{original_filename}_{unique_id}{file_extension}"
 
 class Companies(models.Model):
     company_id = models.AutoField(primary_key=True)
@@ -17,9 +27,7 @@ class Companies(models.Model):
     num_branches = models.IntegerField(default=0)
     logo = models.ImageField(null=True, upload_to=company_logos, default=None)
     address = models.TextField(null=True)
-    country = models.CharField(max_length=100,null=True, default=None)
-    state = models.CharField(max_length=255, null=True, default=None)
-    city = models.CharField(max_length=255, null=True, default=None)
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
     pin_code = models.CharField(max_length=20, null=True, default=None)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     phone = models.CharField(validators=[phone_regex], max_length=20, null=True, default=None)
@@ -54,6 +62,7 @@ class Companies(models.Model):
     GST_TYPE_CHOICES = (
         ('Goods', 'Goods'),
         ('Service', 'Service'),
+        ('Both', 'Both')
     )
     gst_type = models.CharField(max_length=10, choices=GST_TYPE_CHOICES, default=None, null=True)
     einvoice_approved_only = models.BooleanField(default=False)
@@ -70,8 +79,18 @@ class Companies(models.Model):
         return f"{self.company_id}.{self.name}"
 
     class Meta:
-        db_table = 'companies'
+        db_table = companytable
 
+    @receiver(pre_delete, sender='company.Companies')
+    def delete_company_logo(sender, instance, **kwargs):
+        if instance.logo and instance.logo.name:
+            file_path = instance.logo.path
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                logo_dir = os.path.dirname(file_path)
+                if not os.listdir(logo_dir):
+                    os.rmdir(logo_dir)
+    
     def save(self, *args, **kwargs):
         if self.eway_password:
             #Here I am Hashig the eway_password using bcrypt and save as bytes
@@ -96,10 +115,17 @@ class Companies(models.Model):
         return False
 
 def branches_picture(instance, filename):
-    # Assuming 'instance' is an instance of our model
+    # Get the file extension
+    file_extension = os.path.splitext(filename)[-1]
+
+    # Generate a unique identifier
+    unique_id = uuid.uuid4().hex[:6]
+
+    # Construct the filename
     branch_name = instance.name.replace(' ', '_')
-    unique_id = uuid.uuid4().hex[:6]  # Generate a unique identifier
-    return f"branches_pictures/{branch_name}_{unique_id}/{filename}"
+    original_filename = os.path.splitext(filename)[0]  # Get the filename without extension
+    return f"company/branch/{branch_name}/{original_filename}_{unique_id}{file_extension}"
+
 
 class Branches(models.Model):
     branch_id = models.AutoField(primary_key=True)
@@ -134,7 +160,17 @@ class Branches(models.Model):
         return f"{self.branch_id}.{self.name}"
     
     class Meta:
-        db_table = 'branches' 
+        db_table = branchestable
+
+    @receiver(pre_delete, sender='company.Branches')
+    def delete_branches_picture(sender, instance, **kwargs):
+        if instance.picture and instance.picture.name:
+            file_path = instance.picture.path
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                picture_dir = os.path.dirname(file_path)
+                if not os.listdir(picture_dir):
+                    os.rmdir(picture_dir)
 
     def save(self, *args, **kwargs):
         if self.e_way_password:
@@ -159,40 +195,6 @@ class Branches(models.Model):
             return bcrypt.checkpw(password.encode(), self.gstn_password)
         return False
     
-
-# Dummy encryption and decryption functions for demonstration purposes
-def encrypt(text):
-    # Encode the text using base64
-    encoded_bytes = base64.b64encode(text.encode("utf-8"))
-    encrypted_text = encoded_bytes.decode("utf-8")
-    return encrypted_text
-
-def decrypt(encrypted_text):
-    # Decode the text using base64
-    decoded_bytes = base64.b64decode(encrypted_text.encode("utf-8"))
-    decrypted_text = decoded_bytes.decode("utf-8")
-    return decrypted_text
-
-class EncryptedTextField(models.TextField):
-    """
-    A custom field to store encrypted text.
-    """
-    def from_db_value(self, value, expression, connection):
-        if value is None:
-            return value
-        # Implement decryption logic here
-        return decrypt(value)
-
-    def to_python(self, value):
-        if isinstance(value, str):
-            # Implement decryption logic here
-            return decrypt(value)
-        return value
-
-    def get_prep_value(self, value):
-        # Implement encryption logic here
-        return encrypt(value)
-
 class BranchBankDetails(models.Model):
     bank_detail_id = models.AutoField(primary_key=True)
     branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, null=True, default=None, db_column = 'branch_id')
@@ -206,25 +208,12 @@ class BranchBankDetails(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Bank details for Branch ID: {self.bank_name}"
+        return f"{self.bank_name}"
 
     class Meta:
-        db_table = 'branch_bank_details' 
+        db_table = branchbankdetails
 
-'''
-#If you want to decrypt then you can uncomment this and run... in output you will find the decrypted account number 
 
-import base64
 
-# Encoded account number
-encoded_account_number = "pass encoded account number here which will be available in your database"
 
-# Decode from base64
-decoded_bytes = base64.b64decode(encoded_account_number)
 
-# Convert bytes to string
-original_account_number = decoded_bytes.decode("utf-8")
-
-print("Decrypted Account Number:", original_account_number)
-
-'''
