@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+#------------File_uploads_requirements------------
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#--------------------------------------------
+
 
 # Application definition
 
@@ -37,9 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'rest_framework',
     #modules
-    'apps.general'
+    'apps.vendor',
 ]
 
 MIDDLEWARE = [
@@ -82,9 +88,9 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "db_name",
+        "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "password",
+        "PASSWORD": "Mysql@123123",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -115,11 +121,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
