@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 import base64
 from django.db import models
-   
+
 #functions for demonstration purposes
 def encrypt(text):
     # Encode the text using base64
@@ -31,6 +31,8 @@ class EncryptedTextField(models.TextField):
             # Handle decryption errors gracefully
             print("Error decrypting value:", e)
             return None
+        # Implement decryption logic here
+        return decrypt(value)
 
     def to_python(self, value):
         if isinstance(value, str):
@@ -42,9 +44,10 @@ class EncryptedTextField(models.TextField):
         # Implement encryption logic here
         return encrypt(value)
 
+
 #If you want to decrypt then you can uncomment this and run... in output you will find the decrypted account number 
 # # Encoded account number
-encoded_account_number = "OTM3NjQ4MTMyOTQ5MjU0"
+encoded_account_number = ""
 
 # Decode from base64
 decoded_bytes = base64.b64decode(encoded_account_number)
@@ -97,5 +100,3 @@ def update_instance(self, request, *args, **kwargs):
 
 def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
-
-#========================================================================

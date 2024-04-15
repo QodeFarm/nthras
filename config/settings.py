@@ -26,13 +26,11 @@ SECRET_KEY = 'django-insecure-s@))i*6!g4#%$($f!512!18d%j*&g=89zsal6ugcm=su0p%c__
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 #------------File_uploads_requirements------------
 import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #--------------------------------------------
-
 
 # Application definition
 
@@ -51,13 +49,14 @@ INSTALLED_APPS = [
     
     #modules
     'apps.customer',
+    'apps.company',
     'apps.masters',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-	"corsheaders.middleware.CorsMiddleware",										
+	  "corsheaders.middleware.CorsMiddleware",										
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

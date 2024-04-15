@@ -4,6 +4,10 @@ from rest_framework import routers
 from .views import *
 
 router = routers.DefaultRouter()
+router.register(r'country', CountryViewSet),
+router.register(r'state', StateViewSet),
+router.register(r'city', CityViewSet),
+router.register(r'statuses', StatusesViewset)
 router.register(r'ledger-groups', LedgerGroupsViews)
 router.register(r'firm-statuses', FirmStatusesViews)
 router.register(r'territory', TerritoryViews)
@@ -19,3 +23,5 @@ urlpatterns = [
     path('', include(router.urls)),
     
 ]
+
+
