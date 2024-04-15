@@ -90,14 +90,14 @@ CREATE TABLE IF NOT EXISTS companies (
     num_branches INT DEFAULT 0,
     num_employees INT,
     logo VARCHAR(255), -- URL to logo image stored externally
-    address TEXT,
+    address VARCHAR(255),
     city_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
     email VARCHAR(255),
     longitude DECIMAL(9, 6),
     latitude DECIMAL(9, 6),
-    print_address TEXT,
+    print_address VARCHAR(255),
     website VARCHAR(255),
     facebook_url VARCHAR(255),
     skype_id VARCHAR(50),
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS branches (
     other_license_1 VARCHAR(255),
     other_license_2 VARCHAR(255),
     picture VARCHAR(255), -- URL to picture image stored externally
-    address TEXT,
+    address VARCHAR(255),
     country VARCHAR(50),
     state VARCHAR(50),
     city VARCHAR(50),
@@ -191,7 +191,7 @@ CREATE TABLE IF NOT EXISTS branch_bank_details (
     branch_name VARCHAR(255),
     ifsc_code VARCHAR(100),
     swift_code VARCHAR(100),
-    address TEXT,
+    address VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_bank_details_branch_id FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE
@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS ledger_accounts (
     is_subledger BOOLEAN,
     ledger_group_id INT,
     inactive BOOLEAN,
-    type VARCHAR(50),
+    type ENUM("General", "Bank", "Cash"),
     account_no VARCHAR(50),
     rtgs_ifsc_code VARCHAR(50),
     classification VARCHAR(50),
@@ -466,6 +466,18 @@ CREATE TABLE IF NOT EXISTS customers (
     FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
     FOREIGN KEY (price_category_id) REFERENCES price_categories(price_category_id),
     FOREIGN KEY (transporter_id) REFERENCES transporters(transporter_id)
+);
+
+/* Customer Attachments Table */
+-- Stores attachments associated with Customer.
+CREATE TABLE IF NOT EXISTS customer_attachments (
+    attachment_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    attachment_name VARCHAR(255),
+    attachment_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
 
 /* Customer Addresses Table */
