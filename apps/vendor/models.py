@@ -1,7 +1,8 @@
 from django.db import models
 import os
-from uuid import uuid4  # Import the UUID module
-# from masters import Ledger_accounts, Firm_statuses, Territory, Gst_categories, , Price_categories, Vendor_agent, Transporters
+from uuid import uuid4
+from apps.customer.models import LedgerAccounts
+from apps.masters.models import FirmStatuses, GstCategories, PriceCategories, Territory, Transporters
 
 # Create your models here.
     
@@ -78,20 +79,19 @@ class Vendor(models.Model):
     print_name = models.CharField(max_length=255, null=True, default=None)
     identification = models.CharField(max_length=255, null=True, default=None)
     code = models.CharField(max_length=255, null=True, default=None)
-    # ledger_account_id = models.ForeignKey(LedgerAccounts, null=True, default=None)
+    ledger_account_id = models.ForeignKey(LedgerAccounts, on_delete=models.CASCADE, null=True, default=None, db_column='ledger_account_id')
     vendor_common_for_sales_purchase = models.BooleanField(null=True, default=None)
     is_sub_vendor = models.BooleanField(null=True, default=None)
-    # firm_status_id = models.ForeignKey(FirmStatuses, null=True, default=None)
-    # territory_id = models.ForeignKey(Territory, null=True, default=None)
+    firm_status_id = models.ForeignKey(FirmStatuses, on_delete=models.CASCADE, null=True, default=None, db_column='firm_status_id')
+    territory_id = models.ForeignKey(Territory,  on_delete=models.CASCADE,null=True, default=None, db_column='territory_id')
     vendor_category_id = models.ForeignKey(VendorCategory, on_delete=models.CASCADE, null=True, default=None, db_column='vendor_category_id')
     contact_person = models.CharField(max_length=255, null=True, default=None)
-    # picture = models.ImageField(max_length=255, null=True, default=None)
     picture = models.ImageField(upload_to=custom_upload_to, max_length=255, null=True, default=None)
     gst = models.CharField(max_length=255, null=True, default=None)
     registration_date = models.DateField(null=True, default=None)
     cin = models.CharField(max_length=255, null=True, default=None)
     pan = models.CharField(max_length=255, null=True, default=None)
-    # gst_category_id = models.ForeignKey(GstCategories,null=True, default=None)
+    gst_category_id = models.ForeignKey(GstCategories, on_delete=models.CASCADE, null=True, default=None, db_column='gst_category_id')
     gst_suspend = models.BooleanField(null=True, default=None)
     TAX_TYPE_CHOICES = [('inclusive', 'Inclusive'),
                         ('exclusive', 'Exclusive')
@@ -106,9 +106,9 @@ class Vendor(models.Model):
     twitter = models.URLField(max_length=255, null=True, default=None)
     linked_in = models.URLField(max_length=255, null=True, default=None)
     payment_term_id = models.ForeignKey(VendorPaymentTerms,on_delete=models.CASCADE, null=True, default=None, db_column='payment_term_id')
-    # price_category_id = models.ForeignKey(PriceCategories, null=True, default=None)
+    price_category_id = models.ForeignKey(PriceCategories, on_delete=models.CASCADE, null=True, default=None, db_column='price_category_id')
     vendor_agent_id = models.ForeignKey(VendorAgent, on_delete=models.CASCADE, null=True, default=None, db_column='vendor_agent_id')
-    # transporter_id = models.ForeignKey(Transporters, null=True, default=None)
+    transporter_id = models.ForeignKey(Transporters, on_delete=models.CASCADE, null=True, default=None, db_column='transporter_id')
     credit_limit = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     max_credit_days = models.IntegerField(null=True, default=None)
     interest_rate_yearly = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
