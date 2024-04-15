@@ -24,7 +24,7 @@ pycparser==2.21
 PyJWT==2.8.0
 PyMySQL==1.1.0
 pytest==7.4.3
-pytest-assert-utils==0.3.1
+pytest-assert-utils_methods==0.3.1
 pytest-common-subject==1.0.6
 pytest-django==4.7.0
 pytest-drf==1.1.3
