@@ -23,3 +23,13 @@ class VendorAgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorAgent
         fields = '__all__'
+
+class VendorAttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorAttachment
+        fields = '__all__'
+
+class VendorAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorAddress
+        fields = '__all__'

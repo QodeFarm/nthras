@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'rest_framework',
     #modules
     'apps.vendor',
+    'apps.company',
+    'apps.masters',
 ]
 
 MIDDLEWARE = [
