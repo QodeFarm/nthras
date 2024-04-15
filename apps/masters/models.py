@@ -1,4 +1,5 @@
 from django.db import models
+from utils import Ledgergroups, Firmstatuses, Pricecategories, Territories, Customercategories, Gstcategories, Customerpaymentterms, Transporter
 
 # Create your models here.
 
@@ -10,63 +11,63 @@ class LedgerGroups(models.Model):
     under_group = models.CharField(max_length=255)
     nature = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):   
         return f"{self.ledger_group_id} {self.name}"
     
     class Meta:
-        db_table = 'ledger_groups'
+        db_table = Ledgergroups 
         
 class FirmStatuses(models.Model):
     firm_status_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):   
         return f"{self.firm_status_id} {self.name}"
     
     class Meta:
-        db_table = 'firm_statuses'
+        db_table = Firmstatuses
 
 class Territory(models.Model):
     territory_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.territory_id} {self.name}"
     
     class Meta:
-        db_table = 'territory'
+        db_table = Territories
 
 class CustomerCategories(models.Model):
     customer_category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.customer_category_id} {self.name}"
     
     class Meta:
-        db_table = 'customer_categories'
+        db_table = Customercategories
 
 class GstCategories(models.Model):
     gst_category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.gst_category_id} {self.name}"
     
     class Meta:
-        db_table = 'gst_categories'
+        db_table = Gstcategories
 
 class CustomerPaymentTerms(models.Model):
     payment_term_id = models.AutoField(primary_key=True)
@@ -77,26 +78,26 @@ class CustomerPaymentTerms(models.Model):
     payment_cycle = models.CharField(max_length=255)
     run_on = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.payment_term_id} {self.name}"
     
     class Meta:
-        db_table = 'customer_payment_terms'
+        db_table = Customerpaymentterms
 
 class PriceCategories(models.Model):
     price_category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.price_category_id} {self.name}"
     
     class Meta:
-        db_table = 'price_categories'
+        db_table = Pricecategories
 
 class Transporters(models.Model):
     transporter_id = models.AutoField(primary_key=True)
@@ -105,10 +106,10 @@ class Transporters(models.Model):
     gst_no = models.CharField(max_length=50)
     website_url = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.transporter_id} {self.name}"
     
     class Meta:
-        db_table = 'transporters'
+        db_table = Transporter

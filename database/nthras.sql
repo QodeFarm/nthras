@@ -331,7 +331,7 @@ CREATE TABLE IF NOT EXISTS ledger_accounts (
     is_subledger BOOLEAN,
     ledger_group_id INT,
     inactive BOOLEAN,
-    type ENUM("General", "Bank", "Cash"),
+    type ENUM("customer", "Bank", "Cash"),
     account_no VARCHAR(50),
     rtgs_ifsc_code VARCHAR(50),
     classification VARCHAR(50),

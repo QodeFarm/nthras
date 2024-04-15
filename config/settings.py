@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+#------------File_uploads_requirements------------
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#--------------------------------------------
+
 
 # Application definition
 
@@ -44,8 +50,8 @@ INSTALLED_APPS = [
     'rest_framework',
     
     #modules
-    'apps.general',
-    'apps.master'
+    'apps.customer',
+    'apps.masters',
 ]
 
 MIDDLEWARE = [

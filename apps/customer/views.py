@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
-from utils import *
+from utils import list_all_objects, create_instance, update_instance
 
 # Create your views here.
 
@@ -19,9 +19,9 @@ class LedgerAccountsViews(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
 
-class CustomersViews(viewsets.ModelViewSet):
-    queryset = Customers.objects.all()
-    serializer_class = CustomersSerializer
+class CustomerViews(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)

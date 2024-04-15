@@ -8,7 +8,7 @@ class LedgerGroupsSerializer(serializers.ModelSerializer):
         model = LedgerGroups
         fields = '__all__'
 
-class Mod_LedgerGroupsSerializer(serializers.ModelSerializer):
+class ModLedgerGroupsSerializer(serializers.ModelSerializer):
     class Meta:
         model = LedgerGroups
         fields = ['ledger_group_id', 'name', 'code']
@@ -18,7 +18,7 @@ class FirmStatusesSerializers(serializers.ModelSerializer):
         model = FirmStatuses
         fields = '__all__'
         
-class Mod_FirmStatusesSerializers(serializers.ModelSerializer):
+class ModFirmStatusesSerializers(serializers.ModelSerializer):
     class Meta:
         model = FirmStatuses
         fields = ['firm_status_id', 'name']
@@ -28,7 +28,7 @@ class TerritorySerializers(serializers.ModelSerializer):
         model = Territory
         fields = '__all__'
 
-class Mod_TerritorySerializers(serializers.ModelSerializer):
+class ModTerritorySerializers(serializers.ModelSerializer):
     class Meta:
         model = Territory
         fields = ['territory_id', 'name', 'code']
@@ -38,7 +38,7 @@ class CustomerCategoriesSerializers(serializers.ModelSerializer):
         model = CustomerCategories
         fields = '__all__'
 
-class Mod_CustomerCategoriesSerializers(serializers.ModelSerializer):
+class ModCustomerCategoriesSerializers(serializers.ModelSerializer):
     class Meta:
         model = CustomerCategories
         fields = ['customer_category_id', 'name', 'code']
@@ -54,7 +54,7 @@ class CustomerPaymentTermsSerializers(serializers.ModelSerializer):
         model = CustomerPaymentTerms
         fields = '__all__'
 
-class Mod_CustomerPaymentTermsSerializers(serializers.ModelSerializer):
+class ModCustomerPaymentTermsSerializers(serializers.ModelSerializer):
     class Meta:
         model = CustomerPaymentTerms
         fields = ['payment_term_id', 'name', 'code']
@@ -69,7 +69,7 @@ class TransportersSerializers(serializers.ModelSerializer):
         model = Transporters
         fields = '__all__'
 
-class Mod_TransportersSerializers(serializers.ModelSerializer):
+class ModTransportersSerializers(serializers.ModelSerializer):
     class Meta:
         model = Transporters
         fields = ['transporter_id', 'name', 'code', 'gst_no', 'website_url']

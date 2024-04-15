@@ -6,7 +6,7 @@ from .views import *
 
 router = routers.DefaultRouter()
 router.register(r'ledger-accounts', LedgerAccountsViews)
-router.register(r'customers', CustomersViews)
+router.register(r'customers', CustomerViews)
 router.register(r'customer-addresses', CustomerAddressesViews)
 
 urlpatterns = [
