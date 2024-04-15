@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class GeneralModuleConfig(AppConfig):
+class MastersConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.general'
+    name = 'apps.masters'
