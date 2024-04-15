@@ -4,8 +4,6 @@ from passlib.hash import bcrypt
 import bcrypt,uuid,os
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-import uuid
-from utils_methods import EncryptedTextField
 from utils_methods import *
 from utils_variables import *
 
