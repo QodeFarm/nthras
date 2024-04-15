@@ -58,6 +58,12 @@ class ModCustomersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['customer_id', 'name']
+        
+class CustomerAttachmentsSerializers(serializers.ModelSerializer):
+    customer = ModCustomersSerializer(source='customer_id', read_only=True)
+    class Meta:
+        model = CustomerAttachments
+        fields = '__all__'
 
 class CustomerAddressesSerializers(serializers.ModelSerializer):
     customer = ModCustomersSerializer(source='customer_id', read_only=True)

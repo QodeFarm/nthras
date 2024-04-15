@@ -4,11 +4,8 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 from apps.masters.models import *
-from utils import Ledgeraccounts, Customers, Customeraddresses
-from django.db import models
-import uuid
-from utils import EncryptedTextField
-from utils import *
+from utils_methods import EncryptedTextField
+from utils_variables import *
 
 # Create your models here.
 
@@ -39,14 +36,8 @@ class LedgerAccounts(models.Model):
         return f"{self.ledger_account_id} {self.name}"
     
     class Meta:
-        db_table = Ledgeraccounts 
- 
-# def get_customer_filename(instance, filename):
-#     ext = os.path.splitext(filename)[1]
-#     unique_id = uuid.uuid4().hex[:3] 
-#     unique_filename = f"{os.path.splitext(filename)[0]}_{unique_id}{ext}"
-#     return os.path.join('media/customers/', unique_filename)
-
+        db_table = ledgeraccountstable 
+        
 def customer_picture(instance, filename):
     # Get the file extension
     file_extension = os.path.splitext(filename)[-1]
@@ -55,7 +46,6 @@ def customer_picture(instance, filename):
     unique_id = uuid.uuid4().hex[:6]
  
     # Construct the filename
-    branch_name = instance.name.replace(' ', '_')
     original_filename = os.path.splitext(filename)[0]  # Get the filename without extension
     return f"customers/{original_filename}_{unique_id}{file_extension}"
 
@@ -104,10 +94,10 @@ class Customer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):   
-        return f"{self.name}"
+        return f"{self.name} {self.customer_id}"
     
     class Meta:
-        db_table = Customers
+        db_table = customerstable
 
     @receiver(pre_delete, sender='customer.Customer')
     def delete_branches_picture(sender, instance, **kwargs):
@@ -118,6 +108,21 @@ class Customer(models.Model):
                 picture_dir = os.path.dirname(file_path)
                 if not os.listdir(picture_dir):
                     os.rmdir(picture_dir)
+                    
+class CustomerAttachments(models.Model):
+    attachment_id = models.AutoField(primary_key=True)
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
+    attachment_name = models.CharField(max_length=255)
+    attachment_path = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True) 
+    
+    def __str__(self):
+        return f"{self.attachment_id} {self.attachment_name}"
+    
+    class Meta:
+        db_table = customerattachmentstable
+    
         
 class CustomerAddresses(models.Model):
     ADDRESS_CHOICE = [
@@ -144,5 +149,6 @@ class CustomerAddresses(models.Model):
         return f"{self.customer_address_id}"
     
     class Meta:
-        db_table = Customeraddresses
+        db_table = customeraddressestable
+
     

@@ -8,6 +8,7 @@ router = routers.DefaultRouter()
 router.register(r'ledger-accounts', LedgerAccountsViews)
 router.register(r'customers', CustomerViews)
 router.register(r'customer-addresses', CustomerAddressesViews)
+router.register(r'customer-attachments', CustomerAttachmentsViews)
 
 urlpatterns = [
     path('', include(router.urls)),

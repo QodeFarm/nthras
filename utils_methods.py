@@ -1,4 +1,4 @@
-#Utils file
+#utils_methods file
 from rest_framework import status
 from rest_framework.response import Response
 import base64
@@ -52,8 +52,6 @@ decoded_bytes = base64.b64decode(encoded_account_number)
 # Convert bytes to string
 original_account_number = decoded_bytes.decode("utf-8")
 
-print("Decrypted Account Number:", original_account_number)
-
 #======================================================================
 
 def list_all_objects(self, request, *args, **kwargs):
@@ -101,20 +99,3 @@ def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
 
 #========================================================================
-
-#Tables
-#===========:-
-#Customer db_tables
-Ledgeraccounts = 'ledger_accounts'
-Customers = 'customers'
-Customeraddresses = 'customer_addresses'
-
-#Master
-Ledgergroups = 'ledger_groups'
-Firmstatuses = 'firm_statuses'
-Territories = 'territory'
-Customercategories = 'customer_categories'
-Gstcategories = 'gst_categories'
-Customerpaymentterms = 'customer_payment_terms'
-Pricecategories = 'price_categories'
-Transporter = 'transporters'

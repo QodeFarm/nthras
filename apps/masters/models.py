@@ -1,5 +1,6 @@
 from django.db import models
-from utils import Ledgergroups, Firmstatuses, Pricecategories, Territories, Customercategories, Gstcategories, Customerpaymentterms, Transporter
+from utils_methods import *
+from utils_variables import *
 
 # Create your models here.
 
@@ -17,7 +18,7 @@ class LedgerGroups(models.Model):
         return f"{self.ledger_group_id} {self.name}"
     
     class Meta:
-        db_table = Ledgergroups 
+        db_table = ledgergroupstable
         
 class FirmStatuses(models.Model):
     firm_status_id = models.AutoField(primary_key=True)
@@ -29,7 +30,7 @@ class FirmStatuses(models.Model):
         return f"{self.firm_status_id} {self.name}"
     
     class Meta:
-        db_table = Firmstatuses
+        db_table = firmstatusestable
 
 class Territory(models.Model):
     territory_id = models.AutoField(primary_key=True)
@@ -42,7 +43,7 @@ class Territory(models.Model):
         return f"{self.territory_id} {self.name}"
     
     class Meta:
-        db_table = Territories
+        db_table = territoriestable
 
 class CustomerCategories(models.Model):
     customer_category_id = models.AutoField(primary_key=True)
@@ -55,7 +56,7 @@ class CustomerCategories(models.Model):
         return f"{self.customer_category_id} {self.name}"
     
     class Meta:
-        db_table = Customercategories
+        db_table = customercategoriestable
 
 class GstCategories(models.Model):
     gst_category_id = models.AutoField(primary_key=True)
@@ -67,7 +68,7 @@ class GstCategories(models.Model):
         return f"{self.gst_category_id} {self.name}"
     
     class Meta:
-        db_table = Gstcategories
+        db_table = gstcategoriestable
 
 class CustomerPaymentTerms(models.Model):
     payment_term_id = models.AutoField(primary_key=True)
@@ -84,7 +85,7 @@ class CustomerPaymentTerms(models.Model):
         return f"{self.payment_term_id} {self.name}"
     
     class Meta:
-        db_table = Customerpaymentterms
+        db_table = customerpaymenttermstable
 
 class PriceCategories(models.Model):
     price_category_id = models.AutoField(primary_key=True)
@@ -97,7 +98,7 @@ class PriceCategories(models.Model):
         return f"{self.price_category_id} {self.name}"
     
     class Meta:
-        db_table = Pricecategories
+        db_table = pricecategoriestable
 
 class Transporters(models.Model):
     transporter_id = models.AutoField(primary_key=True)
@@ -112,4 +113,4 @@ class Transporters(models.Model):
         return f"{self.transporter_id} {self.name}"
     
     class Meta:
-        db_table = Transporter
+        db_table = transportertable
