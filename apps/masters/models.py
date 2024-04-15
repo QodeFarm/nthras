@@ -1,5 +1,6 @@
 from django.db import models
-from utils import *
+from utils_methods import *
+from utils_variables import *
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)

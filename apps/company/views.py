@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
-from utils import *
+from utils_methods import *
+from utils_variables import *
 
 class CompaniesViewSet(viewsets.ModelViewSet):
     queryset = Companies.objects.all()

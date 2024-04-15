@@ -37,6 +37,7 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = '__all__'
+        
 class StatusesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Statuses 

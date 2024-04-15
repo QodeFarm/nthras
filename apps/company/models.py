@@ -1,13 +1,13 @@
-from django import utils
 from django.db import models
 from django.core.validators import RegexValidator
 from passlib.hash import bcrypt 
-import bcrypt,uuid,base64,os
+import bcrypt,uuid,os
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 import uuid
-from utils import EncryptedTextField
-from utils import *
+from utils_methods import EncryptedTextField
+from utils_methods import *
+from utils_variables import *
 
 def company_logos(instance, filename):
     # Get the file extension
@@ -26,7 +26,7 @@ class Companies(models.Model):
     code = models.CharField(max_length=100, null=True, default=None)
     num_branches = models.IntegerField(default=0)
     logo = models.ImageField(null=True, upload_to=company_logos, default=None)
-    address = models.TextField(null=True)
+    address = models.CharField(max_length=255, default=None, null=True)
     city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
     pin_code = models.CharField(max_length=20, null=True, default=None)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
@@ -143,7 +143,7 @@ class Branches(models.Model):
     other_license_1 = models.CharField(max_length=255, default=None, null=True)
     other_license_2 = models.CharField(max_length=255, default=None, null=True)
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=branches_picture) 
-    address = models.TextField(default=None, null=True)
+    address = models.CharField(max_length=255, default=None, null=True)
     country = models.CharField(max_length=50, default=None, null=True)
     state = models.CharField(max_length=50, default=None, null=True)
     city = models.CharField(max_length=50, default=None, null=True)
@@ -203,7 +203,7 @@ class BranchBankDetails(models.Model):
     branch_name = models.CharField(max_length=255, default=None, null=True)
     ifsc_code = models.CharField(max_length=100, default=None, null=True)
     swift_code = models.CharField(max_length=100, default=None, null=True)
-    address = models.TextField(default=None, null=True)
+    address = models.CharField(max_length=255, default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
