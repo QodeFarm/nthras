@@ -5,6 +5,9 @@ from apps.masters.models import *
 # from apps.customers.models import LedgerGroups
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
+from utils_methods import EncryptedTextField
+from utils_variables import *
+
 
 def product_groups_picture(instance, filename):
     # Get the file extension
@@ -24,12 +27,11 @@ class ProductGroups(models.Model):
     group_name = models.CharField(max_length=255)
     description = models.TextField()
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=product_groups_picture)
-    #picture = models.ImageField(upload_to='media/products/', null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'product_groups'
+        db_table = productgroupstable
 
     def __str__(self):
         return f"{self.group_id} {self.group_name}"
@@ -62,13 +64,12 @@ class ProductCategories(models.Model):
     category_id = models.AutoField(primary_key=True)
     category_name = models.CharField(max_length=255)
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=product_categories_picture)
-    #picture = models.ImageField(upload_to='media/products/', null=True, default=None)
     code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'product_categories'
+        db_table = productcategoriestable
 
     def __str__(self):
         return f"{self.category_id} {self.category_name}"
@@ -94,7 +95,7 @@ class ProductStockUnits(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'product_stock_units'
+        db_table = productstockunitstable
 
     def __str__(self):
         return f"{self.stock_unit_id} {self.stock_unit_name}"
@@ -115,7 +116,7 @@ class ProductGstClassifications(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'product_gst_classifications'
+        db_table = productgstclassificationstable
 
     def __str__(self):
         return f"{self.gst_classification_id} {self.code}"
@@ -130,7 +131,7 @@ class ProductSalesGl(models.Model):
     is_subledger = models.BooleanField(default=False)
     inactive = models.BooleanField(default=False)
     type = models.CharField(max_length=255)
-    account_no = models.CharField(max_length=255)
+    account_no = EncryptedTextField(max_length=255)
     rtgs_ifsc_code = models.CharField(max_length=255)
     classification = models.CharField(max_length=255)
     is_loan_account = models.BooleanField(default=False)
@@ -156,7 +157,7 @@ class ProductPurchaseGl(models.Model):
     is_subledger = models.BooleanField(default=False)
     inactive = models.BooleanField(default=False)
     type = models.CharField(max_length=255)
-    account_no = models.CharField(max_length=255)
+    account_no = EncryptedTextField(max_length=255)
     rtgs_ifsc_code = models.CharField(max_length=255)
     classification = models.CharField(max_length=255)
     is_loan_account = models.BooleanField(default=False)
@@ -190,7 +191,7 @@ class products(models.Model):
     STATUS_CHOICES = [
         ('Active', 'Active'),
         ('Inactive', 'Inactive'),
-        ('Both','Both'),
+        ('Pending','Pending'),
     ]
     product_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -205,7 +206,6 @@ class products(models.Model):
     print_barcode = models.BooleanField(default=False)
     gst_classification_id = models.ForeignKey(ProductGstClassifications, on_delete=models.CASCADE, null=True, default=None, db_column = 'gst_classification_id')
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=products_picture)
-    #picture = models.ImageField(upload_to='media/products/', null=True, default=None)
     sales_description = models.TextField()
     sales_gl_id = models.ForeignKey(ProductSalesGl, on_delete=models.CASCADE, null=True, default=None, db_column = 'sales_gl_id')
     mrp = models.DecimalField(max_digits=18, decimal_places=2)
@@ -235,7 +235,7 @@ class products(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'products'
+        db_table = productstable
 
     def __str__(self):
         return f"{self.product_id} {self.name}"

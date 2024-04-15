@@ -115,7 +115,12 @@ class ProductPurchaseGlSerializer(serializers.ModelSerializer):
         model = ProductPurchaseGl
         fields = '__all__'
 	
-    	
+
+class ModproductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = products
+        fields = ['product_id','name']
+
 class productsSerializer(serializers.ModelSerializer):
     #ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
     category = ModProductCategoriesSerializer(source='category_id',read_only=True)
