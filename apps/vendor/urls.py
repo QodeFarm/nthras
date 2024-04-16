@@ -1,6 +1,6 @@
 from django.urls import path, include
 from .views import VendorsView, VendorCategoryView, VendorPaymentTermsView, VendorAgentView, VendorAttachmentView, VendorAddressView
-from rest_framework.routers import DefaultRouter()
+from rest_framework.routers import DefaultRouter
 
 #add your urls 
 
