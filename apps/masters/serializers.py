@@ -141,26 +141,14 @@ class ProductItemTypeSerializer(serializers.ModelSerializer):
         model = ProductItemType
         fields = '__all__'
 
-
-class ModBrandSalesmanSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BrandSalesman
-        fields = ['brand_salesman_id','code','name','commission_rate','rate_on']
-
 class BrandSalesmanSerializer(serializers.ModelSerializer):
     class Meta:
         model = BrandSalesman
         fields = '__all__'
 
-
-
-class ModProductBrandsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductBrands
-        fields = ['brand_id','brand_name','code']
-        
+       
 class ProductBrandsSerializer(serializers.ModelSerializer):
-    brand_salesman = ModBrandSalesmanSerializer(source='brand_salesman_id',read_only=True)
+    brand_salesman = BrandSalesmanSerializer(source='brand_salesman_id',read_only=True)
     class Meta:
         model = ProductBrands
         fields = '__all__'

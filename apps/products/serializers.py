@@ -131,7 +131,7 @@ class productsSerializer(serializers.ModelSerializer):
     unit_options = UnitOptionsSerializer(source='unit_options_id',read_only=True)
     item_type = ProductItemTypeSerializer(source='item_type_id',read_only=True)
     drug_type = ProductDrugTypesSerializer(source='drug_type_id',read_only=True)
-    brand = ModProductBrandsSerializer(source='brand_id',read_only=True)
+    brand = ProductBrandsSerializer(source='brand_id',read_only=True)
     class Meta:
         model = products
         fields = '__all__'

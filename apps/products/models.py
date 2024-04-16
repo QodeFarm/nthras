@@ -142,7 +142,7 @@ class ProductSalesGl(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'product_sales_gl'
+        db_table = productsalesgltable
 
     def __str__(self):
         return f"{self.sales_gl_id} {self.name}"
