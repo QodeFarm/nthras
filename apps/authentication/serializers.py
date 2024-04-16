@@ -9,7 +9,8 @@ class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
         fields = ('user_id', 'username', 'email', 'first_name', 'last_name', 'mobile', 'company_id', 'status_id', 'role_id', 'branch_id', 'password', 'timezone', 'profile_picture_url', 'bio', 'language', 'date_of_birth', 'gender')
-   
+
+    '''CURD Operations For Profile Picture'''
     def create(self, validated_data):
             profile_picture_url = validated_data.pop('profile_picture_url', None)
             instance = super().create(validated_data)
