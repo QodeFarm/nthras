@@ -1,8 +1,8 @@
 from django.db import models
-import os
-from uuid import uuid4
 from apps.customer.models import LedgerAccounts
 from apps.masters.models import FirmStatuses, GstCategories, PriceCategories, Territory, Transporters
+from utils_variables import vendorcategory, vendorpaymentterms, vendoragent, vendor, vendorattachments, vendoraddresses
+from utils_methods import custom_upload_to
 
 # Create your models here.
     
@@ -17,7 +17,7 @@ class VendorCategory(models.Model):
         return f'{self.vendor_category_id}_{self.name} ({self.code})'
 
     class Meta:
-        db_table = 'vendor_category'
+        db_table = vendorcategory
 
 
 class VendorPaymentTerms(models.Model):
@@ -35,7 +35,7 @@ class VendorPaymentTerms(models.Model):
         return f'{self.payment_term_id}_{self.name} ({self.code})'
     
     class Meta:
-        db_table = 'vendor_payment_terms'
+        db_table = vendorpaymentterms
 
 
 class VendorAgent(models.Model):
@@ -62,15 +62,8 @@ class VendorAgent(models.Model):
         return f'{self.vendor_agent_id}_{self.name} ({self.code})'
     
     class Meta:
-        db_table = 'vendor_agent'
+        db_table = vendoragent
 
-
-def custom_upload_to(instance, filename):
-    file_extension = filename.split('.')[-1]
-    unique_id = uuid4().hex[:7]  # Generate a unique ID (e.g., using UUID)
-    new_filename = f"{unique_id}_{filename}"
-    new_filename = new_filename.replace(' ', '_')
-    return os.path.join('vendor', str(instance.name), new_filename)
 
 class Vendor(models.Model):
     vendor_id = models.AutoField(primary_key=True)
@@ -123,7 +116,7 @@ class Vendor(models.Model):
         return f'{self.vendor_id}_{self.name} ({self.code})'
 
     class Meta:
-        db_table = 'vendor'
+        db_table = vendor
 
 
 class VendorAttachment(models.Model):
@@ -135,7 +128,7 @@ class VendorAttachment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'vendor_attachments'  # Set custom table name
+        db_table = vendorattachments
 
     def __str__(self):
         return f'{self.attachment_id}_{self.attachment_name}'
@@ -162,7 +155,7 @@ class VendorAddress(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'vendor_addresses'
+        db_table = vendoraddresses
 
     def __str__(self):
         return f'{self.vendor_address_id}_{self.attachment_name}'

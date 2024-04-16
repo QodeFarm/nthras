@@ -50,6 +50,11 @@ class GstCategoriesSerializers(serializers.ModelSerializer):
         model = GstCategories
         fields = '__all__'
 
+class ModGstCategoriesSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = GstCategories
+        fields = ['gst_category_id','name']
+
 class CustomerPaymentTermsSerializers(serializers.ModelSerializer):
     class Meta:
         model = CustomerPaymentTerms
@@ -64,6 +69,11 @@ class PriceCategoriesSerializers(serializers.ModelSerializer):
     class Meta:
         model = PriceCategories
         fields = '__all__'
+
+class ModPriceCategoriesSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = PriceCategories
+        fields = ['price_category_id' ,'name', 'code']
         
 class TransportersSerializers(serializers.ModelSerializer):
     class Meta:

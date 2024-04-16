@@ -1,8 +1,19 @@
 #utils_methods file
+import os
+from uuid import uuid4
 from rest_framework import status
 from rest_framework.response import Response
 import base64
 from django.db import models
+
+# -------------- File Path Handler (for Vendor model only)----------------------
+def custom_upload_to(instance, filename):
+    file_extension = filename.split('.')[-1]
+    unique_id = uuid4().hex[:7]  # Generate a unique ID (e.g., using UUID)
+    new_filename = f"{unique_id}_{filename}"
+    new_filename = new_filename.replace(' ', '_')
+    return os.path.join('vendor', str(instance.name), new_filename)
+# ---------------------------------------------------------
 
 #functions for demonstration purposes
 def encrypt(text):

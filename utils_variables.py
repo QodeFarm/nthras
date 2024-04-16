@@ -12,6 +12,14 @@ companytable ='companies'
 branchestable ='branches'
 branchbankdetails = 'branch_bank_details'
 
+#vendor db_tables
+vendorcategory='vendor_category'
+vendorpaymentterms = 'vendor_payment_terms'
+vendoragent = 'vendor_agent'
+vendor = 'vendor'
+vendorattachments = 'vendor_attachments'
+vendoraddresses = 'vendor_addresses'
+
 #Master db_tables
 ledgergroupstable = 'ledger_groups'
 firmstatusestable = 'firm_statuses'
