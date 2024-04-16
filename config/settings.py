@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'djoser',
     
     #modules
+    'apps.products',
     'apps.customer',
     'apps.company',
     'apps.masters',
@@ -106,8 +107,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "root",
-        'HOST': 'localhost',
+        "PASSWORD": "Sruthi12",
+        "HOST": "127.0.0.1",
         "PORT": "3306",
     }
 }

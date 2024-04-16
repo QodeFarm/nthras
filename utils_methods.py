@@ -39,7 +39,7 @@ class EncryptedTextField(models.TextField):
             # Implement decryption logic here
             return decrypt(value)
         return value
-
+ 
     def get_prep_value(self, value):
         # Implement encryption logic here
         return encrypt(value)

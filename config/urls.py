@@ -27,7 +27,10 @@ urlpatterns = [
     path('api/v1/customer/', include('apps.customer.urls')),
     path('api/v1/masters/', include('apps.masters.urls')),
     path('api/v1/auth/', include('apps.authentication.url')),
-
+    path('api/v1/products/', include('apps.products.urls')),
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#below will handle media files uploaded when instance is created.
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+
