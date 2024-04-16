@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     
     #modules
     'apps.vendor',
+    'apps.products',
     'apps.customer',
     'apps.company',
     'apps.masters',
