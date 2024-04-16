@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from apps.masters.serializers import *
-# from apps.customers.serializers import LedgerGroups
 
 
 class ProductGroupsSerializer(serializers.ModelSerializer):
@@ -98,7 +97,7 @@ class ModProductSalesGlSerializer(serializers.ModelSerializer):
         fields = ['sales_gl_id','name','sales_accounts','code','type']
 
 class ProductSalesGlSerializer(serializers.ModelSerializer):
-    #ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
+    ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
     class Meta:
         model = ProductSalesGl
         fields = '__all__'
@@ -110,7 +109,7 @@ class ModProductPurchaseGlSerializer(serializers.ModelSerializer):
         fields = ['purchase_gl_id','name','purchase_accounts','code','type']
 		    	
 class ProductPurchaseGlSerializer(serializers.ModelSerializer):
-    #ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
+    ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
     class Meta:
         model = ProductPurchaseGl
         fields = '__all__'
@@ -122,7 +121,7 @@ class ModproductsSerializer(serializers.ModelSerializer):
         fields = ['product_id','name']
 
 class productsSerializer(serializers.ModelSerializer):
-    #ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
+    ledger_group = LedgerGroupsSerializer(source='ledger_group_id',read_only=True)
     category = ModProductCategoriesSerializer(source='category_id',read_only=True)
     stock_unit = ModProductStockUnitsSerializer(source='stock_unit_id',read_only=True)
     gst_classification = ModProductGstClassificationsSerializer(source='gst_classification_id',read_only=True)

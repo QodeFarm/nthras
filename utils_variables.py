@@ -1,16 +1,18 @@
 #Table Names
 #===========:-
 
+#Company db_tables
+companytable ='companies'
+branchestable ='branches'
+branchbankdetails = 'branch_bank_details'
+
 #Customer db_tables
 ledgeraccountstable = 'ledger_accounts'
 customerstable = 'customers'
 customeraddressestable = 'customer_addresses'
 customerattachmentstable = 'customer_attachments'
 
-#Company db_tables
-companytable ='companies'
-branchestable ='branches'
-branchbankdetails = 'branch_bank_details'
+#Products db_tables
 productgroupstable = 'product_groups'
 productcategoriestable = 'product_categories'
 productstockunitstable = 'product_stock_units'
@@ -20,6 +22,10 @@ productpurchasegltable ='product_purchase_gl'
 productstable = 'products'
 
 #Master db_tables
+countrytable = 'country'
+statetable = 'state'
+citytable = 'city'
+statusestable = 'statuses'
 ledgergroupstable = 'ledger_groups'
 firmstatusestable = 'firm_statuses'
 territoriestable = 'territory'
@@ -28,12 +34,6 @@ gstcategoriestable = 'gst_categories'
 customerpaymenttermstable = 'customer_payment_terms'
 pricecategoriestable = 'price_categories'
 transportertable = 'transporters'
-countrytable = 'country'
-statetable = 'state'
-citytable = 'city'
-statusestable = 'statuses'
-
-
 producttypestable = 'product_types'
 productuniquequantitycodestable = 'product_unique_quantity_codes'
 unitoptionstable = 'unit_options'

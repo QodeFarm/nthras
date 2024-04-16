@@ -17,8 +17,6 @@ router.register(r'gst-categories', GstCategoriesViews)
 router.register(r'customer-payment-terms', CustomerPaymentTermsViews)
 router.register(r'price-categories', PriceCategoriesViews)
 router.register(r'transporters', TransportersViews)
-
-
 router.register(r'product_types', ProductTypesViewSet)
 router.register(r'product_unique_quantity_codes', ProductUniqueQuantityCodesViewSet)
 router.register(r'unit_options', UnitOptionsViewSet)

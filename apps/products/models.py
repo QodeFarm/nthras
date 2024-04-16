@@ -2,7 +2,6 @@ import os
 import uuid
 from django.db import models
 from apps.masters.models import *
-# from apps.customers.models import LedgerGroups
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 from utils_methods import EncryptedTextField
@@ -124,7 +123,7 @@ class ProductGstClassifications(models.Model):
 
 class ProductSalesGl(models.Model):
     sales_gl_id = models.AutoField(primary_key=True)
-    #ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
+    ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
     name = models.CharField(max_length=255)
     sales_accounts = models.CharField(max_length=255)
     code = models.CharField(max_length=50)
@@ -150,7 +149,7 @@ class ProductSalesGl(models.Model):
 
 class ProductPurchaseGl(models.Model):
     purchase_gl_id = models.AutoField(primary_key=True)
-    #ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
+    ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
     name = models.CharField(max_length=255)
     purchase_accounts = models.CharField(max_length=255)
     code = models.CharField(max_length=50)
@@ -195,7 +194,7 @@ class products(models.Model):
     ]
     product_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    #ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
+    ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
     category_id = models.ForeignKey(ProductCategories, on_delete=models.CASCADE, null=True, default=None, db_column = 'category_id')
     type_id = models.ForeignKey(ProductTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'type_id')
     code = models.CharField(max_length=50)
