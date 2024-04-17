@@ -105,7 +105,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "Mysql@123123",
+        "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
