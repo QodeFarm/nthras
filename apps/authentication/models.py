@@ -8,6 +8,7 @@ from apps.masters.models import Statuses
 from apps.company.models import Branches
 
 class UserManager(BaseUserManager):
+    '''Creating User'''
     def create_user(self, email, username, password = None, **extra_fields):
         if not email:
             raise ValueError("The Email Field Must be set")        
@@ -29,6 +30,7 @@ class UserManager(BaseUserManager):
         return user
 
 def profile_picture(instance, filename):
+    '''Uploading Profile Picture'''
     # Get the file extension
     file_extension = os.path.splitext(filename)[-1]
     # Generate a unique identifier
@@ -47,7 +49,6 @@ class User(AbstractBaseUser):
     mobile= models.CharField(max_length=20, unique=True, null=False)
     otp_required = models.SmallIntegerField(null=True, default=False)
     profile_picture_url = models.ImageField(max_length=255, default=None, null=True, upload_to=profile_picture) 
-
     bio = models.TextField()
     timezone = models.CharField(max_length=100, blank=True, null=True)
     language = models.CharField(max_length=10, blank=True, null=True)
