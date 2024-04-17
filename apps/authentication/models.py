@@ -48,6 +48,18 @@ class Actions(models.Model):
         return f"{self.action_id}.{self.action_name}"
 
 
+class Modules(models.Model):
+    module_id = models.AutoField(primary_key=True)
+    module_name = models.CharField( max_length=255, null=False, unique=True)
+    description = models.TextField()
+
+    class Meta:
+        db_table = modulestable
+
+    def __str__(self):
+        return f"{self.module_id}.{self.module_name}"
+
+
 class UserManager(BaseUserManager):
     '''Creating User'''
     def create_user(self, email, username, password = None, **extra_fields):
@@ -116,7 +128,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
     
     class Meta:
-        db_table = 'users'
+        db_table = userstable
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender', 'timezone','company_id','status_id','branch_id','role_id'] 

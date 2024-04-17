@@ -4,7 +4,7 @@ from apps.company.serializers import *
 from apps.masters.serializers import *
 from rest_framework import serializers
 from django.conf import settings
-from .models import Roles, Permissions, Actions, User
+from .models import Roles, Permissions, Actions, Modules, User
 import os
 
 class ModRoleSerializer(serializers.ModelSerializer):
@@ -21,6 +21,11 @@ class ModActionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actions
         fields = ['action_id','action_name']
+
+class ModModulesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Modules
+        fields = ['module_id','module_name']
 
 
 
@@ -40,6 +45,13 @@ class ActionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actions
         fields = '__all__'
+
+
+class ModulesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Modules
+        fields = '__all__'
+
 
 
 class UserCreateSerializer(UserCreateSerializer):
