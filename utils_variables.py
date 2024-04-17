@@ -41,3 +41,8 @@ productdrugtypestable = 'product_drug_types'
 productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
+
+
+#Roles
+
+rolestable = 'roles'

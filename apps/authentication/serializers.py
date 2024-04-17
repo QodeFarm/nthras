@@ -1,14 +1,30 @@
-from djoser.serializers import UserCreateSerializer
-from .models import User
-import os
-from django.conf import settings
 from django.core.files.storage import default_storage
+from djoser.serializers import UserCreateSerializer
+from apps.company.serializers import *
+from apps.masters.serializers import *
+from rest_framework import serializers
+from django.conf import settings
+from .models import Role, User
+import os
 
+class ModRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['role_id','role_name']
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
 
 class UserCreateSerializer(UserCreateSerializer):
+    company = ModCompaniesSerializer(source='company_id', read_only = True)
+    branch = ModBranchesSerializer(source='branch_id', read_only = True)
+    role = ModRoleSerializer(source='role_id', read_only = True)
+    status = ModStatusesSerializer(source='status_id', read_only = True)    
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ('user_id', 'username', 'email', 'first_name', 'last_name', 'mobile', 'company_id', 'status_id', 'role_id', 'branch_id', 'password', 'timezone', 'profile_picture_url', 'bio', 'language', 'date_of_birth', 'gender')
+        fields = '__all__' #['user_id', 'username', 'email', 'first_name', 'last_name', 'mobile', 'company_id', 'status_id', 'role_id', 'branch_id', 'password', 'timezone', 'profile_picture_url', 'bio', 'language', 'date_of_birth', 'gender']
 
     '''CURD Operations For Profile Picture'''
     def create(self, validated_data):
