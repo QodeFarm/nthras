@@ -36,6 +36,37 @@ class Permissions(models.Model):
         return f"{self.permission_id}.{self.permission_name}"
   
 
+class Role_Permissions(models.Model):
+    role_permission_id = models.AutoField(primary_key=True)
+    access_level = models.CharField( max_length=255, null=False)
+    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, default=None, db_column = 'role_id')
+    permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE, null=True, default=None, db_column = 'permission_id')
+    
+    class Meta:
+        db_table = rolepermissionstable
+
+    def __str__(self):
+        return f"{self.role_permission_id}.{self.access_level}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Actions(models.Model):
     action_id = models.AutoField(primary_key=True)
     action_name = models.CharField( max_length=255, null=False, unique=True)
