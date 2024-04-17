@@ -64,14 +64,12 @@ class User(AbstractBaseUser):
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
 
 
-    is_active = models.BooleanField(default=True) 
-    is_admin = models.BooleanField(default=False)
-
+    is_active = models.BooleanField(default=True)
     
-    # company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, default=None,db_column='company_id')
-    # status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE, default=None,db_column='status_id')
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, default=None,db_column='company_id')
+    status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE, default=None,db_column='status_id')
     # role_id = models.IntegerField(null=False)
-    # branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, default=None,db_column='branch_id')
+    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, default=None,db_column='branch_id')
 
     objects = UserManager()
     
@@ -79,7 +77,7 @@ class User(AbstractBaseUser):
         db_table = 'users'
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender', 'timezone'] #'company_id', 'status_id', 'branch_id', 'role_id'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender', 'timezone','company_id','status_id','branch_id'] # , , 'role_id'
 
     def __str__(self):
         return self.username
