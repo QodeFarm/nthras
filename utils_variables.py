@@ -44,5 +44,10 @@ productbrandstable = 'product_brands'
 
 
 #Roles
-
 rolestable = 'roles'
+
+#permissions
+permissionstable = 'permissions'
+
+#actions
+actionstable = 'actions'

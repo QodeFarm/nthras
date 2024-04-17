@@ -4,18 +4,43 @@ from apps.company.serializers import *
 from apps.masters.serializers import *
 from rest_framework import serializers
 from django.conf import settings
-from .models import Role, User
+from .models import Roles, Permissions, Actions, User
 import os
 
 class ModRoleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Role
+        model = Roles
         fields = ['role_id','role_name']
+
+class ModPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permissions
+        fields = ['permission_id','permission_name']
+
+class ModActionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Actions
+        fields = ['action_id','action_name']
+
+
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Role
+        model = Roles
         fields = '__all__'
+
+
+class PermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permissions
+        fields = '__all__'
+
+
+class ActionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Actions
+        fields = '__all__'
+
 
 class UserCreateSerializer(UserCreateSerializer):
     company = ModCompaniesSerializer(source='company_id', read_only = True)

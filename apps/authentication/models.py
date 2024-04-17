@@ -8,7 +8,7 @@ from apps.masters.models import Statuses
 from apps.company.models import Branches
 from utils_variables import *
 
-class Role(models.Model):
+class Roles(models.Model):
     role_id = models.AutoField(primary_key=True)
     role_name = models.CharField( max_length=255, null=False, unique=True)
     description = models.TextField()
@@ -20,6 +20,33 @@ class Role(models.Model):
 
     def __str__(self):
         return f"{self.role_id}.{self.role_name}"
+
+
+class Permissions(models.Model):
+    permission_id = models.AutoField(primary_key=True)
+    permission_name = models.CharField( max_length=255, null=False, unique=True)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = permissionstable
+
+    def __str__(self):
+        return f"{self.permission_id}.{self.permission_name}"
+  
+
+class Actions(models.Model):
+    action_id = models.AutoField(primary_key=True)
+    action_name = models.CharField( max_length=255, null=False, unique=True)
+    description = models.TextField()
+
+    class Meta:
+        db_table = actionstable
+
+    def __str__(self):
+        return f"{self.action_id}.{self.action_name}"
+
 
 class UserManager(BaseUserManager):
     '''Creating User'''
@@ -83,7 +110,7 @@ class User(AbstractBaseUser):
     
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')
     status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE,db_column='status_id')
-    role_id = models.ForeignKey(Role, on_delete=models.CASCADE, db_column='role_id')
+    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='role_id')
     branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column='branch_id')
 
     objects = UserManager()
