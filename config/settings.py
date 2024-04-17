@@ -26,11 +26,13 @@ SECRET_KEY = 'django-insecure-s@))i*6!g4#%$($f!512!18d%j*&g=89zsal6ugcm=su0p%c__
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 #------------File_uploads_requirements------------
 import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #--------------------------------------------
+
 
 # Application definition
 
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     #modules
+    'apps.vendor',
     'apps.products',
     'apps.customer',
     'apps.company',
@@ -153,4 +156,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
 	"http://localhost:3000",
 
-]			
+]	

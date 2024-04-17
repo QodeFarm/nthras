@@ -21,6 +21,14 @@ productsalesgltable = 'product_sales_gl'
 productpurchasegltable ='product_purchase_gl'
 productstable = 'products'
 
+#vendor db_tables
+vendorcategory='vendor_category'
+vendorpaymentterms = 'vendor_payment_terms'
+vendoragent = 'vendor_agent'
+vendor = 'vendor'
+vendorattachments = 'vendor_attachments'
+vendoraddresses = 'vendor_addresses'
+
 #Master db_tables
 countrytable = 'country'
 statetable = 'state'
