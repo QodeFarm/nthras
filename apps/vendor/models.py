@@ -2,7 +2,8 @@ from django.db import models
 from apps.customer.models import LedgerAccounts
 from apps.masters.models import FirmStatuses, GstCategories, PriceCategories, Territory, Transporters
 from utils_variables import vendorcategory, vendorpaymentterms, vendoragent, vendor, vendorattachments, vendoraddresses
-from utils_methods import custom_upload_to
+from utils_methods import custom_upload_to, EncryptedTextField
+
 
 # Create your models here.
     
@@ -106,7 +107,7 @@ class Vendor(models.Model):
     max_credit_days = models.IntegerField(null=True, default=None)
     interest_rate_yearly = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     rtgs_ifsc_code = models.CharField(max_length=255, null=True, default=None)
-    accounts_number = models.CharField(max_length=255, null=True, default=None)
+    accounts_number = EncryptedTextField(max_length=255, null=True, default=None)
     bank_name = models.CharField(max_length=255, null=True, default=None)
     branch = models.CharField(max_length=255, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -142,9 +143,7 @@ class VendorAddress(models.Model):
         ]
     address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES, null=True, default=None)
     address = models.CharField(max_length=255, null=True, default=None)
-    country = models.CharField(max_length=255, null=True, default=None)
-    state = models.CharField(max_length=255, null=True, default=None)
-    city = models.CharField(max_length=255, null=True, default=None)
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
     pin_code = models.CharField(max_length=50, null=True, default=None)
     phone = models.CharField(max_length=50, null=True, default=None)
     email = models.EmailField(max_length=255, null=True, default=None)
