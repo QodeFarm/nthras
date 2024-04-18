@@ -52,11 +52,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework',
     'corsheaders',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    
-    #ThirdParty APPS
-    'rest_framework',
     'djoser',
     
     #modules
