@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+from Email_credentials import *
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,11 +30,13 @@ SECRET_KEY = 'django-insecure-s@))i*6!g4#%$($f!512!18d%j*&g=89zsal6ugcm=su0p%c__
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 #------------File_uploads_requirements------------
 import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #--------------------------------------------
+
 
 # Application definition
 
@@ -44,18 +48,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #apps
-    'apps.authentication',
-    
     #third party apps
     'rest_framework_simplejwt',
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    
+    #ThirdParty APPS
+    'rest_framework',
     'djoser',
     
     #modules
+    'apps.vendor',
+    'apps.products',
+    'apps.customer',
     'apps.company',
     'apps.masters',
+    'apps.users'
 ]
 
 MIDDLEWARE = [
@@ -90,8 +100,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # #for used of UserManager models
-AUTH_USER_MODEL = 'authentication.User'
+AUTH_USER_MODEL = 'users.User'
 
+REST_FRAMEWORK = {
+
+    'DEFAULT_VERSION': 'v1',
+
+}		  
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -129,6 +144,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
+]
+
 
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
@@ -144,11 +167,11 @@ PASSWORD_HASHERS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata' #UTC
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False #True
 
 
 #write this before migrate
@@ -162,14 +185,15 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 #E-Mail Config
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD= os.environ.get('EMAIL_PASS') 
-
+EMAIL_HOST_USER = EMAIL_USER
+EMAIL_HOST_PASSWORD= EMAIL_PASS 
 
 
 REST_FRAMEWORK = {    
@@ -179,9 +203,8 @@ REST_FRAMEWORK = {
     'DEFAULT_VERSION': 'v1',
 }
 
-
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=20),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -197,7 +220,7 @@ SIMPLE_JWT = {
 
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
+    "USER_ID_FIELD": "user_id",
     "USER_ID_CLAIM": "user_id",
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
 
@@ -232,16 +255,16 @@ DJOSER = {
     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     'TOKEN_MODEL': None,  # To Delete User Must Set it to None
     'SERIALIZERS':{
-        'user_create': 'apps.authentication.serializers.UserCreateSerializer',
-        'user': 'apps.authentication.serializers.UserCreateSerializer',
+        'user_create': 'apps.users.serializers.UserCreateSerializer',
+        'user': 'apps.users.serializers.UserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
-    'EMAIL': {
-        'activation': 'account.email.ActivationEmail',
-        'confirmation': 'account.email.ConfirmationEmail',
-        'password_reset': 'account.email.PasswordResetEmail',
-        'password_changed_confirmation': 'account.email.PasswordChangedConfirmationEmail',
-    },
+    # 'EMAIL': {
+    #     'activation': 'account.email.ActivationEmail',
+    #     'confirmation': 'account.email.ConfirmationEmail',
+    #     'password_reset': 'account.email.PasswordResetEmail',
+    #     'password_changed_confirmation': 'account.email.PasswordChangedConfirmationEmail',
+    # },
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -250,3 +273,4 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',
     'http://localhost:8080',
 ]
+

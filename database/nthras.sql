@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS state (
     state_code VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_country_id FOREIGN KEY (country_id) REFERENCES country(country_id) ON DELETE CASCADE
+    FOREIGN KEY (country_id) REFERENCES country(country_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* City Table */
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS city (
     city_code VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_state_id FOREIGN KEY (state_id) REFERENCES state(state_id) ON DELETE CASCADE
+    FOREIGN KEY (state_id) REFERENCES state(state_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS companies (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted TINYINT(1) DEFAULT 0,
-    CONSTRAINT fk_city_code FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
+    FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* Statuses Table */
@@ -166,9 +166,7 @@ CREATE TABLE IF NOT EXISTS branches (
     other_license_2 VARCHAR(255),
     picture VARCHAR(255), -- URL to picture image stored externally
     address VARCHAR(255),
-    country VARCHAR(50),
-    state VARCHAR(50),
-    city VARCHAR(50),
+    city_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
     email VARCHAR(255),
@@ -177,8 +175,9 @@ CREATE TABLE IF NOT EXISTS branches (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_company_id (company_id),
-    CONSTRAINT fk_branches_company_id FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
-    CONSTRAINT fk_branches_status_id FOREIGN KEY (status_id) REFERENCES statuses(status_id) ON DELETE CASCADE
+    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    FOREIGN KEY (status_id) REFERENCES statuses(status_id) ON DELETE CASCADE,
+	FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* Branch Bank Details Table */
@@ -194,7 +193,7 @@ CREATE TABLE IF NOT EXISTS branch_bank_details (
     address VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_bank_details_branch_id FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
@@ -226,10 +225,10 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_company_id (company_id),
     INDEX idx_role_id (role_id),
     INDEX idx_status_id (status_id),
-    CONSTRAINT fk_users_branch_id FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
-    CONSTRAINT fk_users_company_id FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
-    CONSTRAINT fk_users_role_id FOREIGN KEY (role_id) REFERENCES roles(role_id),
-    CONSTRAINT fk_users_status_id FOREIGN KEY (status_id) REFERENCES statuses(status_id)
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(role_id),
+    FOREIGN KEY (status_id) REFERENCES statuses(status_id)
 ) ENGINE=InnoDB;
 
 /* user_time_restrictions Table */
@@ -269,8 +268,8 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     permission_id INT UNSIGNED NOT NULL,
     access_level VARCHAR(255) NOT NULL,
     UNIQUE (role_id, permission_id),
-    CONSTRAINT fk_role_permissions_role_id FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_role_permissions_permission_id FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 /* Modules Table */
@@ -287,7 +286,7 @@ CREATE TABLE IF NOT EXISTS module_sections (
     section_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     module_id INT UNSIGNED NOT NULL,
     section_name VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_module FOREIGN KEY (module_id) REFERENCES modules(module_id) ON DELETE CASCADE
+    FOREIGN KEY (module_id) REFERENCES modules(module_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* Actions Table */
@@ -305,8 +304,8 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     section_id INT UNSIGNED NOT NULL,
     action_id BIGINT UNSIGNED NOT NULL,
     description TEXT,
-    CONSTRAINT fk_section FOREIGN KEY (section_id) REFERENCES module_sections(section_id) ON DELETE CASCADE,
-    CONSTRAINT fk_action FOREIGN KEY (action_id) REFERENCES actions(action_id) ON DELETE CASCADE
+    FOREIGN KEY (section_id) REFERENCES module_sections(section_id) ON DELETE CASCADE,
+    FOREIGN KEY (action_id) REFERENCES actions(action_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 /* Ledger Groups Table */
@@ -331,7 +330,7 @@ CREATE TABLE IF NOT EXISTS ledger_accounts (
     is_subledger BOOLEAN,
     ledger_group_id INT,
     inactive BOOLEAN,
-    type ENUM("General", "Bank", "Cash"),
+    type ENUM("customer", "Bank", "Cash"),
     account_no VARCHAR(50),
     rtgs_ifsc_code VARCHAR(50),
     classification VARCHAR(50),
@@ -487,9 +486,7 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
     customer_id INT,
     address_type ENUM('Billing', 'Shipping'),
     address VARCHAR(255),
-    country VARCHAR(255),
-    state VARCHAR(255),
-    city VARCHAR(255),
+    city_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
     email VARCHAR(255),
@@ -498,7 +495,8 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
     route_map VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+	FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
 /* Product Groups Table */
@@ -834,9 +832,7 @@ CREATE TABLE IF NOT EXISTS vendor_addresses (
     vendor_id INT,
     address_type ENUM('Billing', 'Shipping'),
     address VARCHAR(255),
-    country VARCHAR(255),
-    state VARCHAR(255),
-    city VARCHAR(255),
+    city_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
     email VARCHAR(255),
@@ -845,5 +841,183 @@ CREATE TABLE IF NOT EXISTS vendor_addresses (
     route_map VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
+    FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id),
+	FOREIGN KEY (city_id) REFERENCES city(city_id)
+);
+
+/* Shipping Modes Table */
+-- Stores information about different shipping modes.
+CREATE TABLE IF NOT EXISTS shipping_modes (
+    shipping_mode_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Shipping Companies Table */
+-- Stores information about different shipping companies.
+CREATE TABLE IF NOT EXISTS shipping_companies (
+    shipping_company_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(255),
+    name VARCHAR(255),
+    gst_no VARCHAR(255),
+    website_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Sale Types Table */
+-- Stores information about different types of sales.
+CREATE TABLE IF NOT EXISTS sale_types (
+    sale_type_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Warehouse Table */
+-- Stores information about warehouses.
+CREATE TABLE IF NOT EXISTS warehouses (
+    warehouse_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    code VARCHAR(255),
+    item_type_id INT,
+    customer_id INT,
+    address VARCHAR(255),
+    city_id INT,
+    pin_code VARCHAR(50),
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    longitude DECIMAL(10, 6),
+    latitude DECIMAL(10, 6),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_type_id) REFERENCES product_item_type(item_type_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (city_id) REFERENCES city(city_id)
+);
+
+/* GST Types Table */
+-- Stores information about different types of GST.
+CREATE TABLE IF NOT EXISTS gst_types (
+    gst_type_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Sales Order Table */
+-- Stores information about sales orders.
+CREATE TABLE IF NOT EXISTS sale_orders(
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    gst_type_id INT,
+    customer_id INT,
+    email VARCHAR(255),
+    delivery_date DATE,
+    order_date DATE,
+    order_no VARCHAR(255),
+    ref_no VARCHAR(255),
+    ref_date DATE,
+    tax ENUM('Inclusive', 'Exclusive'),
+    customer_address_id INT,
+    remarks TEXT,
+    payment_term_id INT,
+    sale_type_id INT,
+    advance_amount DECIMAL(18, 2),
+    ledger_account_id INT,
+    item_value DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    taxable DECIMAL(18, 2),
+    tax_amount DECIMAL(18, 2),
+    cess_amount DECIMAL(18, 2),
+    round_off DECIMAL(18, 2),
+    doc_amount DECIMAL(18, 2),
+    vehicle_name VARCHAR(255),
+    total_boxes INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (customer_address_id) REFERENCES customer_addresses(customer_address_id),
+    FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
+    FOREIGN KEY (sale_type_id) REFERENCES sale_types(sale_type_id),
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id)
+);
+
+/* Shipments Table */
+-- Stores information about shipments.
+CREATE TABLE IF NOT EXISTS shipments (
+    shipment_id INT AUTO_INCREMENT PRIMARY KEY,
+    destination VARCHAR(255),
+    shipping_mode_id INT,
+    shipping_company_id INT,
+    shipping_tracking_no VARCHAR(255),
+    shipping_date DATE,
+    shipping_charges DECIMAL(10, 2),
+    vehicle_vessel VARCHAR(255),
+    charge_type VARCHAR(255),
+    document_through VARCHAR(255),
+    port_of_landing VARCHAR(255),
+    port_of_discharge VARCHAR(255),
+    no_of_packets INT,
+    weight DECIMAL(10, 2),
+    order_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
+    FOREIGN KEY (shipping_company_id) REFERENCES shipping_companies(shipping_company_id),
+    FOREIGN KEY (order_id) REFERENCES sale_orders(order_id)
+);
+
+/* Order Items Table */
+-- Stores information about items in orders.
+CREATE TABLE IF NOT EXISTS order_items (
+    order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity DECIMAL(18, 2),
+    unit_price DECIMAL(18, 2),
+    rate DECIMAL(18, 2),
+    amount DECIMAL(18, 2),
+    discount_percentage DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    tax_code VARCHAR(255),
+    tax_rate DECIMAL(18, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES sale_orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+/* Invoices Table */
+-- Stores information about invoices generated from sales orders.
+CREATE TABLE IF NOT EXISTS invoices (
+    invoice_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    warehouse_id INT,
+    invoice_date DATE,
+    due_date DATE,
+    status VARCHAR(50),
+    total_amount DECIMAL(10, 2),
+    sale_type_id INT,
+    FOREIGN KEY (order_id) REFERENCES sale_orders(order_id),
+    FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id),
+    FOREIGN KEY (sale_type_id) REFERENCES sale_types(sale_type_id)
+);
+
+/* Payment Transactions Table */
+-- Stores information about payment transactions made against invoices.
+CREATE TABLE IF NOT EXISTS payment_transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id INT,
+    payment_date DATE,
+    amount DECIMAL(10, 2),
+    payment_method VARCHAR(100),
+	payment_status ENUM('Pending', 'Completed', 'Failed') DEFAULT 'Pending',
+    reference_number VARCHAR(100),
+    notes TEXT,
+    currency VARCHAR(10),
+    FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id)
 );
