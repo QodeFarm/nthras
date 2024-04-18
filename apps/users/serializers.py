@@ -1,10 +1,10 @@
+from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Module_Sections, User
 from django.core.files.storage import default_storage
 from djoser.serializers import UserCreateSerializer
+from rest_framework import serializers
 from apps.company.serializers import *
 from apps.masters.serializers import *
-from rest_framework import serializers
 from django.conf import settings
-from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Module_Sections, User
 import os
 
 #=========================MOD_SERIALIZATION=========================
@@ -52,15 +52,6 @@ class PermissionsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RolePermissionsSerializer(serializers.ModelSerializer):
-    role = ModRoleSerializer(source='role_id', read_only = True)
-    permission = ModPermissionsSerializer(source='permission_id', read_only = True)
-
-    class Meta:
-        model = Role_Permissions
-        fields = '__all__'
-
-
 class ActionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actions
@@ -79,11 +70,19 @@ class ModuleSectionsSerializer(serializers.ModelSerializer):
         model = Module_Sections
         fields = '__all__'
 
+
+class RolePermissionsSerializer(serializers.ModelSerializer):
+    role = ModRoleSerializer(source='role_id', read_only = True)
+    permission = ModPermissionsSerializer(source='permission_id', read_only = True)
+    class Meta:
+        model = Role_Permissions
+        fields = '__all__'
+
 class GetUserDataSerializer(serializers.ModelSerializer):
     company = ModCompaniesSerializer(source='company_id', read_only = True)
     branch = ModBranchesSerializer(source='branch_id', read_only = True)
-    role = ModRoleSerializer(source='role_id', read_only = True)
     status = ModStatusesSerializer(source='status_id', read_only = True)
+    role = ModRoleSerializer(source='role_id', read_only = True)
     class Meta:
         model = User
         fields = ['user_id','username','first_name','last_name','email','mobile','otp_required','profile_picture_url','bio','timezone','language','created_at','updated_at','last_login','date_of_birth','gender','is_active','company_id','status_id','role_id','branch_id', 'branch','status','company','role']  

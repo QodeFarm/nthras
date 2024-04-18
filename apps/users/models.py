@@ -1,19 +1,20 @@
-from django.db import models
-import uuid, os
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.db.models.signals import pre_delete
 from apps.company.models import Companies
 from apps.masters.models import Statuses
 from apps.company.models import Branches
+from django.dispatch import receiver
 from utils_variables import *
+from django.db import models
+import uuid, os
+
 
 class Roles(models.Model):
-    role_id = models.AutoField(primary_key=True)
     role_name = models.CharField( max_length=255, null=False, unique=True)
-    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    role_id = models.AutoField(primary_key=True)
+    description = models.TextField()
 
     class Meta:
         db_table = rolestable
@@ -23,12 +24,12 @@ class Roles(models.Model):
 
 
 class Permissions(models.Model):
-    permission_id = models.AutoField(primary_key=True)
     permission_name = models.CharField( max_length=255, null=False, unique=True)
-    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    permission_id = models.AutoField(primary_key=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    description = models.TextField()
+    
     class Meta:
         db_table = permissionstable
 
@@ -37,10 +38,10 @@ class Permissions(models.Model):
   
 
 class Role_Permissions(models.Model):
-    role_permission_id = models.AutoField(primary_key=True)
-    access_level = models.CharField( max_length=255, null=False)
-    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, default=None, db_column = 'role_id')
     permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE, null=True, default=None, db_column = 'permission_id')
+    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, default=None, db_column = 'role_id')
+    access_level = models.CharField( max_length=255, null=False)
+    role_permission_id = models.AutoField(primary_key=True)
     
     class Meta:
         db_table = rolepermissionstable
@@ -50,8 +51,8 @@ class Role_Permissions(models.Model):
 
 
 class Actions(models.Model):
-    action_id = models.AutoField(primary_key=True)
     action_name = models.CharField( max_length=255, null=False, unique=True)
+    action_id = models.AutoField(primary_key=True)
     description = models.TextField()
 
     class Meta:
@@ -62,8 +63,8 @@ class Actions(models.Model):
 
 
 class Modules(models.Model):
-    module_id = models.AutoField(primary_key=True)
     module_name = models.CharField( max_length=255, null=False, unique=True)
+    module_id = models.AutoField(primary_key=True)
     description = models.TextField()
 
     class Meta:
@@ -74,9 +75,10 @@ class Modules(models.Model):
 
 
 class Module_Sections(models.Model):
-    section_id = models.AutoField(primary_key=True)
-    section_name = models.CharField( max_length=255, null=False)
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, null=True, default=None, db_column = 'module_id')
+    section_name = models.CharField( max_length=255, null=False)
+    section_id = models.AutoField(primary_key=True)
+
 
     class Meta:
         db_table = modulesections
@@ -120,36 +122,34 @@ def profile_picture(instance, filename):
 
 
 class User(AbstractBaseUser):
-    user_id = models.AutoField(primary_key=True)
-    username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
-    first_name = models.CharField(max_length=255, null=False)
-    last_name = models.CharField(max_length=255, null=False)
-    email = models.EmailField(max_length=255, unique=True)
-    mobile= models.CharField(max_length=20, unique=True, null=False)
-    otp_required = models.SmallIntegerField(null=True, default=False)
-    profile_picture_url = models.ImageField(max_length=255, default=None, null=True, upload_to=profile_picture) 
-    bio = models.TextField()
-    timezone = models.CharField(max_length=100, blank=True, null=True)
-    language = models.CharField(max_length=10, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    last_login = models.DateTimeField(blank=True, null=True)
-    date_of_birth = models.DateField(blank=True, null=True)
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
         ('Other', 'Other'),
         ('Prefer Not to Say', 'Prefer Not to Say')
     ]
+    profile_picture_url = models.ImageField(max_length=255, default=None, null=True, upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
-
-
+    username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
+    timezone = models.CharField(max_length=100, blank=True, null=True)
+    language = models.CharField(max_length=10, blank=True, null=True)
+    otp_required = models.SmallIntegerField(null=True, default=False)
+    mobile= models.CharField(max_length=20, unique=True, null=False)
+    first_name = models.CharField(max_length=255, null=False)
+    last_login = models.DateTimeField(blank=True, null=True)
+    last_name = models.CharField(max_length=255, null=False)
+    date_of_birth = models.DateField(blank=True, null=True)
+    email = models.EmailField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    user_id = models.AutoField(primary_key=True)
+    bio = models.TextField() 
     
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')
+    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column='branch_id')
     status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE,db_column='status_id')
     role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='role_id')
-    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column='branch_id')
 
     objects = UserManager()
     
