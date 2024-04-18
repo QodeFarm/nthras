@@ -78,16 +78,21 @@ class ModuleSectionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Module_Sections
         fields = '__all__'
-        
 
-class UserCreateSerializer(UserCreateSerializer):
+class GetUserDataSerializer(serializers.ModelSerializer):
     company = ModCompaniesSerializer(source='company_id', read_only = True)
     branch = ModBranchesSerializer(source='branch_id', read_only = True)
     role = ModRoleSerializer(source='role_id', read_only = True)
-    status = ModStatusesSerializer(source='status_id', read_only = True)    
+    status = ModStatusesSerializer(source='status_id', read_only = True)
+    class Meta:
+        model = User
+        fields = ['user_id','username','first_name','last_name','email','mobile','otp_required','profile_picture_url','bio','timezone','language','created_at','updated_at','last_login','date_of_birth','gender','is_active','company_id','status_id','role_id','branch_id', 'branch','status','company','role']  
+    
+ 
+class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = '__all__' #['user_id', 'username', 'email', 'first_name', 'last_name', 'mobile', 'company_id', 'status_id', 'role_id', 'branch_id', 'password', 'timezone', 'profile_picture_url', 'bio', 'language', 'date_of_birth', 'gender']
+        fields = '__all__'
 
     '''CURD Operations For Profile Picture'''
     def create(self, validated_data):

@@ -1,10 +1,18 @@
-from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer
-from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Module_Sections
+from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer
+from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Module_Sections, User
 from rest_framework import viewsets
 from django.shortcuts import render
 from utils_methods import *
 
 # Create your views here.
+class GetUserDataViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = GetUserDataSerializer
+    
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+        
 
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Roles.objects.all()
