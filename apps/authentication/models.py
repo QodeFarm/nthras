@@ -49,24 +49,6 @@ class Role_Permissions(models.Model):
         return f"{self.role_permission_id}.{self.access_level}"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Actions(models.Model):
     action_id = models.AutoField(primary_key=True)
     action_name = models.CharField( max_length=255, null=False, unique=True)
@@ -89,6 +71,19 @@ class Modules(models.Model):
 
     def __str__(self):
         return f"{self.module_id}.{self.module_name}"
+
+
+class Module_Sections(models.Model):
+    section_id = models.AutoField(primary_key=True)
+    section_name = models.CharField( max_length=255, null=False)
+    module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, null=True, default=None, db_column = 'module_id')
+
+    class Meta:
+        db_table = modulesections
+
+    def __str__(self):
+        return f"{self.section_id}.{self.section_name}"
+
 
 
 class UserManager(BaseUserManager):

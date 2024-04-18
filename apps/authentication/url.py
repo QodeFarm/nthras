@@ -12,5 +12,7 @@ urlpatterns = [
     path('role_permissions/', RolePermissionsViewSet.as_view(actions={'get': 'list', 'post': 'create'}), name='role_permissions'),
     path('actions/', ActionsViewSet.as_view(actions={'get': 'list', 'post': 'create'}), name='actions'),
     path('modules/', ModulesViewSet.as_view(actions={'get': 'list', 'post': 'create'}), name='modules'),
+    path('modulesections/', ModuleSectionsViewSet.as_view(actions={'get': 'list', 'post': 'create'}), name='modulesections'),
+
 ]
 
