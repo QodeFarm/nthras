@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from Email_credentials import *
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -58,7 +59,7 @@ INSTALLED_APPS = [
     'apps.customer',
     'apps.company',
     'apps.masters',
-    'apps.authentication'
+    'apps.users'
 ]
 
 MIDDLEWARE = [
@@ -92,7 +93,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-AUTH_USER_MODEL = 'authentication.User'
+AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
 
@@ -171,8 +172,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "chetanppatil998@gmail.com" #os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD= "nscb rpue udlo esuk" #os.environ.get('EMAIL_PASS') 
+EMAIL_HOST_USER = EMAIL_USER
+EMAIL_HOST_PASSWORD= EMAIL_PASS 
 
 
 REST_FRAMEWORK = {    
@@ -234,8 +235,8 @@ DJOSER = {
     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     'TOKEN_MODEL': None,  # To Delete User Must Set it to None
     'SERIALIZERS':{
-        'user_create': 'apps.authentication.serializers.UserCreateSerializer',
-        'user': 'apps.authentication.serializers.UserCreateSerializer',
+        'user_create': 'apps.users.serializers.UserCreateSerializer',
+        'user': 'apps.users.serializers.UserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
     # 'EMAIL': {

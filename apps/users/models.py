@@ -181,7 +181,7 @@ class User(AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
     
-    @receiver(pre_delete, sender='authentication.User')
+    @receiver(pre_delete, sender='users.User')
     def delete_user_picture(sender, instance, **kwargs):
         if instance.profile_picture_url and instance.profile_picture_url.name:
             file_path = instance.profile_picture_url.path
