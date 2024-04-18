@@ -111,7 +111,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "nthras",
+        "NAME": "nthras2",
         "USER": "root",
         "PASSWORD": "root",
         "PASSWORD": "root",
@@ -192,7 +192,7 @@ EMAIL_HOST_PASSWORD= EMAIL_PASS
 
 
 REST_FRAMEWORK = {    
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
+    #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),  #For Securing API Endpoint
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',
                                        'rest_framework.authentication.TokenAuthentication',),
     'DEFAULT_VERSION': 'v1',

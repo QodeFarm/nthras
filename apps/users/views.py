@@ -3,7 +3,9 @@ from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Modu
 from rest_framework import viewsets
 from django.shortcuts import render
 from utils_methods import *
-
+# from rest_framework.decorators import permission_classes 
+# from rest_framework.permissions import IsAuthenticated
+# #@permission_classes([IsAuthenticated])
 # Create your views here.
 class GetUserDataViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -96,3 +98,35 @@ class ModuleSectionsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
+#=================================================================
+from rest_framework_simplejwt.tokens import RefreshToken
+
+# Creating tokens manually
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'username': user.username,
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+from rest_framework.views import APIView
+from .serializers import UserLoginSerializer
+from django.contrib.auth import authenticate
+from .renderers import UserRenderer
+
+class UserLoginView(APIView):
+    renderer_classes = [UserRenderer]
+    def post(self, request, format=None):
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.data.get('username')
+        password = serializer.data.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            token = get_tokens_for_user(user)
+            return Response({"status": True, "message": 'Login Success', "token": token}, status=status.HTTP_200_OK)
+        else:
+            return Response({"errors": {'non_field_errors': ['Username or Password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
+

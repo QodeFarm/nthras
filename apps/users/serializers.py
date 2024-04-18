@@ -116,3 +116,10 @@ class UserCreateSerializer(UserCreateSerializer):
             instance.profile_picture_url = profile_picture_url
             instance.save()
         return super().update(instance, validated_data)
+    
+#===========================================================
+class UserLoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=55)
+    class Meta:
+        model = User
+        fields =['username', 'password',]
