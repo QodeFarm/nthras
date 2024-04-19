@@ -1110,7 +1110,7 @@ CREATE TABLE IF NOT EXISTS purchase_shipments (
     port_of_discharge VARCHAR(255),
     port_address_for_eway VARCHAR(255),
     port_state_for_eway VARCHAR(255),
-    state_id INT,
+    port_state_id INT,
     no_of_packets INT,
     weight DECIMAL(18, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
