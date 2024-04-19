@@ -1021,3 +1021,103 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     currency VARCHAR(10),
     FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id)
 );
+
+/* Purchase Types Table */
+-- Stores information about different types of purchases.
+CREATE TABLE IF NOT EXISTS purchase_types (
+    purchase_type_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Purchase Shipments Table */
+-- Stores information about shipments related to purchases.
+CREATE TABLE IF NOT EXISTS purchase_orders (
+    purchaseorder_id INT AUTO_INCREMENT PRIMARY KEY,
+    GST_Type_id INT,
+    vendor_id INT,
+    email VARCHAR(255),
+    delivery_date DATE,
+    order_date DATE,
+    order_no VARCHAR(255),
+    ref_no VARCHAR(255),
+    ref_date DATE,
+    vendor_agent_id INT,
+    tax ENUM('Inclusive', 'Exclusive'),
+    vendor_address_id INT,
+    remarks TEXT,
+    approval_status VARCHAR(255),
+    payment_term_id INT,
+    purchase_type_id INT,
+    advance_amount DECIMAL(18, 2),
+    ledger_account_id INT,
+    item_value DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    taxable DECIMAL(18, 2),
+    tax_amount DECIMAL(18, 2),
+    cess_amount DECIMAL(18, 2),
+    round_off DECIMAL(18, 2),
+    doc_amount DECIMAL(18, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (GST_Type_id) REFERENCES GST_Types(GST_Type_id),
+    FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id),
+    FOREIGN KEY (vendor_agent_id) REFERENCES vendor_agent(vendor_agent_id),
+    FOREIGN KEY (vendor_address_id) REFERENCES vendor_addresses(vendor_address_id),
+    FOREIGN KEY (payment_term_id) REFERENCES vendor_payment_terms(payment_term_id),
+    FOREIGN KEY (purchase_type_id) REFERENCES purchase_types(purchase_type_id),
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id)
+);
+
+
+/* Purchase Order Items Table */
+-- Stores information about items in purchase orders.
+CREATE TABLE IF NOT EXISTS purchaseorder_items (
+    purchaseorder_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    purchaseorder_id INT,
+    product_id INT,
+    quantity DECIMAL(18, 2),
+    unit_price DECIMAL(18, 2),
+    rate DECIMAL(18, 2),
+    amount DECIMAL(18, 2),
+    discount_percentage DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    tax_code VARCHAR(255),
+    tax_rate DECIMAL(18, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchaseorder_id) REFERENCES purchase_orders(purchaseorder_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+/* Purchase Shipments Table */
+-- Stores information about shipments related to purchases.
+CREATE TABLE IF NOT EXISTS purchase_shipments (
+    purchase_shipment_id INT AUTO_INCREMENT PRIMARY KEY,
+    destination VARCHAR(255),
+    shipping_mode_id INT,
+    shipping_company_id INT,
+    shipping_tracking_no VARCHAR(255),
+    shipping_date DATE,
+    shipping_charges DECIMAL(18, 2),
+    vehicle_vessel_no VARCHAR(255),
+    charge_type VARCHAR(255),
+    document_through VARCHAR(255),
+    port_of_landing VARCHAR(255),
+    port_of_discharge VARCHAR(255),
+    port_address_for_eway VARCHAR(255),
+    port_state_for_eway VARCHAR(255),
+    state_id INT,
+    no_of_packets INT,
+    weight DECIMAL(18, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
+    FOREIGN KEY (shipping_company_id) REFERENCES shipping_companies(shipping_company_id),
+    FOREIGN KEY (state_id) REFERENCES state(state_id)
+);
+
+
