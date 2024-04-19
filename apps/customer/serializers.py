@@ -71,3 +71,8 @@ class CustomerAddressesSerializers(serializers.ModelSerializer):
     class Meta:
         model = CustomerAddresses
         fields = '__all__'
+
+class ModCustomerAddressesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomerAddresses
+        fields = ['customer_address_id','customer_id']
