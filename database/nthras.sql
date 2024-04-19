@@ -885,6 +885,8 @@ CREATE TABLE IF NOT EXISTS warehouses (
     customer_id INT,
     address VARCHAR(255),
     city_id INT,
+	state_id INT,
+	country_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
     email VARCHAR(255),
@@ -894,7 +896,9 @@ CREATE TABLE IF NOT EXISTS warehouses (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (item_type_id) REFERENCES product_item_type(item_type_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
-    FOREIGN KEY (city_id) REFERENCES city(city_id)
+    FOREIGN KEY (city_id) REFERENCES city(city_id),
+	FOREIGN KEY (state_id) REFERENCES state(state_id),
+	FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
 
 /* GST Types Table */
