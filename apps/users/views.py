@@ -5,7 +5,7 @@ from django.shortcuts import render
 from utils_methods import *
 # from rest_framework.decorators import permission_classes 
 # from rest_framework.permissions import IsAuthenticated
-# #@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 # Create your views here.
 class GetUserDataViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -42,6 +42,7 @@ class PermissionsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
 
 class RolePermissionsViewSet(viewsets.ModelViewSet):
     queryset = Role_Permissions.objects.all()
@@ -55,7 +56,6 @@ class RolePermissionsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
-
 
 
 class ActionsViewSet(viewsets.ModelViewSet):
