@@ -79,7 +79,6 @@ class Module_Sections(models.Model):
     section_name = models.CharField( max_length=255, null=False)
     section_id = models.AutoField(primary_key=True)
 
-
     class Meta:
         db_table = modulesections
 
