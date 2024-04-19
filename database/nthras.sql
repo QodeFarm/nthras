@@ -167,6 +167,8 @@ CREATE TABLE IF NOT EXISTS branches (
     picture VARCHAR(255), -- URL to picture image stored externally
     address VARCHAR(255),
     city_id INT,
+	state_id INT,
+	country_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
     email VARCHAR(255),
@@ -177,7 +179,9 @@ CREATE TABLE IF NOT EXISTS branches (
     INDEX idx_company_id (company_id),
     FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
     FOREIGN KEY (status_id) REFERENCES statuses(status_id) ON DELETE CASCADE,
-	FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
+	FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE,
+	FOREIGN KEY (state_id) REFERENCES state(state_id),
+	FOREIGN KEY (country_id) REFERENCES country(country_id)
 ) ENGINE=InnoDB;
 
 /* Branch Bank Details Table */
@@ -487,6 +491,8 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
     address_type ENUM('Billing', 'Shipping'),
     address VARCHAR(255),
     city_id INT,
+	state_id INT,
+	country_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
     email VARCHAR(255),
@@ -496,7 +502,9 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
-	FOREIGN KEY (city_id) REFERENCES city(city_id)
+	FOREIGN KEY (city_id) REFERENCES city(city_id),
+	FOREIGN KEY (state_id) REFERENCES state(state_id),
+	FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
 
 /* Product Groups Table */
@@ -833,6 +841,8 @@ CREATE TABLE IF NOT EXISTS vendor_addresses (
     address_type ENUM('Billing', 'Shipping'),
     address VARCHAR(255),
     city_id INT,
+	state_id INT,
+	country_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
     email VARCHAR(255),
@@ -842,7 +852,9 @@ CREATE TABLE IF NOT EXISTS vendor_addresses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id),
-	FOREIGN KEY (city_id) REFERENCES city(city_id)
+	FOREIGN KEY (city_id) REFERENCES city(city_id),
+	FOREIGN KEY (state_id) REFERENCES state(state_id),
+	FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
 
 /* Shipping Modes Table */
