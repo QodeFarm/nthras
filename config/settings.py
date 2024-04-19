@@ -27,9 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-s@))i*6!g4#%$($f!512!18d%j*&g=89zsal6ugcm=su0p%c__'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = []
+
+if '195.35.20.172:8000' in ALLOWED_HOSTS:
+    DEBUG = False
+
+else:
+    DEBUG = True
 
 #------------File_uploads_requirements------------
 import os

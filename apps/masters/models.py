@@ -20,7 +20,7 @@ class Country(models.Model):
 
 class State(models.Model):
     state_id = models.AutoField(primary_key=True)
-    country_id = models.ForeignKey(Country, on_delete=models.CASCADE, null=True, default=None, db_column = 'country_id')
+    country_id = models.ForeignKey(Country, on_delete=models.CASCADE, null=True, db_column = 'country_id')
     state_name = models.CharField(max_length=100)
     state_code = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -34,7 +34,7 @@ class State(models.Model):
 
 class City(models.Model):
     city_id = models.AutoField(primary_key=True)
-    state_id = models.ForeignKey(State, on_delete=models.CASCADE, null=True, default=None, db_column = 'state_id')
+    state_id = models.ForeignKey(State, on_delete=models.CASCADE, null=True, db_column = 'state_id')
     city_name = models.CharField(max_length=100)
     city_code = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
