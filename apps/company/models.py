@@ -25,7 +25,7 @@ class Companies(models.Model):
     num_branches = models.IntegerField(default=0)
     logo = models.ImageField(null=True, upload_to=company_logos, default=None)
     address = models.CharField(max_length=255, default=None, null=True)
-    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, db_column = 'city_id')
     pin_code = models.CharField(max_length=20, null=True, default=None)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     phone = models.CharField(validators=[phone_regex], max_length=20, null=True, default=None)
@@ -128,12 +128,12 @@ def branches_picture(instance, filename):
 
 class Branches(models.Model):
     branch_id = models.AutoField(primary_key=True)
-    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, null=True, default=None, db_column = 'company_id')
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, null=True, db_column = 'company_id')
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, unique=True)
     party = models.CharField(max_length=255, default=None, null=True)  
     gst_no = models.CharField(max_length=50, unique=True,  null=True)
-    status_id = models.ForeignKey('masters.Statuses', on_delete=models.CASCADE, null=True, default=None, db_column = 'status_id')
+    status_id = models.ForeignKey('masters.Statuses', on_delete=models.CASCADE, null=True, db_column = 'status_id')
     allowed_warehouse = models.CharField(max_length=255, default=None, null=True)
     e_way_username = models.CharField(max_length=255, default=None, null=True)
     e_way_password = models.CharField(max_length=255, default=None, null=True) 
@@ -194,7 +194,7 @@ class Branches(models.Model):
     
 class BranchBankDetails(models.Model):
     bank_detail_id = models.AutoField(primary_key=True)
-    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, null=True, default=None, db_column = 'branch_id')
+    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, null=True, db_column = 'branch_id')
     bank_name = models.CharField(max_length=255)
     account_number = EncryptedTextField(max_length=255)  # Using custom encrypted field
     branch_name = models.CharField(max_length=255, default=None, null=True)
