@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS state (
     state_code VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (country_id) REFERENCES country(country_id) ON DELETE CASCADE
+    FOREIGN KEY (country_id) REFERENCES country(country_id)
 ) ENGINE=InnoDB;
 
 /* City Table */
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS city (
     city_code VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (state_id) REFERENCES state(state_id) ON DELETE CASCADE
+    FOREIGN KEY (state_id) REFERENCES state(state_id)
 ) ENGINE=InnoDB;
 
 
@@ -92,6 +92,8 @@ CREATE TABLE IF NOT EXISTS companies (
     logo VARCHAR(255), -- URL to logo image stored externally
     address VARCHAR(255),
     city_id INT,
+	state_id INT,
+	country_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
     email VARCHAR(255),
@@ -127,7 +129,9 @@ CREATE TABLE IF NOT EXISTS companies (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted TINYINT(1) DEFAULT 0,
-    FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE
+	FOREIGN KEY (state_id) REFERENCES state(state_id),
+	FOREIGN KEY (country_id) REFERENCES country(country_id),
+    FOREIGN KEY (city_id) REFERENCES city(city_id)
 ) ENGINE=InnoDB;
 
 /* Statuses Table */
@@ -177,9 +181,9 @@ CREATE TABLE IF NOT EXISTS branches (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_company_id (company_id),
-    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
-    FOREIGN KEY (status_id) REFERENCES statuses(status_id) ON DELETE CASCADE,
-	FOREIGN KEY (city_id) REFERENCES city(city_id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id),
+    FOREIGN KEY (status_id) REFERENCES statuses(status_id),
+	FOREIGN KEY (city_id) REFERENCES city(city_id),
 	FOREIGN KEY (state_id) REFERENCES state(state_id),
 	FOREIGN KEY (country_id) REFERENCES country(country_id)
 ) ENGINE=InnoDB;
@@ -197,7 +201,7 @@ CREATE TABLE IF NOT EXISTS branch_bank_details (
     address VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE CASCADE
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id)
 ) ENGINE=InnoDB;
 
 
@@ -208,7 +212,7 @@ CREATE TABLE IF NOT EXISTS users (
     branch_id INT UNSIGNED,
     company_id INT UNSIGNED NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
-    password_hash CHAR(60) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     email VARCHAR(255) UNIQUE,
@@ -220,6 +224,7 @@ CREATE TABLE IF NOT EXISTS users (
     bio TEXT,
     timezone VARCHAR(100),
     language VARCHAR(10),
+	is_active TINYINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL,
@@ -230,7 +235,7 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_role_id (role_id),
     INDEX idx_status_id (status_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
-    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id),
     FOREIGN KEY (role_id) REFERENCES roles(role_id),
     FOREIGN KEY (status_id) REFERENCES statuses(status_id)
 ) ENGINE=InnoDB;
@@ -242,7 +247,7 @@ CREATE TABLE IF NOT EXISTS user_time_restrictions (
     user_id INT UNSIGNED NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
 
 /* user_allowed_weekdays Table */
@@ -251,7 +256,7 @@ CREATE TABLE IF NOT EXISTS user_allowed_weekdays (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL,
     weekday ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
 
 /* Permissions Table */
@@ -272,8 +277,8 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     permission_id INT UNSIGNED NOT NULL,
     access_level VARCHAR(255) NOT NULL,
     UNIQUE (role_id, permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (role_id) REFERENCES roles(role_id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id)
 ) ENGINE=InnoDB;
 
 /* Modules Table */
@@ -290,7 +295,7 @@ CREATE TABLE IF NOT EXISTS module_sections (
     section_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     module_id INT UNSIGNED NOT NULL,
     section_name VARCHAR(255) NOT NULL,
-    FOREIGN KEY (module_id) REFERENCES modules(module_id) ON DELETE CASCADE
+    FOREIGN KEY (module_id) REFERENCES modules(module_id)
 ) ENGINE=InnoDB;
 
 /* Actions Table */
@@ -308,8 +313,8 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     section_id INT UNSIGNED NOT NULL,
     action_id BIGINT UNSIGNED NOT NULL,
     description TEXT,
-    FOREIGN KEY (section_id) REFERENCES module_sections(section_id) ON DELETE CASCADE,
-    FOREIGN KEY (action_id) REFERENCES actions(action_id) ON DELETE CASCADE
+    FOREIGN KEY (section_id) REFERENCES module_sections(section_id),
+    FOREIGN KEY (action_id) REFERENCES actions(action_id)
 ) ENGINE=InnoDB;
 
 /* Ledger Groups Table */
