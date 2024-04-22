@@ -87,7 +87,6 @@ class PurchaseShipments(models.Model):
     port_address_for_eway = models.CharField(max_length=255)
     port_state_for_eway = models.CharField(max_length=255)
     port_state_id = models.ForeignKey(State, on_delete=models.CASCADE, null=True, default=None, db_column = 'port_state_id')
-    #port_state_id = models.ForeignKey(State, on_delete=models.CASCADE,null=True, default=None, db_column='port_state_id', related_name='port_state')
     no_of_packets = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=18, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
