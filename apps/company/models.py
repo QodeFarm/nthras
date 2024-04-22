@@ -23,6 +23,7 @@ class Companies(models.Model):
     short_name = models.CharField(max_length=100, null=True, default =None)
     code = models.CharField(max_length=100, null=True, default=None)
     num_branches = models.IntegerField(default=0)
+    num_employees = models.IntegerField(null=True, default =None)
     logo = models.ImageField(null=True, upload_to=company_logos, default=None)
     address = models.CharField(max_length=255, default=None, null=True)
     city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, db_column = 'city_id')
@@ -143,7 +144,9 @@ class Branches(models.Model):
     other_license_2 = models.CharField(max_length=255, default=None, null=True)
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=branches_picture) 
     address = models.CharField(max_length=255, default=None, null=True)
-    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, db_column = 'city_id')
+    state_id = models.ForeignKey('masters.State', on_delete=models.CASCADE, null=True, db_column = 'state_id')
+    country_id = models.ForeignKey('masters.Country', on_delete=models.CASCADE, null=True, db_column = 'country_id')
     pin_code = models.CharField(max_length=20, default=None, null=True)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     phone = models.CharField(validators=[phone_regex], max_length=20, default=None, null=True)  # validators should be a list
