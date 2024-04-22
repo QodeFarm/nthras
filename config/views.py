@@ -10,6 +10,7 @@ def api_links(request):
         ('api/v1/customer/', 'Customer API'),
         ('api/v1/vendor/', 'Vendor API'),
         ('api/v1/products/', 'Products API'),
+        ('api/v1/purchase/', 'Purchase API'),
     ]
 
     # Generate HTML markup for the links

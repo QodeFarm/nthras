@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/v1/vendor/', include('apps.vendor.urls')),
     path('api/v1/masters/', include('apps.masters.urls')),
     path('api/v1/products/', include('apps.products.urls')),
+    path('api/v1/purchase/', include('apps.purchase.urls')),
     path('', api_links, name='api_links'),
 ]
 
