@@ -109,7 +109,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "nthras",
+        "NAME": "nthras5",
         "USER": "root",
         "PASSWORD": "root",
         "HOST": "127.0.0.1",

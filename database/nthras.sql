@@ -213,7 +213,6 @@ CREATE TABLE IF NOT EXISTS users (
     company_id INT UNSIGNED NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-	is_active TINYINT,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     email VARCHAR(255) UNIQUE,
@@ -1150,11 +1149,11 @@ CREATE TABLE IF NOT EXISTS purchase_shipments (
 -- Stores information about sales price lists.
 CREATE TABLE IF NOT EXISTS sales_price_list (
     sales_price_list_id INT AUTO_INCREMENT PRIMARY KEY,
-    Description VARCHAR(255),
+    description VARCHAR(255),
     customer_category_id INT,
     brand_id INT,
-    Effective_From DATE,
-    Effective_date DATE,
+    effective_From DATE,
+    effective_date DATE,
     group_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -1167,16 +1166,45 @@ CREATE TABLE IF NOT EXISTS sales_price_list (
 -- Stores information about purchase price lists.
 CREATE TABLE IF NOT EXISTS purchase_price_list (
     purchase_price_list_id INT AUTO_INCREMENT PRIMARY KEY,
-    Description VARCHAR(255),
+    description VARCHAR(255),
     customer_category_id INT,
     brand_id INT,
-    Effective_From DATE,
-    Effective_date DATE,
+    effective_From DATE,
+    effective_date DATE,
     group_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
     FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id),
     FOREIGN KEY (group_id) REFERENCES product_groups(group_id)
+);
+
+/* Sale Order Returns Table */
+-- Stores information about sales order returns.
+CREATE TABLE IF NOT EXISTS sale_order_returns (
+    sale_order_return_id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT,
+    sales_return_no VARCHAR(255),
+    against_bill VARCHAR(255),
+    against_bill_date DATE,
+    due_date DATE,
+    payment_link VARCHAR(255),
+    return_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_id) REFERENCES sale_orders(order_id)
+);
+ /* purchase_order_returns Table */
+-- Stores information about purchase order returns.
+CREATE TABLE IF NOT EXISTS purchase_order_returns (
+    purchase_order_return_id INT AUTO_INCREMENT PRIMARY KEY,
+    purchaseorder_id INT,
+    purchase_return_no VARCHAR(255),
+    payment_link VARCHAR(255),
+    due_date DATE,
+    return_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchaseorder_id) REFERENCES purchase_orders(purchaseorder_id)
 );
 
