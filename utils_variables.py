@@ -63,3 +63,12 @@ productdrugtypestable = 'product_drug_types'
 productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
+
+#Authentication db_tables
+userstable = 'users'
+rolestable = 'roles'
+permissionstable = 'permissions'
+rolepermissionstable = 'role_permissions'
+actionstable = 'actions'
+modulestable = 'modules'
+modulesections = 'module_sections'

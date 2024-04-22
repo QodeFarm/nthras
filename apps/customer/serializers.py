@@ -68,6 +68,8 @@ class CustomerAttachmentsSerializers(serializers.ModelSerializer):
 class CustomerAddressesSerializers(serializers.ModelSerializer):
     customer = ModCustomersSerializer(source='customer_id', read_only=True)
     city = ModCitySerializer(source='city_id', read_only=True)
+    state = ModStateSerializer(source='state_id', read_only=True)
+    country = ModCountrySerializer(source='country_id', read_only=True)
     class Meta:
         model = CustomerAddresses
         fields = '__all__'
