@@ -134,6 +134,8 @@ class CustomerAddresses(models.Model):
     address_type = models.CharField(max_length=10, choices=ADDRESS_CHOICE)
     address = models.CharField(max_length=255)
     city_id = models.ForeignKey(City, on_delete=models.CASCADE, db_column='city_id')
+    state_id = models.ForeignKey(State, on_delete=models.CASCADE, db_column='state_id')
+    country_id = models.ForeignKey(Country, on_delete=models.CASCADE, db_column='country_id')
     pin_code = models.CharField(max_length=50)
     phone = models.CharField(max_length=50)
     email= models.CharField(max_length=255)
