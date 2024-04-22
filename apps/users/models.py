@@ -37,7 +37,7 @@ class Permissions(models.Model):
         return f"{self.permission_id}.{self.permission_name}"
   
 
-class Role_Permissions(models.Model):
+class RolePermissions(models.Model):
     permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE, null=True, default=None, db_column = 'permission_id')
     role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, default=None, db_column = 'role_id')
     access_level = models.CharField( max_length=255, null=False)
@@ -74,7 +74,7 @@ class Modules(models.Model):
         return f"{self.module_id}.{self.module_name}"
 
 
-class Module_Sections(models.Model):
+class ModuleSections(models.Model):
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, null=True, default=None, db_column = 'module_id')
     section_name = models.CharField( max_length=255, null=False)
     section_id = models.AutoField(primary_key=True)

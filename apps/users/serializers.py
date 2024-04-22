@@ -1,4 +1,4 @@
-from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Module_Sections, User
+from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User
 from django.core.files.storage import default_storage
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
@@ -20,7 +20,7 @@ class ModPermissionsSerializer(serializers.ModelSerializer):
 
 class ModRolePermissionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Role_Permissions
+        model = RolePermissions
         fields = ['role_permission_id','access_level']
 
 class ModModulesSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class ModActionsSerializer(serializers.ModelSerializer):
 
 class ModModuleSectionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Module_Sections
+        model = ModuleSections
         fields = ['section_id','section_name']
 
 
@@ -67,7 +67,7 @@ class ModulesSerializer(serializers.ModelSerializer):
 class ModuleSectionsSerializer(serializers.ModelSerializer):
     module = ModModulesSerializer(source='module_id', read_only = True)
     class Meta:
-        model = Module_Sections
+        model = ModuleSections
         fields = '__all__'
 
 
@@ -75,7 +75,7 @@ class RolePermissionsSerializer(serializers.ModelSerializer):
     role = ModRoleSerializer(source='role_id', read_only = True)
     permission = ModPermissionsSerializer(source='permission_id', read_only = True)
     class Meta:
-        model = Role_Permissions
+        model = RolePermissions
         fields = '__all__'
 
 class GetUserDataSerializer(serializers.ModelSerializer):

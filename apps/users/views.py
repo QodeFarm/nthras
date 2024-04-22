@@ -1,5 +1,5 @@
 from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer
-from .models import Roles, Permissions, Actions, Modules, Role_Permissions, Module_Sections, User
+from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User
 from rest_framework import viewsets
 from django.shortcuts import render
 from utils_methods import *
@@ -41,7 +41,7 @@ class PermissionsViewSet(viewsets.ModelViewSet):
     
 
 class RolePermissionsViewSet(viewsets.ModelViewSet):
-    queryset = Role_Permissions.objects.all()
+    queryset = RolePermissions.objects.all()
     serializer_class = RolePermissionsSerializer
 
     def list(self, request, *args, **kwargs):
@@ -83,7 +83,7 @@ class ModulesViewSet(viewsets.ModelViewSet):
     
 
 class ModuleSectionsViewSet(viewsets.ModelViewSet):
-    queryset = Module_Sections.objects.all()
+    queryset = ModuleSections.objects.all()
     serializer_class = ModuleSectionsSerializer
 
     def list(self, request, *args, **kwargs):
