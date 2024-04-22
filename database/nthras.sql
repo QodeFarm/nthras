@@ -212,7 +212,8 @@ CREATE TABLE IF NOT EXISTS users (
     branch_id INT UNSIGNED,
     company_id INT UNSIGNED NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+	is_active TINYINT,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     email VARCHAR(255) UNIQUE,
@@ -1023,6 +1024,8 @@ CREATE TABLE IF NOT EXISTS invoices (
     status VARCHAR(50),
     total_amount DECIMAL(10, 2),
     sale_type_id INT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES sale_orders(order_id),
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id),
     FOREIGN KEY (sale_type_id) REFERENCES sale_types(sale_type_id)
@@ -1040,6 +1043,8 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     reference_number VARCHAR(100),
     notes TEXT,
     currency VARCHAR(10),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id)
 );
 
