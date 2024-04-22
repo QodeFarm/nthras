@@ -212,7 +212,8 @@ CREATE TABLE IF NOT EXISTS users (
     branch_id INT UNSIGNED,
     company_id INT UNSIGNED NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+	is_active TINYINT,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     email VARCHAR(255) UNIQUE,
@@ -682,7 +683,7 @@ CREATE TABLE IF NOT EXISTS product_brands (
 CREATE TABLE IF NOT EXISTS products (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    ledger_group_id INT,
+    product_group_id INT,
     category_id INT,
     type_id INT,
     code VARCHAR(50),
@@ -720,7 +721,7 @@ CREATE TABLE IF NOT EXISTS products (
     status ENUM('Active', 'Inactive') DEFAULT 'Active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id),
+    FOREIGN KEY (product_group_id) REFERENCES product_groups(group_id),
     FOREIGN KEY (category_id) REFERENCES product_categories(category_id),
     FOREIGN KEY (type_id) REFERENCES product_types(type_id),
     FOREIGN KEY (unit_options_id) REFERENCES unit_options(unit_options_id),
@@ -1023,6 +1024,8 @@ CREATE TABLE IF NOT EXISTS invoices (
     status VARCHAR(50),
     total_amount DECIMAL(10, 2),
     sale_type_id INT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES sale_orders(order_id),
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id),
     FOREIGN KEY (sale_type_id) REFERENCES sale_types(sale_type_id)
@@ -1040,6 +1043,8 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     reference_number VARCHAR(100),
     notes TEXT,
     currency VARCHAR(10),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id)
 );
 
@@ -1138,7 +1143,40 @@ CREATE TABLE IF NOT EXISTS purchase_shipments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
     FOREIGN KEY (shipping_company_id) REFERENCES shipping_companies(shipping_company_id),
-    FOREIGN KEY (state_id) REFERENCES state(state_id)
+    FOREIGN KEY (port_state_id) REFERENCES state(state_id)
+);
+ 
+	 /* Sales Price List Table */
+-- Stores information about sales price lists.
+CREATE TABLE IF NOT EXISTS sales_price_list (
+    sales_price_list_id INT AUTO_INCREMENT PRIMARY KEY,
+    Description VARCHAR(255),
+    customer_category_id INT,
+    brand_id INT,
+    Effective_From DATE,
+    Effective_date DATE,
+    group_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
+    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id) ,
+    FOREIGN KEY (group_id) REFERENCES product_groups(group_id)
 );
 
+ /* Purchase Price List Table */
+-- Stores information about purchase price lists.
+CREATE TABLE IF NOT EXISTS purchase_price_list (
+    purchase_price_list_id INT AUTO_INCREMENT PRIMARY KEY,
+    Description VARCHAR(255),
+    customer_category_id INT,
+    brand_id INT,
+    Effective_From DATE,
+    Effective_date DATE,
+    group_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
+    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id),
+    FOREIGN KEY (group_id) REFERENCES product_groups(group_id)
+);
 
