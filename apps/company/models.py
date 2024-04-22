@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
-from passlib.hash import bcrypt 
-import bcrypt,uuid,os
+from passlib.hash import bcrypt  # type: ignore
+import bcrypt,uuid,os # type: ignore
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from utils_methods import *
