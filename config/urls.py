@@ -24,6 +24,8 @@ from config.views import api_links
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/users/', include('apps.users.url')),
+    path('api/v1/company/', include('apps.company.urls')),
+    path('api/v1/customers/', include('apps.customer.urls')),
     path('api/v1/vendor/', include('apps.vendor.urls')),
     path('api/v1/company/', include('apps.company.urls')),
     path('api/v1/masters/', include('apps.masters.urls')),

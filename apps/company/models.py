@@ -23,9 +23,12 @@ class Companies(models.Model):
     short_name = models.CharField(max_length=100, null=True, default =None)
     code = models.CharField(max_length=100, null=True, default=None)
     num_branches = models.IntegerField(default=0)
+    num_employees = models.IntegerField(null=True, default =None)
     logo = models.ImageField(null=True, upload_to=company_logos, default=None)
     address = models.CharField(max_length=255, default=None, null=True)
     city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, db_column = 'city_id')
+    state_id = models.ForeignKey('masters.State', on_delete=models.CASCADE, null=True, db_column = 'state_id')
+    country_id = models.ForeignKey('masters.Country', on_delete=models.CASCADE, null=True, db_column = 'country_id')
     pin_code = models.CharField(max_length=20, null=True, default=None)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     phone = models.CharField(validators=[phone_regex], max_length=20, null=True, default=None)
@@ -88,18 +91,24 @@ class Companies(models.Model):
                 logo_dir = os.path.dirname(file_path)
                 if not os.listdir(logo_dir):
                     os.rmdir(logo_dir)
-        
-    def save(self, *args, **kwargs):
-        if isinstance(self.eway_password, str):
-            # Hash the e_way_password using bcrypt and save as bytes
-            hashed_eway_password = bcrypt.hashpw(self.eway_password.encode(), bcrypt.gensalt())
-            self.eway_password = hashed_eway_password
-        if isinstance(self.gstn_password, str):
-            # Hash the gstn_password using bcrypt and save as bytes
-            hashed_gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt())
-            self.gstn_password = hashed_gstn_password
-        super().save(*args, **kwargs)
 
+    def save(self, *args, **kwargs):
+        if self.pk:  # Check if instance already exists
+            original = Companies.objects.get(pk=self.pk)
+            # Ensure type consistency when comparing strings
+            byte_prefix = "b'$2b$'"
+            # Check if the incoming password is different and not already hashed
+            if self.eway_password and (self.eway_password != original.eway_password) and not self.eway_password.startswith(byte_prefix):
+                self.eway_password = bcrypt.hashpw(self.eway_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and (self.gstn_password != original.gstn_password) and not self.gstn_password.startswith(byte_prefix):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+        else:
+            # For new records, hash any passwords that aren't already hashes
+            if self.eway_password and not self.eway_password.startswith("b'$2b$'"):
+                self.eway_password = bcrypt.hashpw(self.eway_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and not self.gstn_password.startswith("b'$2b$'"):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+        super().save(*args, **kwargs)
 
     def verify_eway_password(self, password):
         #Here I am Verifying the eway_password using bcrypt
@@ -143,7 +152,9 @@ class Branches(models.Model):
     other_license_2 = models.CharField(max_length=255, default=None, null=True)
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=branches_picture) 
     address = models.CharField(max_length=255, default=None, null=True)
-    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, db_column = 'city_id')
+    state_id = models.ForeignKey('masters.State', on_delete=models.CASCADE, null=True, db_column = 'state_id')
+    country_id = models.ForeignKey('masters.Country', on_delete=models.CASCADE, null=True, db_column = 'country_id')
     pin_code = models.CharField(max_length=20, default=None, null=True)
     phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
     phone = models.CharField(validators=[phone_regex], max_length=20, default=None, null=True)  # validators should be a list
@@ -170,14 +181,24 @@ class Branches(models.Model):
                     os.rmdir(picture_dir)
 
     def save(self, *args, **kwargs):
-        if isinstance(self.e_way_password, str):
-            # Hash the e_way_password using bcrypt and save as bytes
-            hashed_eway_password = bcrypt.hashpw(self.e_way_password.encode(), bcrypt.gensalt())
-            self.e_way_password = hashed_eway_password
-        if isinstance(self.gstn_password, str):
-            # Hash the gstn_password using bcrypt and save as bytes
-            hashed_gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt())
-            self.gstn_password = hashed_gstn_password
+        if self.pk:  # Check if instance already exists
+            original = Branches.objects.get(pk=self.pk)
+
+            # Ensure type consistency when comparing strings
+            byte_prefix = "b'$2b$'"
+
+            # Check if the incoming password is different and not already hashed
+            if self.e_way_password and (self.e_way_password != original.e_way_password) and not self.e_way_password.startswith(byte_prefix):
+                self.e_way_password = bcrypt.hashpw(self.e_way_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and (self.gstn_password != original.gstn_password) and not self.gstn_password.startswith(byte_prefix):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+        else:
+            # For new records, hash any passwords that aren't already hashes
+            if self.e_way_password and not self.e_way_password.startswith("b'$2b$'"):
+                self.e_way_password = bcrypt.hashpw(self.e_way_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and not self.gstn_password.startswith("b'$2b$'"):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+
         super().save(*args, **kwargs)
 
     def verify_e_way_password(self, password):

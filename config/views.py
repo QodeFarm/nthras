@@ -8,7 +8,7 @@ def api_links(request):
         ('api/v1/users/', 'Users API'),
         ('api/v1/masters/', 'Masters API'),
         ('api/v1/company/', 'Company API'),
-        ('api/v1/customer/', 'Customer API'),
+        ('api/v1/customers/', 'Customers API'),
         ('api/v1/vendor/', 'Vendor API'),
         ('api/v1/products/', 'Products API'),
     ]
