@@ -156,6 +156,10 @@ class BrandSalesmanSerializer(serializers.ModelSerializer):
         model = BrandSalesman
         fields = '__all__'
 
+class ModProductBrandsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductBrands
+        fields = ['brand_id','brand_name']
        
 class ProductBrandsSerializer(serializers.ModelSerializer):
     brand_salesman = BrandSalesmanSerializer(source='brand_salesman_id',read_only=True)

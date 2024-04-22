@@ -40,6 +40,8 @@ invoices = 'invoices'
 warehouses = 'warehouses'
 orderitems = 'order_items'
 shipments = 'shipments'
+salespricelist  = 'sales_price_list'
+saleorderreturns = 'sale_order_returns'
 
 #Master db_tables
 countrytable = 'country'

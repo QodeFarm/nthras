@@ -34,7 +34,7 @@ class GstTypesView(viewsets.ModelViewSet):
 
 class SaleOrderView(viewsets.ModelViewSet):
     queryset = SaleOrder.objects.all()
-    serializer_class = SaleOrderSerializers
+    serializer_class = SaleOrderSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -113,7 +113,7 @@ class OrderItemsView(viewsets.ModelViewSet):
 
 class ShipmentsView(viewsets.ModelViewSet):
     queryset = Shipments.objects.all()
-    serializer_class = ShipmentsSerializers
+    serializer_class = ShipmentsSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -123,5 +123,30 @@ class ShipmentsView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
-    
+
+class SalesPriceListView(viewsets.ModelViewSet):
+    queryset = SalesPriceList.objects.all()
+    serializer_class = SalesPriceListSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+
+class SaleOrderReturnsView(viewsets.ModelViewSet):
+    queryset = SaleOrderReturns.objects.all()
+    serializer_class = SaleOrderReturnsSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
     

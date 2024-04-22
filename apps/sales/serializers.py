@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.customer.serializers import ModCustomerAddressesSerializer, ModCustomersSerializer, ModCustomerPaymentTermsSerializers, ModLedgerAccountsSerializers
-from apps.products.serializers import ModproductsSerializer
+from apps.masters.serializers import ModCustomerCategoriesSerializers, ModProductBrandsSerializer
+from apps.products.serializers import ModProductGroupsSerializer, ModproductsSerializer
 from .models import *
 
 
@@ -15,7 +16,7 @@ class ModSaleTypesSerializer(serializers.ModelSerializer):
         model = SaleTypes
         fields = ['sale_type_id','name']
 
-class ModSaleOrderSerializers(serializers.ModelSerializer):
+class ModSaleOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleOrder
         fields = ['order_id','customer_id','order_date','delivery_date']
@@ -46,7 +47,7 @@ class ShippingCompaniesSerializer(serializers.ModelSerializer):
         model = ShippingCompanies
         fields = '__all__'
 
-class SaleOrderSerializers(serializers.ModelSerializer):
+class SaleOrderSerializer(serializers.ModelSerializer):
     gst_type = ModGstTypesSerializer(source='gst_type_id', read_only=True)
     customer = ModCustomersSerializer(source='customer_id', read_only=True)
     customer_address = ModCustomerAddressesSerializer(source='customer_address_id', read_only=True)
@@ -59,7 +60,7 @@ class SaleOrderSerializers(serializers.ModelSerializer):
         fields = '__all__'
 
 class InvoicesSerializer(serializers.ModelSerializer):
-    order = ModSaleOrderSerializers(source='order_id', read_only=True)
+    order = ModSaleOrderSerializer(source='order_id', read_only=True)
     # warehouse_id = ModSaleOrderSerializers(source='order_id', read_only=True) #update here later
     sale_type = ModSaleTypesSerializer(source='sale_type_id', read_only=True)
 
@@ -75,17 +76,32 @@ class PaymentTransactionsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OrderItemsSerializer(serializers.ModelSerializer):
-    order = ModSaleOrderSerializers(source='order_id', read_only=True)
+    order = ModSaleOrderSerializer(source='order_id', read_only=True)
     product = ModproductsSerializer(source='product_id', read_only=True)
 
     class Meta:
         model = OrderItems
         fields = '__all__'
 
-class ShipmentsSerializers(serializers.ModelSerializer):
+class ShipmentsSerializer(serializers.ModelSerializer):
     shipping_mode = ShippingModesSerializer(source='shipping_mode_id', read_only=True)
     shipping_company = ModShippingCompaniesSerializer(source='shipping_company_id', read_only=True)
-    order = ModSaleOrderSerializers(source='order_id', read_only=True)
+    order = ModSaleOrderSerializer(source='order_id', read_only=True)
     class Meta:
         model = Shipments
+        fields = '__all__'
+
+class SalesPriceListSerializer(serializers.ModelSerializer):
+    customer_category = ModCustomerCategoriesSerializers(source='customer_category_id', read_only=True)
+    brand = ModProductBrandsSerializer(source='brand_id', read_only=True)
+    group = ModProductGroupsSerializer(source='group_id', read_only=True)
+    class Meta:
+        model = SalesPriceList
+        fields = '__all__'
+
+class SaleOrderReturnsSerializer(serializers.ModelSerializer):
+    sale = ModSaleOrderSerializer(source='sale_id', read_only=True)
+
+    class Meta:
+        model = SaleOrderReturns
         fields = '__all__'
