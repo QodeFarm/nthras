@@ -48,6 +48,9 @@ class BranchesSerializer(serializers.ModelSerializer):
     company = ModCompaniesSerializer(source='company_id', read_only = True)
     status = ModStatusesSerializer(source='status_id', read_only = True)
     city = ModCitySerializer(source='city_id', read_only = True)
+    state = ModStateSerializer(source='state_id', read_only = True)
+    country = ModCountrySerializer(source='country_id', read_only = True)
+
     class Meta:
         model = Branches
         fields='__all__'
