@@ -24,6 +24,7 @@ router.register(r'product-drug-types', ProductDrugTypesViewSet)
 router.register(r'product-item-type', ProductItemTypeViewSet)
 router.register(r'brand-salesman', BrandSalesmanViewSet)
 router.register(r'product-brands', ProductBrandsViewSet)
+router.register(r'purchase-types', PurchaseTypesViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
