@@ -199,37 +199,37 @@ CREATE TABLE IF NOT EXISTS branch_bank_details (
 
 /* Users Table */
 -- Contains user profiles, including authentication details, contact information, and role within the ERP system.
-CREATE TABLE IF NOT EXISTS users (
-    user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    branch_id INT UNSIGNED,
-    company_id INT UNSIGNED NOT NULL,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password_hash CHAR(60) NOT NULL,
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
-    mobile VARCHAR(20) UNIQUE NOT NULL,
-    otp_required TINYINT(1) DEFAULT 0,
-    role_id INT UNSIGNED NOT NULL,
-    status_id INT UNSIGNED NOT NULL,
-    profile_picture_url VARCHAR(255),
-    bio TEXT,
-    timezone VARCHAR(100),
-    language VARCHAR(10),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL,
-    date_of_birth DATE,
-    gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say') DEFAULT 'Prefer Not to Say',
-    INDEX idx_branch_id (branch_id),
-    INDEX idx_company_id (company_id),
-    INDEX idx_role_id (role_id),
-    INDEX idx_status_id (status_id),
-    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
-    FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
-    FOREIGN KEY (role_id) REFERENCES roles(role_id),
-    FOREIGN KEY (status_id) REFERENCES statuses(status_id)
-) ENGINE=InnoDB;
+-- CREATE TABLE IF NOT EXISTS users (
+--     user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     branch_id INT UNSIGNED,
+--     company_id INT UNSIGNED NOT NULL,
+--     username VARCHAR(255) NOT NULL UNIQUE,
+--     password_hash CHAR(60) NOT NULL,
+--     first_name VARCHAR(255),
+--     last_name VARCHAR(255),
+--     email VARCHAR(255) UNIQUE,
+--     mobile VARCHAR(20) UNIQUE NOT NULL,
+--     otp_required TINYINT(1) DEFAULT 0,
+--     role_id INT UNSIGNED NOT NULL,
+--     status_id INT UNSIGNED NOT NULL,
+--     profile_picture_url VARCHAR(255),
+--     bio TEXT,
+--     timezone VARCHAR(100),
+--     language VARCHAR(10),
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     last_login TIMESTAMP NULL,
+--     date_of_birth DATE,
+--     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say') DEFAULT 'Prefer Not to Say',
+--     INDEX idx_branch_id (branch_id),
+--     INDEX idx_company_id (company_id),
+--     INDEX idx_role_id (role_id),
+--     INDEX idx_status_id (status_id),
+--     FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
+--     FOREIGN KEY (company_id) REFERENCES companies(company_id) ON DELETE CASCADE,
+--     FOREIGN KEY (role_id) REFERENCES roles(role_id),
+--     FOREIGN KEY (status_id) REFERENCES statuses(status_id)
+-- ) ENGINE=InnoDB;
 
 /* user_time_restrictions Table */
 -- Defines specific times during which users are allowed to access the ERP system, enhancing security and compliance.
