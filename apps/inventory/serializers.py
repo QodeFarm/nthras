@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
-from apps.masters.serializers import *
-from apps.customer.serializers import *
+from apps.masters.serializers import ProductItemTypeSerializer,ModCitySerializer
+from apps.customer.serializers import ModCustomersSerializer
 
 class WarehousesSerializer(serializers.ModelSerializer):
     item_type = ProductItemTypeSerializer(source='item_type_id',read_only=True)

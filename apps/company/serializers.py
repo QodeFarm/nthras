@@ -4,6 +4,9 @@ from apps.masters.serializers import *
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.contrib.auth.hashers import make_password, check_password
+from django.core.exceptions import ValidationError
+
 
 class ModCompaniesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,21 +17,39 @@ class ModBranchesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Branches
         fields = ['branch_id','name']
-
+    
 class CompaniesSerializer(serializers.ModelSerializer):
+    def validate_eway_password(self, value):
+    # Check if the new value is a hash and if the original value is the same
+        if self.instance and self.instance.eway_password == value:
+            return value
+        elif not value.startswith("b'$2b$"):
+            return value
+        raise serializers.ValidationError("Invalid password format")
+
+    def validate_gstn_password(self, value):
+    # Check if the new value is a hash and if the original value is the same
+        if self.instance and self.instance.gstn_password == value:
+            return value
+        elif not value.startswith("b'$2b$"):
+            return value
+        raise serializers.ValidationError("Invalid password format")
+
     city = ModCitySerializer(source='city_id', read_only = True)
+    state = ModStateSerializer(source='state_id', read_only = True)
+    country = ModCountrySerializer(source='country_id', read_only = True)
     class Meta:
         model = Companies
         fields = '__all__'
 
     def create(self, validated_data):
-            logo = validated_data.pop('logo', None)
-            instance = super().create(validated_data)
-            if logo:
-                instance.logo = logo
-                instance.save()
-            return instance
-    
+        logo = validated_data.pop('logo', None)
+        instance = super().create(validated_data)
+        if logo:
+            instance.logo = logo
+            instance.save()
+        return instance
+
     def update(self, instance, validated_data):
         logo = validated_data.pop('logo', None)
         if logo:
@@ -44,10 +65,30 @@ class CompaniesSerializer(serializers.ModelSerializer):
             instance.save()
         return super().update(instance, validated_data)
 
+
 class BranchesSerializer(serializers.ModelSerializer):
+    def validate_e_way_password(self, value):
+    # Check if the new value is a hash and if the original value is the same
+        if self.instance and self.instance.e_way_password == value:
+            return value
+        elif not value.startswith("b'$2b$"):
+            return value
+        raise serializers.ValidationError("Invalid password format")
+
+    def validate_gstn_password(self, value):
+    # Check if the new value is a hash and if the original value is the same
+        if self.instance and self.instance.gstn_password == value:
+            return value
+        elif not value.startswith("b'$2b$"):
+            return value
+        raise serializers.ValidationError("Invalid password format")
+    
     company = ModCompaniesSerializer(source='company_id', read_only = True)
     status = ModStatusesSerializer(source='status_id', read_only = True)
     city = ModCitySerializer(source='city_id', read_only = True)
+    state = ModStateSerializer(source='state_id', read_only = True)
+    country = ModCountrySerializer(source='country_id', read_only = True)
+
     class Meta:
         model = Branches
         fields='__all__'

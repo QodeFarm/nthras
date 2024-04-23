@@ -19,16 +19,19 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from config import settings
-
+from config.views import api_links
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/users/', include('apps.users.url')),
     path('api/v1/company/', include('apps.company.urls')),
-    path('api/v1/customer/', include('apps.customer.urls')),
+    path('api/v1/customers/', include('apps.customer.urls')),
     path('api/v1/vendor/', include('apps.vendor.urls')),
+    path('api/v1/company/', include('apps.company.urls')),
     path('api/v1/masters/', include('apps.masters.urls')),
     path('api/v1/products/', include('apps.products.urls')),
     path('api/v1/inventory/', include('apps.inventory.urls')),
+    path('', api_links, name='api_links'),
 ]
 
 #below will handle media files uploaded when instance is created.
