@@ -65,6 +65,8 @@ INSTALLED_APPS = [
     'apps.customer',
     'apps.company',
     'apps.masters',
+    'apps.inventory',
+    'apps.purchase',
     'apps.users'
 ]
 
@@ -116,9 +118,8 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "nthras2",
+        "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "root",
         "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",

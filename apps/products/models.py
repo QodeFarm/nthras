@@ -194,7 +194,7 @@ class products(models.Model):
     ]
     product_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
+    product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'product_group_id')
     category_id = models.ForeignKey(ProductCategories, on_delete=models.CASCADE, null=True, default=None, db_column = 'category_id')
     type_id = models.ForeignKey(ProductTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'type_id')
     code = models.CharField(max_length=50)

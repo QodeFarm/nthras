@@ -185,3 +185,9 @@ class ProductBrandsSerializer(serializers.ModelSerializer):
             instance.picture = picture
             instance.save()
         return super().update(instance, validated_data)
+
+
+class PurchaseTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseTypes
+        fields = '__all__'
