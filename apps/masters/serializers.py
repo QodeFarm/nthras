@@ -156,6 +156,10 @@ class BrandSalesmanSerializer(serializers.ModelSerializer):
         model = BrandSalesman
         fields = '__all__'
 
+class ModProductBrandsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductBrands
+        fields = ['brand_id','brand_name']
        
 class ProductBrandsSerializer(serializers.ModelSerializer):
     brand_salesman = BrandSalesmanSerializer(source='brand_salesman_id',read_only=True)
@@ -190,4 +194,39 @@ class ProductBrandsSerializer(serializers.ModelSerializer):
 class PurchaseTypesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseTypes
+        fields = '__all__'
+
+class ModGstTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GstTypes
+        fields = ['gst_type_id','name']
+
+class ModSaleTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SaleTypes
+        fields = ['sale_type_id','name']
+
+class SaleTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SaleTypes
+        fields = '__all__'
+
+class ShippingModesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingModes
+        fields = '__all__'
+
+class GstTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GstTypes
+        fields = '__all__'
+
+class ModShippingCompaniesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingCompanies
+        fields = ['shipping_company_id','code','name']
+
+class ShippingCompaniesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShippingCompanies
         fields = '__all__'

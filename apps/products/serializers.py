@@ -2,6 +2,10 @@ from rest_framework import serializers
 from .models import *
 from apps.masters.serializers import *
 
+class ModProductGroupsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductGroups
+        fields = ['group_id','group_name']
 
 class ProductGroupsSerializer(serializers.ModelSerializer):
     class Meta:

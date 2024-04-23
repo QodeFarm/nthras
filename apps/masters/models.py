@@ -300,3 +300,53 @@ class PurchaseTypes(models.Model):
     class Meta:
         db_table = purchasetypestable
 
+class ShippingCompanies(models.Model):
+    shipping_company_id = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=255,null=True,default=None)
+    name = models.CharField(max_length=255,null=True,default=None)
+    gst_no = models.CharField(max_length=255,null=True,default=None)
+    website_url = models.CharField(max_length=255,null=True,default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}'
+    
+    class Meta:
+        db_table = shippingcompanies
+
+class GstTypes(models.Model):
+    gst_type_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255,null=True,default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+    class Meta:
+        db_table = gsttypes
+
+class SaleTypes(models.Model):
+    sale_type_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255,null=True,default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+    class Meta:
+        db_table = saletypes
+
+class ShippingModes(models.Model):
+    shipping_mode_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255,null=True,default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.name}'
+    
+    class Meta:
+        db_table = shippingmodes

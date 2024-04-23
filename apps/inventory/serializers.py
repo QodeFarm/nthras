@@ -3,6 +3,11 @@ from .models import *
 from apps.masters.serializers import ProductItemTypeSerializer,ModCitySerializer,ModStateSerializer,ModCountrySerializer
 from apps.customer.serializers import ModCustomersSerializer
 
+class ModWarehousesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Warehouses
+        fields = ['warehouse_id','name','code']
+
 class WarehousesSerializer(serializers.ModelSerializer):
     item_type = ProductItemTypeSerializer(source='item_type_id',read_only=True)
     customer = ModCustomersSerializer(source='customer_id',read_only=True)

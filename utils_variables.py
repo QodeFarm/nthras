@@ -29,6 +29,16 @@ vendor = 'vendor'
 vendorattachments = 'vendor_attachments'
 vendoraddresses = 'vendor_addresses'
 
+#sales db_tables
+saleorders = 'sale_orders'
+paymenttransactions = 'payment_transactions'
+invoices = 'invoices'
+warehouses = 'warehouses'
+orderitems = 'order_items'
+shipments = 'shipments'
+salespricelist  = 'sales_price_list'
+saleorderreturns = 'sale_order_returns'
+
 #inventory db_tables
 warehousestable ='warehouses'
 
@@ -60,6 +70,10 @@ productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
 purchasetypestable = 'purchase_types'
+shippingcompanies = 'shipping_companies'
+gsttypes = 'gst_types'
+shippingmodes = 'shipping_modes'
+saletypes = 'sale_types'
 
 #Authentication db_tables
 userstable = 'users'

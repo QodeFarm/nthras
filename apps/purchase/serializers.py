@@ -2,10 +2,9 @@ from rest_framework import serializers
 from .models import *
 from .serializers import *
 from apps.vendor.serializers import ModVendorSerializer,ModVendorAgentSerializer,VendorAddressSerializer,ModVendorPaymentTermsSerializer
-from apps.masters.serializers import PurchaseTypesSerializer,ModStateSerializer,ProductBrandsSerializer
+from apps.masters.serializers import ModProductBrandsSerializer, PurchaseTypesSerializer,ModStateSerializer, ModGstTypesSerializer,ShippingModesSerializer,ModShippingCompaniesSerializer
 from apps.customer.serializers import ModLedgerAccountsSerializers,ModCustomersSerializer
 from apps.products.serializers import ModproductsSerializer,ProductGroupsSerializer
-from apps.sales.serializers import ModGstTypesSerializer,ShippingModesSerializer,ModShippingCompaniesSerializer
 
 
 class ModPurchaseOrdersSerializer(serializers.ModelSerializer):
@@ -61,7 +60,7 @@ class ModPurchasePriceListSerializer(serializers.ModelSerializer):
 
 class PurchasePriceListSerializer(serializers.ModelSerializer):
     customer_category = ModCustomersSerializer(source='customer_category_id',read_only=True)
-    brand = ProductBrandsSerializer(source='brand_id',read_only=True)
+    brand = ModProductBrandsSerializer(source='brand_id',read_only=True)
     group = ProductGroupsSerializer(source='group_id',read_only=True)
 
     class Meta:
