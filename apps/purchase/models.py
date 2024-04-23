@@ -10,7 +10,7 @@ from apps.products.models import products,ProductGroups
 # Create your models here.
 class PurchaseOrders(models.Model):
     purchaseorder_id = models.AutoField(primary_key=True)
-    GST_Type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'GST_Type_id')
+    gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'GST_Type_id')
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, default=None, db_column = 'vendor_id')
     email = models.EmailField(max_length=255, null=True, default=None)
     delivery_date = models.DateField(null=True, default=None)

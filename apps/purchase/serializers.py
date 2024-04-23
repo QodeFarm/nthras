@@ -14,7 +14,7 @@ class ModPurchaseOrdersSerializer(serializers.ModelSerializer):
         fields = ['purchaseorder_id','email','delivery_date','order_date','order_no','ref_no','ref_date']
 
 class PurchaseOrdersSerializer(serializers.ModelSerializer):
-    GST_Type = ModGstTypesSerializer(source='GST_Type_id',read_only=True)
+    gst_type = ModGstTypesSerializer(source='gst_type_id',read_only=True)
     vendor = ModVendorSerializer(source='vendor_id',read_only=True)
     vendor_agent = ModVendorAgentSerializer(source='vendor_agent_id',read_only=True)
     vendor_address = VendorAddressSerializer(source='vendor_address_id',read_only=True)
