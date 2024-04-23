@@ -32,6 +32,12 @@ vendoraddresses = 'vendor_addresses'
 #inventory db_tables
 warehousestable ='warehouses'
 
+#purchase db_tables
+purchaseorderstable = 'purchase_orders'
+purchaseorderitemstable = 'purchaseorder_items'
+purchaseshipmentstable = 'purchase_shipments'
+purchasepricelisttable = 'purchase_price_list'
+purchaseorderreturnstable = 'purchase_order_returns'
 
 #Master db_tables
 countrytable = 'country'
@@ -53,6 +59,7 @@ productdrugtypestable = 'product_drug_types'
 productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
+purchasetypestable = 'purchase_types'
 
 #Authentication db_tables
 userstable = 'users'

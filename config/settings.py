@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'apps.company',
     'apps.masters',
     'apps.inventory',
+    'apps.purchase',
     'apps.users'
 ]
 
@@ -119,7 +120,6 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "root",
         "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",
