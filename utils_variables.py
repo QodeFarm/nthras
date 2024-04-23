@@ -29,6 +29,10 @@ vendor = 'vendor'
 vendorattachments = 'vendor_attachments'
 vendoraddresses = 'vendor_addresses'
 
+#inventory db_tables
+warehousestable ='warehouses'
+
+
 #Master db_tables
 countrytable = 'country'
 statetable = 'state'
