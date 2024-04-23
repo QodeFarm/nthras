@@ -29,6 +29,9 @@ vendor = 'vendor'
 vendorattachments = 'vendor_attachments'
 vendoraddresses = 'vendor_addresses'
 
+#inventory db_tables
+warehousestable ='warehouses'
+
 #purchase db_tables
 purchaseorderstable = 'purchase_orders'
 purchaseorderitemstable = 'purchaseorder_items'
