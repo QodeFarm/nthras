@@ -24,6 +24,11 @@ router.register(r'product-drug-types', ProductDrugTypesViewSet)
 router.register(r'product-item-type', ProductItemTypeViewSet)
 router.register(r'brand-salesman', BrandSalesmanViewSet)
 router.register(r'product-brands', ProductBrandsViewSet)
+router.register(r'purchase-types', PurchaseTypesViewSet)
+router.register(r'shipping_companies', ShippingCompaniesView)
+router.register(r'shipping_modes', ShippingModesView)
+router.register(r'sale_types', SaleTypesView)
+router.register(r'gst_types', GstTypesView)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -29,6 +29,26 @@ vendor = 'vendor'
 vendorattachments = 'vendor_attachments'
 vendoraddresses = 'vendor_addresses'
 
+#sales db_tables
+saleorders = 'sale_orders'
+paymenttransactions = 'payment_transactions'
+invoices = 'invoices'
+warehouses = 'warehouses'
+orderitems = 'order_items'
+shipments = 'shipments'
+salespricelist  = 'sales_price_list'
+saleorderreturns = 'sale_order_returns'
+
+#inventory db_tables
+warehousestable ='warehouses'
+
+#purchase db_tables
+purchaseorderstable = 'purchase_orders'
+purchaseorderitemstable = 'purchaseorder_items'
+purchaseshipmentstable = 'purchase_shipments'
+purchasepricelisttable = 'purchase_price_list'
+purchaseorderreturnstable = 'purchase_order_returns'
+
 #Master db_tables
 countrytable = 'country'
 statetable = 'state'
@@ -49,6 +69,11 @@ productdrugtypestable = 'product_drug_types'
 productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
+purchasetypestable = 'purchase_types'
+shippingcompanies = 'shipping_companies'
+gsttypes = 'gst_types'
+shippingmodes = 'shipping_modes'
+saletypes = 'sale_types'
 
 #Authentication db_tables
 userstable = 'users'
