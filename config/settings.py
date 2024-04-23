@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djoser',
+    'django_safe_settings',
     
     #modules
     'apps.vendor',
@@ -116,10 +117,9 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "nthras2",
+        "NAME": "nthras",
         "USER": "root",
-        "PASSWORD": "root",
-        "PASSWORD": "root",
+        "PASSWORD": "enc:40b7b367f2501d558725a8953b388c7d",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -274,3 +274,5 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
 
+from django_safe_settings.patch import patch_all 
+patch_all()
