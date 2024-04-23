@@ -1,35 +1,12 @@
 from django.db import models
 from apps.customer.models import CustomerAddresses, LedgerAccounts, Customer
 from apps.inventory.models import Warehouses
-from apps.masters.models import CustomerPaymentTerms, ProductBrands, ProductItemType, CustomerCategories
-from utils_variables import saleorderreturns, saletypes, saleorders, gsttypes, shippingmodes, shippingcompanies, paymenttransactions, invoices, warehouses, orderitems, shipments, salespricelist
+from apps.masters.models import CustomerPaymentTerms, GstTypes, ProductBrands, ProductItemType, CustomerCategories, SaleTypes, ShippingCompanies, ShippingModes
+from utils_variables import saleorderreturns, saleorders, paymenttransactions, invoices, orderitems, shipments, salespricelist
 from apps.products.models import ProductGroups, products as Products
 
 # Create your models here.
 
-class GstTypes(models.Model):
-    gst_type_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255,null=True,default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'{self.name}'
-
-    class Meta:
-        db_table = gsttypes
-
-class SaleTypes(models.Model):
-    sale_type_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255,null=True,default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'{self.name}'
-
-    class Meta:
-        db_table = saletypes
 
 class SaleOrder(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -70,33 +47,6 @@ class SaleOrder(models.Model):
     
     class Meta:
         db_table = saleorders
-
-class ShippingModes(models.Model):
-    shipping_mode_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255,null=True,default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'{self.name}'
-    
-    class Meta:
-        db_table = shippingmodes
-
-class ShippingCompanies(models.Model):
-    shipping_company_id = models.AutoField(primary_key=True)
-    code = models.CharField(max_length=255,null=True,default=None)
-    name = models.CharField(max_length=255,null=True,default=None)
-    gst_no = models.CharField(max_length=255,null=True,default=None)
-    website_url = models.CharField(max_length=255,null=True,default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'{self.name}'
-    
-    class Meta:
-        db_table = shippingcompanies
 
 
 class Invoices(models.Model):

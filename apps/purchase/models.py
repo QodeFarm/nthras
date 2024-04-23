@@ -1,9 +1,8 @@
 from django.db import models
 from utils_variables import *
-from apps.masters.models import PurchaseTypes,State,ProductBrands
+from apps.masters.models import PurchaseTypes,State,ProductBrands, GstTypes,ShippingModes,ShippingCompanies
 from apps.customer.models import LedgerAccounts,CustomerCategories
 from apps.vendor.models import Vendor,VendorAgent,VendorAddress,VendorPaymentTerms
-from apps.sales.models import GstTypes,ShippingModes,ShippingCompanies
 from apps.products.models import products,ProductGroups
 
 
@@ -85,7 +84,7 @@ class PurchaseShipments(models.Model):
     port_address_for_eway = models.CharField(max_length=255, null=True, default=None)
     port_state_for_eway = models.CharField(max_length=255, null=True, default=None)
     port_state_id = models.ForeignKey(State, on_delete=models.CASCADE, null=True, default=None, db_column = 'port_state_id')
-    no_of_packets = models.PositiveIntegerField()
+    no_of_packets = models.IntegerField(null=True, default=None)
     weight = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

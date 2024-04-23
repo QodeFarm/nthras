@@ -5,31 +5,6 @@ from utils_methods import list_all_objects,create_instance,update_instance
 
 # Create your views here.
 
-class SaleTypesView(viewsets.ModelViewSet):
-    queryset = SaleTypes.objects.all()
-    serializer_class = SaleTypesSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
-
-class GstTypesView(viewsets.ModelViewSet):
-    queryset = GstTypes.objects.all()
-    serializer_class = GstTypesSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
     
 
 class SaleOrderView(viewsets.ModelViewSet):
@@ -46,31 +21,6 @@ class SaleOrderView(viewsets.ModelViewSet):
         return update_instance(self, request, *args, **kwargs)
     
 
-class ShippingModesView(viewsets.ModelViewSet):
-    queryset = ShippingModes.objects.all()
-    serializer_class = ShippingModesSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
-
-class ShippingCompaniesView(viewsets.ModelViewSet):
-    queryset = ShippingCompanies.objects.all()
-    serializer_class = ShippingCompaniesSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
 
 class PaymentTransactionsView(viewsets.ModelViewSet):
     queryset = PaymentTransactions.objects.all()

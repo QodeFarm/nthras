@@ -30,11 +30,7 @@ vendorattachments = 'vendor_attachments'
 vendoraddresses = 'vendor_addresses'
 
 #sales db_tables
-saletypes = 'sale_types'
 saleorders = 'sale_orders'
-gsttypes = 'gst_types'
-shippingmodes = 'shipping_modes'
-shippingcompanies = 'shipping_companies'
 paymenttransactions = 'payment_transactions'
 invoices = 'invoices'
 warehouses = 'warehouses'
@@ -74,6 +70,10 @@ productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
 purchasetypestable = 'purchase_types'
+shippingcompanies = 'shipping_companies'
+gsttypes = 'gst_types'
+shippingmodes = 'shipping_modes'
+saletypes = 'sale_types'
 
 #Authentication db_tables
 userstable = 'users'
