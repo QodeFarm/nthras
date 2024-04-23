@@ -33,7 +33,8 @@ vendoraddresses = 'vendor_addresses'
 purchaseorderstable = 'purchase_orders'
 purchaseorderitemstable = 'purchaseorder_items'
 purchaseshipmentstable = 'purchase_shipments'
-
+purchasepricelisttable = 'purchase_price_list'
+purchaseorderreturnstable = 'purchase_order_returns'
 
 #Master db_tables
 countrytable = 'country'
@@ -56,3 +57,12 @@ productitemtypetable = 'product_item_type'
 brandsalesmantable = 'brand_salesman'
 productbrandstable = 'product_brands'
 purchasetypestable = 'purchase_types'
+
+#Authentication db_tables
+userstable = 'users'
+rolestable = 'roles'
+permissionstable = 'permissions'
+rolepermissionstable = 'role_permissions'
+actionstable = 'actions'
+modulestable = 'modules'
+modulesections = 'module_sections'
