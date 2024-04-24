@@ -51,16 +51,18 @@ By following these best practices, developers can ensure that the database layer
 CREATE TABLE IF NOT EXISTS country (
     country_id INT AUTO_INCREMENT PRIMARY KEY,
     country_name VARCHAR(100) NOT NULL,
-    country_code VARCHAR(10) NOT NULL
+    country_code VARCHAR(100),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 /* State Table */
 -- Stores all states info
 CREATE TABLE IF NOT EXISTS state (
     state_id INT AUTO_INCREMENT PRIMARY KEY,
-    country_id INT,
+    country_id INT NOT NULL,
     state_name VARCHAR(100) NOT NULL,
-    state_code VARCHAR(10) NOT NULL,
+    state_code VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (country_id) REFERENCES country(country_id)
@@ -70,9 +72,9 @@ CREATE TABLE IF NOT EXISTS state (
 -- Stores all city info
 CREATE TABLE IF NOT EXISTS city (
     city_id INT AUTO_INCREMENT PRIMARY KEY,
-    state_id INT,
+    state_id INT NOT NULL,
     city_name VARCHAR(100) NOT NULL,
-    city_code VARCHAR(10) NOT NULL,
+    city_code VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (state_id) REFERENCES state(state_id)
@@ -84,15 +86,15 @@ CREATE TABLE IF NOT EXISTS city (
 CREATE TABLE IF NOT EXISTS companies (
     company_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    print_name VARCHAR(255),
+    print_name VARCHAR(255) NOT NULL,
     short_name VARCHAR(100),
     code VARCHAR(50),
     num_branches INT DEFAULT 0,
     num_employees INT,
     logo VARCHAR(255), -- URL to logo image stored externally
     address VARCHAR(255),
-    city_id INT,
-	state_id INT,
+    city_id INT NOT NULL,
+	state_id INT NOT NULL,
 	country_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
@@ -157,21 +159,21 @@ CREATE TABLE IF NOT EXISTS branches (
     branch_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     company_id INT UNSIGNED NOT NULL,
     name VARCHAR(255) NOT NULL,
-    code VARCHAR(50) UNIQUE NOT NULL,
+    code VARCHAR(50),
     party VARCHAR(255),  -- This will be changed later
-    gst_no VARCHAR(50) UNIQUE,
+    gst_no VARCHAR(50),
     status_id INT UNSIGNED NOT NULL,
-    allowed_warehouse VARCHAR(255), -- Consider changing data type based on actual usage
+    allowed_warehouse VARCHAR(255),
     e_way_username VARCHAR(255),
-    e_way_password VARCHAR(255), -- Securely store and encrypt this field
+    e_way_password VARCHAR(255),
     gstn_username VARCHAR(255),
-    gstn_password VARCHAR(255), -- Securely store and encrypt this field
+    gstn_password VARCHAR(255),
     other_license_1 VARCHAR(255),
     other_license_2 VARCHAR(255),
-    picture VARCHAR(255), -- URL to picture image stored externally
+    picture VARCHAR(255),
     address VARCHAR(255),
-    city_id INT,
-	state_id INT,
+    city_id INT NOT NULL,
+	state_id INT NOT NULL,
 	country_id INT,
     pin_code VARCHAR(20),
     phone VARCHAR(20),
@@ -193,8 +195,8 @@ CREATE TABLE IF NOT EXISTS branches (
 CREATE TABLE IF NOT EXISTS branch_bank_details (
     bank_detail_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     branch_id INT UNSIGNED NOT NULL,
-    bank_name VARCHAR(255) NOT NULL,
-    account_number VARCHAR(255) NOT NULL, -- Consider application-level encryption
+    bank_name VARCHAR(255),
+    account_number VARCHAR(255),
     branch_name VARCHAR(255),
     ifsc_code VARCHAR(100),
     swift_code VARCHAR(100),
@@ -213,10 +215,10 @@ CREATE TABLE IF NOT EXISTS users (
     company_id INT UNSIGNED NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(255),
+    first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
-    mobile VARCHAR(20) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    mobile VARCHAR(20) NOT NULL,
     otp_required TINYINT(1) DEFAULT 0,
     role_id INT UNSIGNED NOT NULL,
     status_id INT UNSIGNED NOT NULL,
@@ -227,14 +229,14 @@ CREATE TABLE IF NOT EXISTS users (
 	is_active TINYINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL,
+    last_login TIMESTAMP,
     date_of_birth DATE,
-    gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say') DEFAULT 'Prefer Not to Say',
+    gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say'),
     INDEX idx_branch_id (branch_id),
     INDEX idx_company_id (company_id),
     INDEX idx_role_id (role_id),
     INDEX idx_status_id (status_id),
-    FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
     FOREIGN KEY (company_id) REFERENCES companies(company_id),
     FOREIGN KEY (role_id) REFERENCES roles(role_id),
     FOREIGN KEY (status_id) REFERENCES statuses(status_id)
@@ -255,7 +257,7 @@ CREATE TABLE IF NOT EXISTS user_time_restrictions (
 CREATE TABLE IF NOT EXISTS user_allowed_weekdays (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNSIGNED NOT NULL,
-    weekday ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+    weekday ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
 
@@ -302,7 +304,7 @@ CREATE TABLE IF NOT EXISTS module_sections (
 -- Lists the actions that can be performed within each module section, such as Create, Read, Update, Delete.
 CREATE TABLE IF NOT EXISTS actions (
     action_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    action_name VARCHAR(255) UNIQUE NOT NULL,
+    action_name VARCHAR(255) NOT NULL,
     description TEXT
 ) ENGINE=InnoDB;
 
@@ -321,7 +323,7 @@ CREATE TABLE IF NOT EXISTS user_permissions (
 -- Stores information about ledger groups used in accounting.
 CREATE TABLE IF NOT EXISTS ledger_groups (
     ledger_group_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     code VARCHAR(50),
     inactive BOOLEAN,
     under_group VARCHAR(255),
@@ -334,10 +336,10 @@ CREATE TABLE IF NOT EXISTS ledger_groups (
 -- Stores information about ledger accounts used in accounting.
 CREATE TABLE IF NOT EXISTS ledger_accounts (
     ledger_account_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     code VARCHAR(50),
     is_subledger BOOLEAN,
-    ledger_group_id INT,
+    ledger_group_id INT NOT NULL,
     inactive BOOLEAN,
     type ENUM("customer", "Bank", "Cash"),
     account_no VARCHAR(50),
@@ -356,7 +358,7 @@ CREATE TABLE IF NOT EXISTS ledger_accounts (
 -- Stores information about different statuses of firms.
 CREATE TABLE IF NOT EXISTS firm_statuses (
     firm_status_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -366,7 +368,7 @@ CREATE TABLE IF NOT EXISTS firm_statuses (
 CREATE TABLE IF NOT EXISTS territory (
     territory_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -376,7 +378,7 @@ CREATE TABLE IF NOT EXISTS territory (
 CREATE TABLE IF NOT EXISTS customer_categories (
     customer_category_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -385,7 +387,7 @@ CREATE TABLE IF NOT EXISTS customer_categories (
 -- Stores information about GST categories.
 CREATE TABLE IF NOT EXISTS gst_categories (
     gst_category_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -394,7 +396,7 @@ CREATE TABLE IF NOT EXISTS gst_categories (
 -- Stores information about payment terms for customers.
 CREATE TABLE IF NOT EXISTS customer_payment_terms (
     payment_term_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL ,
     code VARCHAR(50),
     fixed_days INT,
     no_of_fixed_days INT,
@@ -409,7 +411,7 @@ CREATE TABLE IF NOT EXISTS customer_payment_terms (
 CREATE TABLE IF NOT EXISTS price_categories (
     price_category_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -419,7 +421,7 @@ CREATE TABLE IF NOT EXISTS price_categories (
 CREATE TABLE IF NOT EXISTS transporters (
     transporter_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     gst_no VARCHAR(50),
     website_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -430,11 +432,11 @@ CREATE TABLE IF NOT EXISTS transporters (
 -- Stores information about customers.
 CREATE TABLE IF NOT EXISTS customers (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    print_name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    print_name VARCHAR(255) NOT NULL,
     identification VARCHAR(255),
-    code VARCHAR(50),
-    ledger_account_id INT,
+    code VARCHAR(50) NOT NULL,
+    ledger_account_id INT NOT NULL,
     customer_common_for_sales_purchase BOOLEAN,
     is_sub_customer BOOLEAN,
     firm_status_id INT,
@@ -448,7 +450,7 @@ CREATE TABLE IF NOT EXISTS customers (
     pan VARCHAR(50),
     gst_category_id INT,
     gst_suspend BOOLEAN,
-    tax_type ENUM('Inclusive', 'Exclusive') DEFAULT 'Inclusive',
+    tax_type ENUM('Inclusive', 'Exclusive'),
     distance FLOAT,
     tds_on_gst_applicable BOOLEAN,
     tds_applicable BOOLEAN,
@@ -480,9 +482,9 @@ CREATE TABLE IF NOT EXISTS customers (
 -- Stores attachments associated with Customer.
 CREATE TABLE IF NOT EXISTS customer_attachments (
     attachment_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
-    attachment_name VARCHAR(255),
-    attachment_path VARCHAR(255),
+    customer_id INT NOT NULL,
+    attachment_name VARCHAR(255) NOT NULL,
+    attachment_path VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
@@ -492,11 +494,11 @@ CREATE TABLE IF NOT EXISTS customer_attachments (
 -- Stores information about customer addresses.
 CREATE TABLE IF NOT EXISTS customer_addresses (
     customer_address_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
+    customer_id INT NOT NULL,
     address_type ENUM('Billing', 'Shipping'),
     address VARCHAR(255),
-    city_id INT,
-	state_id INT,
+    city_id INT NOT NULL,
+	state_id INT NOT NULL,
 	country_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
@@ -516,7 +518,7 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
 -- Stores information about different groups of products.
 CREATE TABLE IF NOT EXISTS product_groups (
     group_id INT AUTO_INCREMENT PRIMARY KEY,
-    group_name VARCHAR(255),
+    group_name VARCHAR(255) NOT NULL ,
     description TEXT,
     picture VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -527,7 +529,7 @@ CREATE TABLE IF NOT EXISTS product_groups (
 -- Stores information about different categories of products.
 CREATE TABLE IF NOT EXISTS product_categories (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
-    category_name VARCHAR(255),
+    category_name VARCHAR(255) NOT NULL,
     picture VARCHAR(255),
     code VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -538,7 +540,7 @@ CREATE TABLE IF NOT EXISTS product_categories (
 -- Stores information about different types of products.
 CREATE TABLE IF NOT EXISTS product_types (
     type_id INT AUTO_INCREMENT PRIMARY KEY,
-    type_name VARCHAR(255),
+    type_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -547,7 +549,7 @@ CREATE TABLE IF NOT EXISTS product_types (
 -- Stores information about unique quantity codes for products.
 CREATE TABLE IF NOT EXISTS product_unique_quantity_codes (
     quantity_code_id INT AUTO_INCREMENT PRIMARY KEY,
-    quantity_code_name VARCHAR(255),
+    quantity_code_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -556,7 +558,7 @@ CREATE TABLE IF NOT EXISTS product_unique_quantity_codes (
 -- Stores information about unit options.
 CREATE TABLE IF NOT EXISTS unit_options (
     unit_options_id INT AUTO_INCREMENT PRIMARY KEY,
-    unit_name VARCHAR(255),
+    unit_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -566,7 +568,7 @@ CREATE TABLE IF NOT EXISTS unit_options (
 -- Stores information about stock units for products.
 CREATE TABLE IF NOT EXISTS product_stock_units (
     stock_unit_id INT AUTO_INCREMENT PRIMARY KEY,
-    stock_unit_name VARCHAR(255),
+    stock_unit_name VARCHAR(255) NOT NULL,
     description TEXT,
     quantity_code_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -590,8 +592,7 @@ CREATE TABLE IF NOT EXISTS product_gst_classifications (
 -- Stores information about sales GL accounts for products.
 CREATE TABLE IF NOT EXISTS product_sales_gl (
     sales_gl_id INT AUTO_INCREMENT PRIMARY KEY,
-    ledger_group_id INT,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     sales_accounts VARCHAR(255),
     code VARCHAR(50),
     is_subledger BOOLEAN,
@@ -606,15 +607,14 @@ CREATE TABLE IF NOT EXISTS product_sales_gl (
     pan VARCHAR(50),
     employee BOOLEAN,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 /* Product Drug Types Table */
 -- Stores information about drug types for products.
 CREATE TABLE IF NOT EXISTS product_drug_types (
     drug_type_id INT AUTO_INCREMENT PRIMARY KEY,
-    drug_type_name VARCHAR(255),
+    drug_type_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -623,8 +623,7 @@ CREATE TABLE IF NOT EXISTS product_drug_types (
 -- Stores information about purchase GL accounts for products.
 CREATE TABLE IF NOT EXISTS product_purchase_gl (
     purchase_gl_id INT AUTO_INCREMENT PRIMARY KEY,
-    ledger_group_id INT,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     purchase_accounts VARCHAR(255),
     code VARCHAR(50),
     is_subledger BOOLEAN,
@@ -639,15 +638,14 @@ CREATE TABLE IF NOT EXISTS product_purchase_gl (
     pan VARCHAR(50),
     employee BOOLEAN,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (ledger_group_id) REFERENCES ledger_groups(ledger_group_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 /* Product Item Types Table */
 -- Stores information about item types for products.
 CREATE TABLE IF NOT EXISTS product_item_type (
     item_type_id INT AUTO_INCREMENT PRIMARY KEY,
-    item_name VARCHAR(255),
+    item_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -657,7 +655,7 @@ CREATE TABLE IF NOT EXISTS product_item_type (
 CREATE TABLE IF NOT EXISTS brand_salesman (
     brand_salesman_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     commission_rate DECIMAL(18,2),
     rate_on ENUM("Qty", "Amount"),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -668,7 +666,7 @@ CREATE TABLE IF NOT EXISTS brand_salesman (
 -- Stores information about brands for products.
 CREATE TABLE IF NOT EXISTS product_brands (
     brand_id INT AUTO_INCREMENT PRIMARY KEY,
-    brand_name VARCHAR(255),
+    brand_name VARCHAR(255) NOT NULL,
     code VARCHAR(50),
     picture VARCHAR(255),
     brand_salesman_id INT,
@@ -681,20 +679,20 @@ CREATE TABLE IF NOT EXISTS product_brands (
 -- Stores information about products.
 CREATE TABLE IF NOT EXISTS products (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    product_group_id INT,
+    name VARCHAR(255) NOT NULL,
+    product_group_id INT NOT NULL,
     category_id INT,
     type_id INT,
-    code VARCHAR(50),
+    code VARCHAR(50) NOT NULL,
     barcode VARCHAR(50),
     unit_options_id INT,
     gst_input VARCHAR(255),
-    stock_unit_id INT,
+    stock_unit_id INT NOT NULL,
 	print_barcode BOOLEAN,
     gst_classification_id INT,
     picture VARCHAR(255),
     sales_description TEXT,
-    sales_gl_id INT,
+    sales_gl_id INT NOT NULL,
     mrp DECIMAL(18,2),
     minimum_price DECIMAL(18,2),
     sales_rate DECIMAL(18,2),
@@ -704,7 +702,7 @@ CREATE TABLE IF NOT EXISTS products (
     discount DECIMAL(18,2),
     dis_amount DECIMAL(18,2),
     purchase_description TEXT,
-    purchase_gl_id INT,
+    purchase_gl_id INT NOT NULL,
     purchase_rate DECIMAL(18,2),
     purchase_rate_factor DECIMAL(18,2),
     purchase_discount DECIMAL(18,2),
@@ -717,7 +715,7 @@ CREATE TABLE IF NOT EXISTS products (
     brand_id INT,
     purchase_warranty_months INT,
     sales_warranty_months INT,
-    status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    status ENUM('Active', 'Inactive'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (product_group_id) REFERENCES product_groups(group_id),
@@ -738,7 +736,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS vendor_category (
     vendor_category_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -747,7 +745,7 @@ CREATE TABLE IF NOT EXISTS vendor_category (
 -- Stores payment terms applicable to vendors.
 CREATE TABLE IF NOT EXISTS vendor_payment_terms (
     payment_term_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     code VARCHAR(50),
     fixed_days INT,
     no_of_fixed_days INT,
@@ -762,7 +760,7 @@ CREATE TABLE IF NOT EXISTS vendor_payment_terms (
 CREATE TABLE IF NOT EXISTS vendor_agent (
     vendor_agent_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     commission_rate DECIMAL(18, 2),
     rate_on ENUM("Qty", "Amount"),
     amount_type ENUM("Taxable", "BillAmount"),
@@ -775,11 +773,11 @@ CREATE TABLE IF NOT EXISTS vendor_agent (
 CREATE TABLE IF NOT EXISTS vendor (
     vendor_id INT AUTO_INCREMENT PRIMARY KEY,
     gst_no VARCHAR(255),
-    name VARCHAR(255),
-    print_name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    print_name VARCHAR(255) NOT NULL,
     identification VARCHAR(255),
-    code VARCHAR(255),
-    ledger_account_id INT,
+    code VARCHAR(255) NOT NULL,
+    ledger_account_id INT NOT NULL,
     vendor_common_for_sales_purchase BOOLEAN,
     is_sub_vendor BOOLEAN,
     firm_status_id INT,
@@ -793,7 +791,7 @@ CREATE TABLE IF NOT EXISTS vendor (
     pan VARCHAR(255),
     gst_category_id INT,
     gst_suspend BOOLEAN,
-    tax_type ENUM('Inclusive', 'Exclusive') DEFAULT 'Inclusive',
+    tax_type ENUM('Inclusive', 'Exclusive'),
     distance DECIMAL(18, 2),
     tds_on_gst_applicable BOOLEAN,
     tds_applicable BOOLEAN,
@@ -830,9 +828,9 @@ CREATE TABLE IF NOT EXISTS vendor (
 -- Stores attachments associated with vendors.
 CREATE TABLE IF NOT EXISTS vendor_attachments (
     attachment_id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_id INT,
-    attachment_name VARCHAR(255),
-    attachment_path VARCHAR(255),
+    vendor_id INT NOT NULL,
+    attachment_name VARCHAR(255) NOT NULL,
+    attachment_path VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
@@ -842,11 +840,11 @@ CREATE TABLE IF NOT EXISTS vendor_attachments (
 -- Stores addresses associated with vendors.
 CREATE TABLE IF NOT EXISTS vendor_addresses (
     vendor_address_id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_id INT,
+    vendor_id INT NOT NULL,
     address_type ENUM('Billing', 'Shipping'),
     address VARCHAR(255),
-    city_id INT,
-	state_id INT,
+    city_id INT NOT NULL,
+	state_id INT NOT NULL,
 	country_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
@@ -866,7 +864,7 @@ CREATE TABLE IF NOT EXISTS vendor_addresses (
 -- Stores information about different shipping modes.
 CREATE TABLE IF NOT EXISTS shipping_modes (
     shipping_mode_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -876,7 +874,7 @@ CREATE TABLE IF NOT EXISTS shipping_modes (
 CREATE TABLE IF NOT EXISTS shipping_companies (
     shipping_company_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(255),
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     gst_no VARCHAR(255),
     website_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -887,7 +885,7 @@ CREATE TABLE IF NOT EXISTS shipping_companies (
 -- Stores information about different types of sales.
 CREATE TABLE IF NOT EXISTS sale_types (
     sale_type_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -896,13 +894,13 @@ CREATE TABLE IF NOT EXISTS sale_types (
 -- Stores information about warehouses.
 CREATE TABLE IF NOT EXISTS warehouses (
     warehouse_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     code VARCHAR(255),
     item_type_id INT,
-    customer_id INT,
+    customer_id INT NOT NULL,
     address VARCHAR(255),
-    city_id INT,
-	state_id INT,
+    city_id INT NOT NULL,
+	state_id INT NOT NULL,
 	country_id INT,
     pin_code VARCHAR(50),
     phone VARCHAR(50),
@@ -922,7 +920,7 @@ CREATE TABLE IF NOT EXISTS warehouses (
 -- Stores information about different types of GST.
 CREATE TABLE IF NOT EXISTS gst_types (
     gst_type_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -932,13 +930,13 @@ CREATE TABLE IF NOT EXISTS gst_types (
 CREATE TABLE IF NOT EXISTS sale_orders(
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     gst_type_id INT,
-    customer_id INT,
+    customer_id INT NOT NULL,
     email VARCHAR(255),
-    delivery_date DATE,
-    order_date DATE,
-    order_no VARCHAR(255),
+    delivery_date DATE NOT NULL,
+    order_date DATE NOT NULL,
+    order_no VARCHAR(255) NOT NULL,
     ref_no VARCHAR(255),
-    ref_date DATE,
+    ref_date DATE NOT NULL,
     tax ENUM('Inclusive', 'Exclusive'),
     customer_address_id INT,
     remarks TEXT,
@@ -974,7 +972,7 @@ CREATE TABLE IF NOT EXISTS shipments (
     shipping_mode_id INT,
     shipping_company_id INT,
     shipping_tracking_no VARCHAR(255),
-    shipping_date DATE,
+    shipping_date DATE NOT NULL,
     shipping_charges DECIMAL(10, 2),
     vehicle_vessel VARCHAR(255),
     charge_type VARCHAR(255),
@@ -983,7 +981,7 @@ CREATE TABLE IF NOT EXISTS shipments (
     port_of_discharge VARCHAR(255),
     no_of_packets INT,
     weight DECIMAL(10, 2),
-    order_id INT,
+    order_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
@@ -995,8 +993,8 @@ CREATE TABLE IF NOT EXISTS shipments (
 -- Stores information about items in orders.
 CREATE TABLE IF NOT EXISTS order_items (
     order_item_id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT,
-    product_id INT,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
     quantity DECIMAL(18, 2),
     unit_price DECIMAL(18, 2),
     rate DECIMAL(18, 2),
@@ -1016,9 +1014,9 @@ CREATE TABLE IF NOT EXISTS order_items (
 -- Stores information about invoices generated from sales orders.
 CREATE TABLE IF NOT EXISTS invoices (
     invoice_id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT,
+    order_id INT NOT NULL,
     warehouse_id INT,
-    invoice_date DATE,
+    invoice_date DATE NOT NULL,
     due_date DATE,
     status VARCHAR(50),
     total_amount DECIMAL(10, 2),
@@ -1034,11 +1032,11 @@ CREATE TABLE IF NOT EXISTS invoices (
 -- Stores information about payment transactions made against invoices.
 CREATE TABLE IF NOT EXISTS payment_transactions (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-    invoice_id INT,
+    invoice_id INT NOT NULL,
     payment_date DATE,
     amount DECIMAL(10, 2),
     payment_method VARCHAR(100),
-	payment_status ENUM('Pending', 'Completed', 'Failed') DEFAULT 'Pending',
+	payment_status ENUM('Pending', 'Completed', 'Failed'),
     reference_number VARCHAR(100),
     notes TEXT,
     currency VARCHAR(10),
@@ -1051,7 +1049,7 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
 -- Stores information about different types of purchases.
 CREATE TABLE IF NOT EXISTS purchase_types (
     purchase_type_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -1061,13 +1059,13 @@ CREATE TABLE IF NOT EXISTS purchase_types (
 CREATE TABLE IF NOT EXISTS purchase_orders (
     purchaseorder_id INT AUTO_INCREMENT PRIMARY KEY,
     GST_Type_id INT,
-    vendor_id INT,
+    vendor_id INT NOT NULL,
     email VARCHAR(255),
-    delivery_date DATE,
-    order_date DATE,
-    order_no VARCHAR(255),
+    delivery_date DATE NOT NULL,
+    order_date DATE NOT NULL,
+    order_no VARCHAR(255) NOT NULL,
     ref_no VARCHAR(255),
-    ref_date DATE,
+    ref_date DATE NOT NULL,
     vendor_agent_id INT,
     tax ENUM('Inclusive', 'Exclusive'),
     vendor_address_id INT,
@@ -1101,8 +1099,8 @@ CREATE TABLE IF NOT EXISTS purchase_orders (
 -- Stores information about items in purchase orders.
 CREATE TABLE IF NOT EXISTS purchaseorder_items (
     purchaseorder_item_id INT AUTO_INCREMENT PRIMARY KEY,
-    purchaseorder_id INT,
-    product_id INT,
+    purchaseorder_id INT NOT NULL,
+    product_id INT NOT NULL,
     quantity DECIMAL(18, 2),
     unit_price DECIMAL(18, 2),
     rate DECIMAL(18, 2),
@@ -1122,11 +1120,12 @@ CREATE TABLE IF NOT EXISTS purchaseorder_items (
 -- Stores information about shipments related to purchases.
 CREATE TABLE IF NOT EXISTS purchase_shipments (
     purchase_shipment_id INT AUTO_INCREMENT PRIMARY KEY,
+	purchaseorder_id INT NOT NULL,
     destination VARCHAR(255),
     shipping_mode_id INT,
     shipping_company_id INT,
     shipping_tracking_no VARCHAR(255),
-    shipping_date DATE,
+    shipping_date DATE NOT NULL,
     shipping_charges DECIMAL(18, 2),
     vehicle_vessel_no VARCHAR(255),
     charge_type VARCHAR(255),
@@ -1134,12 +1133,13 @@ CREATE TABLE IF NOT EXISTS purchase_shipments (
     port_of_landing VARCHAR(255),
     port_of_discharge VARCHAR(255),
     port_address_for_eway VARCHAR(255),
-    port_state_for_eway VARCHAR(255),
-    port_state_id INT,
-    no_of_packets INT,
+    port_state_for_eway VARCHAR(255) NOT NULL,
+    port_state_id INT NOT NULL,
+    no_of_packets INT NOT NULL,
     weight DECIMAL(18, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	FOREIGN KEY (purchaseorder_id) REFERENCES purchase_orders(purchaseorder_id),
     FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
     FOREIGN KEY (shipping_company_id) REFERENCES shipping_companies(shipping_company_id),
     FOREIGN KEY (port_state_id) REFERENCES state(state_id)
@@ -1149,41 +1149,35 @@ CREATE TABLE IF NOT EXISTS purchase_shipments (
 -- Stores information about sales price lists.
 CREATE TABLE IF NOT EXISTS sales_price_list (
     sales_price_list_id INT AUTO_INCREMENT PRIMARY KEY,
-    description VARCHAR(255),
-    customer_category_id INT,
+    description VARCHAR(255) NOT NULL,
+    customer_category_id INT NOT NULL,
     brand_id INT,
-    effective_From DATE,
-    effective_date DATE,
-    group_id INT,
+    effective_from DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
-    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id) ,
-    FOREIGN KEY (group_id) REFERENCES product_groups(group_id)
+    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
 );
 
  /* Purchase Price List Table */
 -- Stores information about purchase price lists.
 CREATE TABLE IF NOT EXISTS purchase_price_list (
     purchase_price_list_id INT AUTO_INCREMENT PRIMARY KEY,
-    description VARCHAR(255),
-    customer_category_id INT,
+    description VARCHAR(255) NOT NULL,
+    customer_category_id INT NOT NULL,
     brand_id INT,
-    effective_From DATE,
-    effective_date DATE,
-    group_id INT,
+    effective_from DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
-    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id),
-    FOREIGN KEY (group_id) REFERENCES product_groups(group_id)
+    FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
 );
 
 /* Sale Order Returns Table */
 -- Stores information about sales order returns.
 CREATE TABLE IF NOT EXISTS sale_order_returns (
     sale_order_return_id INT AUTO_INCREMENT PRIMARY KEY,
-    sale_id INT,
+    sale_id INT NOT NULL,
     sales_return_no VARCHAR(255),
     against_bill VARCHAR(255),
     against_bill_date DATE,
@@ -1198,7 +1192,7 @@ CREATE TABLE IF NOT EXISTS sale_order_returns (
 -- Stores information about purchase order returns.
 CREATE TABLE IF NOT EXISTS purchase_order_returns (
     purchase_order_return_id INT AUTO_INCREMENT PRIMARY KEY,
-    purchaseorder_id INT,
+    purchaseorder_id INT NOT NULL,
     purchase_return_no VARCHAR(255),
     payment_link VARCHAR(255),
     due_date DATE,
