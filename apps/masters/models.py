@@ -173,7 +173,7 @@ class Transporters(models.Model):
 
 class ProductTypes(models.Model):
     type_id = models.AutoField(primary_key=True)
-    type_name = models.CharField(max_length=255, null=False)
+    type_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -185,7 +185,7 @@ class ProductTypes(models.Model):
 
 class ProductUniqueQuantityCodes(models.Model):
     quantity_code_id = models.AutoField(primary_key=True)
-    quantity_code_name = models.CharField(max_length=255, null=False)
+    quantity_code_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -197,7 +197,7 @@ class ProductUniqueQuantityCodes(models.Model):
 
 class UnitOptions(models.Model):
     unit_options_id = models.AutoField(primary_key=True)
-    unit_name = models.CharField(max_length=255, null=False)
+    unit_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -209,7 +209,7 @@ class UnitOptions(models.Model):
 
 class ProductDrugTypes(models.Model):
     drug_type_id = models.AutoField(primary_key=True)
-    drug_type_name = models.CharField(max_length=255, null=False)
+    drug_type_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -221,7 +221,7 @@ class ProductDrugTypes(models.Model):
 
 class ProductItemType(models.Model):
     item_type_id = models.AutoField(primary_key=True)
-    item_name = models.CharField(max_length=255, null=False)
+    item_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -234,7 +234,7 @@ class ProductItemType(models.Model):
 class BrandSalesman(models.Model):
     brand_salesman_id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, null=True, default=None)
-    name = models.CharField(max_length=255, null=False)
+    name = models.CharField(max_length=255)
     commission_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     RATE_ON_CHOICES = [ 
         ('Qty', 'Qty'),
@@ -266,7 +266,7 @@ def product_brands_picture(instance, filename):
 
 class ProductBrands(models.Model):
     brand_id = models.AutoField(primary_key=True)
-    brand_name = models.CharField(max_length=255, null=False)
+    brand_name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, null=True, default=None)
     picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_brands_picture)
     brand_salesman_id = models.ForeignKey(BrandSalesman, on_delete=models.CASCADE, null=True, default=None, db_column='brand_salesman_id')
@@ -292,7 +292,7 @@ class ProductBrands(models.Model):
 
 class PurchaseTypes(models.Model):
     purchase_type_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, null=False)
+    name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

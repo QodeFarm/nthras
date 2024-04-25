@@ -2,7 +2,6 @@ import os,uuid
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
-#from utils_methods import EncryptedTextField
 from utils_methods import *
 from utils_variables import *
 from apps.masters.models import *
@@ -22,7 +21,7 @@ def product_groups_picture(instance, filename):
 # Create your models here.
 class ProductGroups(models.Model):
     group_id = models.AutoField(primary_key=True)
-    group_name = models.CharField(max_length=255, null=False)
+    group_name = models.CharField(max_length=255)
     description = models.TextField(null=True, default=None)
     picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_groups_picture)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -59,7 +58,7 @@ def product_categories_picture(instance, filename):
 
 class ProductCategories(models.Model):
     category_id = models.AutoField(primary_key=True)
-    category_name = models.CharField(max_length=255, null=False)
+    category_name = models.CharField(max_length=255)
     picture = models.ImageField(max_length=255,  null=True, default=None, upload_to=product_categories_picture)
     code = models.CharField(max_length=50, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -84,7 +83,7 @@ class ProductCategories(models.Model):
 
 class ProductStockUnits(models.Model):
     stock_unit_id = models.AutoField(primary_key=True)
-    stock_unit_name = models.CharField(max_length=255, null=False)
+    stock_unit_name = models.CharField(max_length=255)
     description = models.TextField(null=True, default=None)
     quantity_code_id = models.ForeignKey(ProductUniqueQuantityCodes, on_delete=models.CASCADE, null=True, default=None, db_column = 'quantity_code_id')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -120,7 +119,7 @@ class ProductGstClassifications(models.Model):
 
 class ProductSalesGl(models.Model):
     sales_gl_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, null=False)
+    name = models.CharField(max_length=255)
     sales_accounts = models.CharField(max_length=255, null=True, default=None)
     code = models.CharField(max_length=50, null=True, default=None)
     is_subledger = models.BooleanField(null=True, default=None)
@@ -145,7 +144,7 @@ class ProductSalesGl(models.Model):
 
 class ProductPurchaseGl(models.Model):
     purchase_gl_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, null=False)
+    name = models.CharField(max_length=255)
     purchase_accounts = models.CharField(max_length=255, null=True, default=None)
     code = models.CharField(max_length=50, null=True, default=None)
     is_subledger = models.BooleanField(null=True, default=None)
@@ -183,11 +182,11 @@ def products_picture(instance, filename):
 
 class products(models.Model):
     product_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, null=False)
+    name = models.CharField(max_length=255)
     product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, db_column = 'product_group_id')
     category_id = models.ForeignKey(ProductCategories, on_delete=models.CASCADE, null=True, default=None, db_column = 'category_id')
     type_id = models.ForeignKey(ProductTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'type_id')
-    code = models.CharField(max_length=50, null=False)
+    code = models.CharField(max_length=50)
     barcode = models.CharField(max_length=50, null=True, default=None)
     unit_options_id = models.ForeignKey(UnitOptions, on_delete=models.CASCADE, null=True, default=None, db_column = 'unit_options_id')
     gst_input = models.CharField(max_length=255, null=True, default=None)
