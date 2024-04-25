@@ -20,6 +20,8 @@ class ModBranchesSerializer(serializers.ModelSerializer):
     
 class CompaniesSerializer(serializers.ModelSerializer):
     def validate_eway_password(self, value):
+        if value is None:
+            return value
     # Check if the new value is a hash and if the original value is the same
         if self.instance and self.instance.eway_password == value:
             return value
@@ -28,6 +30,8 @@ class CompaniesSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError("Invalid password format")
 
     def validate_gstn_password(self, value):
+        if value is None:
+            return value
     # Check if the new value is a hash and if the original value is the same
         if self.instance and self.instance.gstn_password == value:
             return value
@@ -68,6 +72,8 @@ class CompaniesSerializer(serializers.ModelSerializer):
 
 class BranchesSerializer(serializers.ModelSerializer):
     def validate_e_way_password(self, value):
+        if value is None:
+            return value
     # Check if the new value is a hash and if the original value is the same
         if self.instance and self.instance.e_way_password == value:
             return value
@@ -76,6 +82,8 @@ class BranchesSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError("Invalid password format")
 
     def validate_gstn_password(self, value):
+        if value is None:
+            return value
     # Check if the new value is a hash and if the original value is the same
         if self.instance and self.instance.gstn_password == value:
             return value
