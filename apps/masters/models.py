@@ -171,7 +171,7 @@ class Transporters(models.Model):
 
 class ProductTypes(models.Model):
     type_id = models.AutoField(primary_key=True)
-    type_name = models.CharField(max_length=255)
+    type_name = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -183,7 +183,7 @@ class ProductTypes(models.Model):
 
 class ProductUniqueQuantityCodes(models.Model):
     quantity_code_id = models.AutoField(primary_key=True)
-    quantity_code_name = models.CharField(max_length=255)
+    quantity_code_name = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -195,7 +195,7 @@ class ProductUniqueQuantityCodes(models.Model):
 
 class UnitOptions(models.Model):
     unit_options_id = models.AutoField(primary_key=True)
-    unit_name = models.CharField(max_length=255)
+    unit_name = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -207,7 +207,7 @@ class UnitOptions(models.Model):
 
 class ProductDrugTypes(models.Model):
     drug_type_id = models.AutoField(primary_key=True)
-    drug_type_name = models.CharField(max_length=255)
+    drug_type_name = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -219,7 +219,7 @@ class ProductDrugTypes(models.Model):
 
 class ProductItemType(models.Model):
     item_type_id = models.AutoField(primary_key=True)
-    item_name = models.CharField(max_length=255)
+    item_name = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -230,15 +230,15 @@ class ProductItemType(models.Model):
         return f"{self.item_type_id} {self.item_name}"
 
 class BrandSalesman(models.Model):
+    brand_salesman_id = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=50, null=True, default=None)
+    name = models.CharField(max_length=255, null=False)
+    commission_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     RATE_ON_CHOICES = [ 
         ('Qty', 'Qty'),
         ('Amount', 'Amount'),
         ('Both','Both'),
     ]
-    brand_salesman_id = models.AutoField(primary_key=True)
-    code = models.CharField(max_length=50)
-    name = models.CharField(max_length=255)
-    commission_rate = models.DecimalField(max_digits=18, decimal_places=2)
     rate_on = models.CharField(max_length=10, choices=RATE_ON_CHOICES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -264,9 +264,9 @@ def product_brands_picture(instance, filename):
 
 class ProductBrands(models.Model):
     brand_id = models.AutoField(primary_key=True)
-    brand_name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    picture = models.ImageField(max_length=255, default=None, null=True, upload_to=product_brands_picture)
+    brand_name = models.CharField(max_length=255, null=False)
+    code = models.CharField(max_length=50, null=True, default=None)
+    picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_brands_picture)
     brand_salesman_id = models.ForeignKey(BrandSalesman, on_delete=models.CASCADE, null=True, default=None, db_column='brand_salesman_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -290,7 +290,7 @@ class ProductBrands(models.Model):
 
 class PurchaseTypes(models.Model):
     purchase_type_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
