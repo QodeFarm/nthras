@@ -10,7 +10,7 @@ import uuid, os
 
 
 class Roles(models.Model):
-    role_name = models.CharField( max_length=255, null=False, unique=True)
+    role_name = models.CharField( max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     role_id = models.AutoField(primary_key=True)
@@ -24,7 +24,7 @@ class Roles(models.Model):
 
 
 class Permissions(models.Model):
-    permission_name = models.CharField( max_length=255, null=False, unique=True)
+    permission_name = models.CharField(max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     permission_id = models.AutoField(primary_key=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -35,12 +35,12 @@ class Permissions(models.Model):
 
     def __str__(self):
         return f"{self.permission_id}.{self.permission_name}"
-  
+    
 
 class RolePermissions(models.Model):
-    permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE, null=True, default=None, db_column = 'permission_id')
-    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, default=None, db_column = 'role_id')
-    access_level = models.CharField( max_length=255, null=False)
+    permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE,  db_column = 'permission_id')
+    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE,  db_column = 'role_id')
+    access_level = models.CharField(max_length=255, )
     role_permission_id = models.AutoField(primary_key=True)
     
     class Meta:
@@ -51,7 +51,7 @@ class RolePermissions(models.Model):
 
 
 class Actions(models.Model):
-    action_name = models.CharField( max_length=255, null=False, unique=True)
+    action_name = models.CharField(max_length=255,  unique=True)
     action_id = models.AutoField(primary_key=True)
     description = models.TextField()
 
@@ -63,7 +63,7 @@ class Actions(models.Model):
 
 
 class Modules(models.Model):
-    module_name = models.CharField( max_length=255, null=False, unique=True)
+    module_name = models.CharField(max_length=255,  unique=True)
     module_id = models.AutoField(primary_key=True)
     description = models.TextField()
 
@@ -75,8 +75,8 @@ class Modules(models.Model):
 
 
 class ModuleSections(models.Model):
-    module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, null=True, default=None, db_column = 'module_id')
-    section_name = models.CharField( max_length=255, null=False)
+    module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, default=None, db_column = 'module_id')
+    section_name = models.CharField( max_length=255,)
     section_id = models.AutoField(primary_key=True)
 
     class Meta:
@@ -127,17 +127,17 @@ class User(AbstractBaseUser):
         ('Other', 'Other'),
         ('Prefer Not to Say', 'Prefer Not to Say')
     ]
-    profile_picture_url = models.ImageField(max_length=255, default=None, null=True, upload_to=profile_picture) 
+    profile_picture_url = models.ImageField(max_length=255, default=None,  upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
     username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
-    timezone = models.CharField(max_length=100, blank=True, null=True)
-    language = models.CharField(max_length=10, blank=True, null=True)
-    otp_required = models.SmallIntegerField(null=True, default=False)
-    mobile= models.CharField(max_length=20, unique=True, null=False)
-    first_name = models.CharField(max_length=255, null=False)
-    last_login = models.DateTimeField(blank=True, null=True)
-    last_name = models.CharField(max_length=255, null=False)
-    date_of_birth = models.DateField(blank=True, null=True)
+    timezone = models.CharField(max_length=100)
+    language = models.CharField(max_length=10)
+    otp_required = models.SmallIntegerField(default=False)
+    mobile= models.CharField(max_length=20, unique=True)
+    first_name = models.CharField(max_length=255)
+    last_login = models.DateTimeField()
+    last_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
     email = models.EmailField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
