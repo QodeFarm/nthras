@@ -5,13 +5,13 @@ from utils_variables import *
 # Create your models here.
 class Warehouses(models.Model):
     warehouse_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255,null=True,default=None)
+    name = models.CharField(max_length=255)
     code = models.CharField(max_length=255,null=True,default=None)
     item_type_id = models.ForeignKey('masters.ProductItemType', on_delete=models.CASCADE, null=True, default=None, db_column='item_type_id')
-    customer_id = models.ForeignKey('customer.Customer', on_delete=models.CASCADE, null=True, default=None, db_column='customer_id')
+    customer_id = models.ForeignKey('customer.Customer', on_delete=models.CASCADE, db_column='customer_id')
     address = models.CharField(max_length=255, null=True, default=None)
-    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
-    state_id = models.ForeignKey('masters.State', on_delete=models.CASCADE, null=True, default=None, db_column = 'state_id')
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, db_column = 'city_id')
+    state_id = models.ForeignKey('masters.State', on_delete=models.CASCADE, db_column = 'state_id')
     country_id = models.ForeignKey('masters.Country', on_delete=models.CASCADE, null=True, default=None, db_column = 'country_id')
     pin_code = models.CharField(max_length=50,null=True,default=None)
     phone = models.CharField(max_length=50,null=True,default=None)
