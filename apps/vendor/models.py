@@ -7,10 +7,10 @@ from utils_methods import custom_upload_to, EncryptedTextField
 
 # Create your models here.
     
-class VendorCategory(models.Model):
+class VendorCategory(models.Model): #required fields are updated
     vendor_category_id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, null=True, default=None)
-    name = models.CharField(max_length=255, null=True, default=None)
+    name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -23,7 +23,7 @@ class VendorCategory(models.Model):
 
 class VendorPaymentTerms(models.Model):
     payment_term_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255, null=True, default=None)
+    name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, null=True, default=None)
     fixed_days = models.IntegerField(null=True, default=None)
     no_of_fixed_days = models.IntegerField(null=True, default=None)
@@ -42,7 +42,7 @@ class VendorPaymentTerms(models.Model):
 class VendorAgent(models.Model):
     vendor_agent_id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, null=True, default=None)
-    name = models.CharField(max_length=255, null=True, default=None)
+    name = models.CharField(max_length=255)
     commission_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     
     RATE_ON_CHOICES = [
@@ -69,11 +69,11 @@ class VendorAgent(models.Model):
 class Vendor(models.Model):
     vendor_id = models.AutoField(primary_key=True)
     gst_no = models.CharField(max_length=255, null=True, default=None)
-    name = models.CharField(max_length=255, null=True, default=None)
-    print_name = models.CharField(max_length=255, null=True, default=None)
+    name = models.CharField(max_length=255)
+    print_name = models.CharField(max_length=255)
     identification = models.CharField(max_length=255, null=True, default=None)
-    code = models.CharField(max_length=255, null=True, default=None)
-    ledger_account_id = models.ForeignKey(LedgerAccounts, on_delete=models.CASCADE, null=True, default=None, db_column='ledger_account_id')
+    code = models.CharField(max_length=255)
+    ledger_account_id = models.ForeignKey(LedgerAccounts, on_delete=models.CASCADE, db_column='ledger_account_id')
     vendor_common_for_sales_purchase = models.BooleanField(null=True, default=None)
     is_sub_vendor = models.BooleanField(null=True, default=None)
     firm_status_id = models.ForeignKey(FirmStatuses, on_delete=models.CASCADE, null=True, default=None, db_column='firm_status_id')
@@ -122,9 +122,9 @@ class Vendor(models.Model):
 
 class VendorAttachment(models.Model):
     attachment_id = models.AutoField(primary_key=True)
-    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, default=None, db_column='vendor_id')
-    attachment_name = models.CharField(max_length=255, null=True, default=None)
-    attachment_path = models.CharField(max_length=255, null=True, default=None)
+    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column='vendor_id')
+    attachment_name = models.CharField(max_length=255)
+    attachment_path = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -136,14 +136,16 @@ class VendorAttachment(models.Model):
     
 class VendorAddress(models.Model):
     vendor_address_id = models.AutoField(primary_key=True)
-    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, null=True, default=None,db_column='vendor_id')
+    vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column='vendor_id')
     ADDRESS_TYPE_CHOICES = [
         ('billing', 'Billing'),
         ('shipping', 'Shipping')
         ]
     address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES, null=True, default=None)
     address = models.CharField(max_length=255, null=True, default=None)
-    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, null=True, default=None, db_column = 'city_id')
+    city_id = models.ForeignKey('masters.City', on_delete=models.CASCADE, db_column = 'city_id')
+    state_id = models.ForeignKey('masters.State', on_delete=models.CASCADE, db_column = 'state_id')
+    country_id = models.ForeignKey('masters.Country', on_delete=models.CASCADE,null=True, default=None, db_column = 'country_id')
     pin_code = models.CharField(max_length=50, null=True, default=None)
     phone = models.CharField(max_length=50, null=True, default=None)
     email = models.EmailField(max_length=255, null=True, default=None)
