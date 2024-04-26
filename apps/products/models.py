@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 from utils_methods import *
 from utils_variables import *
-from apps.masters.models import *
+from apps.masters.models import ProductUniqueQuantityCodes,ProductTypes,UnitOptions,ProductItemType,ProductDrugTypes,ProductBrands
 
 def product_groups_picture(instance, filename):
     # Get the file extension
@@ -103,7 +103,7 @@ class ProductGstClassifications(models.Model):
         ('SAC', 'SAC'),
         ('Both','Both'),
     ]
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES, blank=True, null=True)
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, null=True, default=None)
     code = models.CharField(max_length=50, null=True, default=None)
     hsn_or_sac_code = models.CharField(max_length=50, null=True, default=None)
     hsn_description = models.TextField(null=True, default=None)
@@ -221,9 +221,8 @@ class products(models.Model):
     STATUS_CHOICES = [
         ('Active', 'Active'),
         ('Inactive', 'Inactive'),
-        ('Pending','Pending'),
     ]
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Inclusive')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

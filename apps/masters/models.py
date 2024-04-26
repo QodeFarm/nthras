@@ -241,7 +241,7 @@ class BrandSalesman(models.Model):
         ('Amount', 'Amount'),
         ('Both','Both'),
     ]
-    rate_on = models.CharField(max_length=10, choices=RATE_ON_CHOICES, blank=True, null=True)
+    rate_on = models.CharField(max_length=10, choices=RATE_ON_CHOICES, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

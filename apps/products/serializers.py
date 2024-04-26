@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
-from apps.masters.serializers import *
+from apps.masters.serializers import ProductUniqueQuantityCodesSerializer,ProductTypesSerializer,UnitOptionsSerializer,ProductItemTypeSerializer,ProductDrugTypesSerializer,ModProductBrandsSerializer
+
 
 class ModProductGroupsSerializer(serializers.ModelSerializer):
     class Meta:
