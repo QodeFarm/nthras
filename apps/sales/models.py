@@ -8,16 +8,16 @@ from apps.products.models import ProductGroups, products as Products
 # Create your models here.
 
 
-class SaleOrder(models.Model):
+class SaleOrder(models.Model): #required fields are updated
     order_id = models.AutoField(primary_key=True)
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column='gst_type_id')
-    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, default=None, db_column='customer_id')
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     email = models.CharField(max_length=255, null=True, default=None)
-    delivery_date = models.DateField(null=True, default=None)
-    order_date = models.DateField(null=True, default=None)
-    order_no = models.CharField(max_length=255, null=True, default=None)
+    delivery_date = models.DateField()
+    order_date = models.DateField()
+    order_no = models.CharField(max_length=255)
     ref_no = models.CharField(max_length=255, null=True, default=None)
-    ref_date = models.DateField(null=True, default=None)
+    ref_date = models.DateField()
     TAX_CHOICES = [
         ('Inclusive', 'Inclusive'),
         ('Exclusive', 'Exclusive')
@@ -49,11 +49,11 @@ class SaleOrder(models.Model):
         db_table = saleorders
 
 
-class Invoices(models.Model):
+class Invoices(models.Model): #required fields are updated
     invoice_id = models.AutoField(primary_key=True)
-    order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, null=True, default=None, db_column='order_id')
+    order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='order_id')
     warehouse_id = models.ForeignKey(Warehouses, on_delete=models.CASCADE, null=True, default=None, db_column='warehouse_id')
-    invoice_date = models.DateField(null=True, default=None)
+    invoice_date = models.DateField()
     due_date = models.DateField(null=True, default=None)
     status = models.CharField(max_length=50,null=True,default=None)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
@@ -67,9 +67,9 @@ class Invoices(models.Model):
     class Meta:
         db_table = invoices
 
-class PaymentTransactions(models.Model):
+class PaymentTransactions(models.Model): #required fields are updated
     transaction_id = models.AutoField(primary_key=True)
-    invoice_id = models.ForeignKey(Invoices, on_delete=models.CASCADE, null=True, default=None, db_column='invoice_id')
+    invoice_id = models.ForeignKey(Invoices, on_delete=models.CASCADE, db_column='invoice_id')
     payment_date = models.DateField(null=True, default=None)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
     payment_method = models.CharField(max_length=100,null=True,default=None)
@@ -91,10 +91,10 @@ class PaymentTransactions(models.Model):
     class Meta:
         db_table = paymenttransactions
 
-class OrderItems(models.Model):
+class OrderItems(models.Model): #required fields are updated
     order_item_id = models.AutoField(primary_key=True)
-    order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, null=True, default=None, db_column='order_id')
-    product_id = models.ForeignKey(Products, on_delete=models.CASCADE, null=True, default=None, db_column='product_id')
+    order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='order_id')
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE, db_column='product_id')
     quantity = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     unit_price = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
@@ -113,13 +113,13 @@ class OrderItems(models.Model):
     class Meta:
         db_table = orderitems
 
-class Shipments(models.Model):
+class Shipments(models.Model): #required fields are updated
     shipment_id = models.AutoField(primary_key=True)
     destination = models.CharField(max_length=255,null=True,default=None)
     shipping_mode_id = models.ForeignKey(ShippingModes,on_delete=models.CASCADE, null=True, default=None, db_column='shipping_mode_id')
     shipping_company_id = models.ForeignKey(ShippingCompanies,on_delete=models.CASCADE, null=True, default=None, db_column='shipping_company_id')
     shipping_tracking_no = models.CharField(max_length=255,null=True,default=None)
-    shipping_date = models.DateField(null=True, default=None)
+    shipping_date = models.DateField()
     shipping_charges = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
     vehicle_vessel = models.CharField(max_length=255,null=True,default=None, help_text='Enter Text')
     charge_type = models.CharField(max_length=255,null=True,default=None)
@@ -128,7 +128,7 @@ class Shipments(models.Model):
     port_of_discharge = models.CharField(max_length=255,null=True,default=None)
     no_of_packets = models.IntegerField(null=True, default=None)
     weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
-    order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, null=True, default=None, db_column='order_id')
+    order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='order_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -139,12 +139,12 @@ class Shipments(models.Model):
         db_table = shipments
 
 
-class SalesPriceList(models.Model):
+class SalesPriceList(models.Model): #required fields are updated
     sales_price_list_id = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=255,null=True,default=None)
-    customer_category_id = models.ForeignKey(CustomerCategories, on_delete=models.CASCADE, null=True, default=None, db_column='customer_category_id')
+    description = models.CharField(max_length=255)
+    customer_category_id = models.ForeignKey(CustomerCategories, on_delete=models.CASCADE, db_column='customer_category_id')
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column='brand_id')
-    effective_From = models.DateField(null=True, default=None)
+    effective_From = models.DateField()
     effective_date = models.DateField(null=True, default=None)
     group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column='group_id')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -156,9 +156,9 @@ class SalesPriceList(models.Model):
     class Meta:
         db_table = salespricelist
 
-class SaleOrderReturns(models.Model):
+class SaleOrderReturns(models.Model): #required fields are updated
     sale_order_return_id = models.AutoField(primary_key=True)
-    sale_id = models.ForeignKey(SaleOrder,  on_delete=models.CASCADE, null=True, default=None, db_column='sale_id')
+    sale_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='sale_id')
     sales_return_no = models.CharField(max_length=255,null=True,default=None)
     against_bill = models.CharField(max_length=255,null=True,default=None)
     against_bill_date = models.DateField(null=True, default=None)

@@ -9,8 +9,8 @@ from utils_variables import *
 # Create your models here.
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
-    country_name = models.CharField(max_length=100, null=False)
-    country_code = models.CharField(max_length=100, blank=True)
+    country_name = models.CharField(max_length=100)
+    country_code = models.CharField(max_length=100, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -22,9 +22,9 @@ class Country(models.Model):
 
 class State(models.Model):
     state_id = models.AutoField(primary_key=True)
-    country_id = models.ForeignKey(Country, on_delete=models.CASCADE, null=False, db_column = 'country_id')
-    state_name = models.CharField(max_length=100, null=False)
-    state_code = models.CharField(max_length=100, null=False)
+    country_id = models.ForeignKey(Country, on_delete=models.CASCADE, db_column = 'country_id')
+    state_name = models.CharField(max_length=100)
+    state_code = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -36,9 +36,9 @@ class State(models.Model):
 
 class City(models.Model):
     city_id = models.AutoField(primary_key=True)
-    state_id = models.ForeignKey(State, on_delete=models.CASCADE, null=False, db_column = 'state_id')
-    city_name = models.CharField(max_length=100, null=False)
-    city_code = models.CharField(max_length=100, blank=True)
+    state_id = models.ForeignKey(State, on_delete=models.CASCADE, db_column = 'state_id')
+    city_name = models.CharField(max_length=100)
+    city_code = models.CharField(max_length=100, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -51,7 +51,7 @@ class City(models.Model):
 
 class Statuses(models.Model):
     status_id = models.AutoField(primary_key=True)
-    status_name = models.CharField(max_length=50, unique=True, null=False)
+    status_name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return f"{self.status_name}"

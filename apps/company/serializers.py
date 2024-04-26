@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import *
-from apps.masters.serializers import *
+from .models import Companies, Branches, BranchBankDetails 
+from apps.masters.serializers import ModCitySerializer, ModStateSerializer, ModCountrySerializer, ModStatusesSerializer 
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage

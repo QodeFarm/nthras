@@ -17,12 +17,16 @@ def custom_upload_to(instance, filename):
 
 #functions for demonstration purposes
 def encrypt(text):
+    if text is None:
+        return None
     # Encode the text using base64
     encoded_bytes = base64.b64encode(text.encode("utf-8"))
     encrypted_text = encoded_bytes.decode("utf-8")
     return encrypted_text
 
 def decrypt(encrypted_text):
+    if encrypted_text is None:
+        return None
     # Decode the text using base64
     decoded_bytes = base64.b64decode(encrypted_text.encode("utf-8"))
     decrypted_text = decoded_bytes.decode("utf-8")
