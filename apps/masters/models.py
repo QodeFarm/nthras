@@ -232,16 +232,16 @@ class ProductItemType(models.Model):
         return f"{self.item_type_id} {self.item_name}"
 
 class BrandSalesman(models.Model):
+    brand_salesman_id = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=50, null=True, default=None)
+    name = models.CharField(max_length=255)
+    commission_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     RATE_ON_CHOICES = [ 
         ('Qty', 'Qty'),
         ('Amount', 'Amount'),
         ('Both','Both'),
     ]
-    brand_salesman_id = models.AutoField(primary_key=True)
-    code = models.CharField(max_length=50)
-    name = models.CharField(max_length=255)
-    commission_rate = models.DecimalField(max_digits=18, decimal_places=2)
-    rate_on = models.CharField(max_length=10, choices=RATE_ON_CHOICES, blank=True, null=True)
+    rate_on = models.CharField(max_length=10, choices=RATE_ON_CHOICES, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -267,8 +267,8 @@ def product_brands_picture(instance, filename):
 class ProductBrands(models.Model):
     brand_id = models.AutoField(primary_key=True)
     brand_name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    picture = models.ImageField(max_length=255, default=None, null=True, upload_to=product_brands_picture)
+    code = models.CharField(max_length=50, null=True, default=None)
+    picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_brands_picture)
     brand_salesman_id = models.ForeignKey(BrandSalesman, on_delete=models.CASCADE, null=True, default=None, db_column='brand_salesman_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
