@@ -4,7 +4,7 @@ from .serializers import *
 from apps.vendor.serializers import ModVendorSerializer,ModVendorAgentSerializer,VendorAddressSerializer,ModVendorPaymentTermsSerializer
 from apps.masters.serializers import ModProductBrandsSerializer, PurchaseTypesSerializer,ModStateSerializer, ModGstTypesSerializer,ShippingModesSerializer,ModShippingCompaniesSerializer
 from apps.customer.serializers import ModLedgerAccountsSerializers,ModCustomersSerializer
-from apps.products.serializers import ModproductsSerializer,ProductGroupsSerializer
+from apps.products.serializers import ModproductsSerializer
 
 
 class ModPurchaseOrdersSerializer(serializers.ModelSerializer):
@@ -45,6 +45,7 @@ class ModPurchaseShipmentsSerializer(serializers.ModelSerializer):
         fields = ['purchase_shipment_id','destination','shipping_tracking_no','shipping_date','shipping_charges']
 
 class PurchaseShipmentsSerializer(serializers.ModelSerializer):
+    purchaseorder = ModPurchaseOrdersSerializer(source='purchaseorder_id',read_only=True)
     shipping_mode = ShippingModesSerializer(source='shipping_mode_id',read_only=True)
     shipping_company = ModShippingCompaniesSerializer(source='shipping_company_id',read_only=True)
     port_state = ModStateSerializer(source='port_state_id',read_only=True)
@@ -61,7 +62,6 @@ class ModPurchasePriceListSerializer(serializers.ModelSerializer):
 class PurchasePriceListSerializer(serializers.ModelSerializer):
     customer_category = ModCustomersSerializer(source='customer_category_id',read_only=True)
     brand = ModProductBrandsSerializer(source='brand_id',read_only=True)
-    group = ProductGroupsSerializer(source='group_id',read_only=True)
 
     class Meta:
         model = PurchasePriceList

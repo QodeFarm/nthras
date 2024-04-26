@@ -1,12 +1,10 @@
-import os
-import uuid
+import os,uuid
 from django.db import models
-from apps.masters.models import *
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
-from utils_methods import EncryptedTextField
+from utils_methods import *
 from utils_variables import *
-
+from apps.masters.models import ProductUniqueQuantityCodes,ProductTypes,UnitOptions,ProductItemType,ProductDrugTypes,ProductBrands
 
 def product_groups_picture(instance, filename):
     # Get the file extension
@@ -24,8 +22,8 @@ def product_groups_picture(instance, filename):
 class ProductGroups(models.Model):
     group_id = models.AutoField(primary_key=True)
     group_name = models.CharField(max_length=255)
-    description = models.TextField()
-    picture = models.ImageField(max_length=255, default=None, null=True, upload_to=product_groups_picture)
+    description = models.TextField(null=True, default=None)
+    picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_groups_picture)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -46,7 +44,6 @@ class ProductGroups(models.Model):
                     os.rmdir(picture_dir)
 
 
-
 def product_categories_picture(instance, filename):
     # Get the file extension
     file_extension = os.path.splitext(filename)[-1]
@@ -62,8 +59,8 @@ def product_categories_picture(instance, filename):
 class ProductCategories(models.Model):
     category_id = models.AutoField(primary_key=True)
     category_name = models.CharField(max_length=255)
-    picture = models.ImageField(max_length=255, default=None, null=True, upload_to=product_categories_picture)
-    code = models.CharField(max_length=50)
+    picture = models.ImageField(max_length=255,  null=True, default=None, upload_to=product_categories_picture)
+    code = models.CharField(max_length=50, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -84,11 +81,10 @@ class ProductCategories(models.Model):
                     os.rmdir(picture_dir)
 
 
-
 class ProductStockUnits(models.Model):
     stock_unit_id = models.AutoField(primary_key=True)
     stock_unit_name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(null=True, default=None)
     quantity_code_id = models.ForeignKey(ProductUniqueQuantityCodes, on_delete=models.CASCADE, null=True, default=None, db_column = 'quantity_code_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -101,16 +97,16 @@ class ProductStockUnits(models.Model):
 
 
 class ProductGstClassifications(models.Model):
+    gst_classification_id = models.AutoField(primary_key=True)
     TYPE_CHOICES = [ 
         ('HSN', 'HSN'),
         ('SAC', 'SAC'),
         ('Both','Both'),
     ]
-    gst_classification_id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=10, choices=TYPE_CHOICES, blank=True, null=True)
-    code = models.CharField(max_length=50)
-    hsn_or_sac_code = models.CharField(max_length=50)
-    hsn_description = models.TextField()
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, null=True, default=None)
+    code = models.CharField(max_length=50, null=True, default=None)
+    hsn_or_sac_code = models.CharField(max_length=50, null=True, default=None)
+    hsn_description = models.TextField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -123,21 +119,20 @@ class ProductGstClassifications(models.Model):
 
 class ProductSalesGl(models.Model):
     sales_gl_id = models.AutoField(primary_key=True)
-    ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
     name = models.CharField(max_length=255)
-    sales_accounts = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    is_subledger = models.BooleanField(default=False)
-    inactive = models.BooleanField(default=False)
-    type = models.CharField(max_length=255)
-    account_no = EncryptedTextField(max_length=255)
-    rtgs_ifsc_code = models.CharField(max_length=255)
-    classification = models.CharField(max_length=255)
-    is_loan_account = models.BooleanField(default=False)
-    tds_applicable = models.BooleanField(default=False)
-    address = models.CharField(max_length=255)
-    pan = models.CharField(max_length=50)
-    employee = models.BooleanField(default=False)
+    sales_accounts = models.CharField(max_length=255, null=True, default=None)
+    code = models.CharField(max_length=50, null=True, default=None)
+    is_subledger = models.BooleanField(null=True, default=None)
+    inactive = models.BooleanField(null=True, default=None)
+    type = models.CharField(max_length=255, null=True, default=None)
+    account_no = EncryptedTextField(max_length=255, null=True, default=None)
+    rtgs_ifsc_code = models.CharField(max_length=255, null=True, default=None)
+    classification = models.CharField(max_length=255, null=True, default=None)
+    is_loan_account = models.BooleanField(null=True, default=None)
+    tds_applicable = models.BooleanField(null=True, default=None)
+    address = models.CharField(max_length=255, null=True, default=None)
+    pan = models.CharField(max_length=50, null=True, default=None)
+    employee = models.BooleanField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -149,21 +144,20 @@ class ProductSalesGl(models.Model):
 
 class ProductPurchaseGl(models.Model):
     purchase_gl_id = models.AutoField(primary_key=True)
-    ledger_group_id = models.ForeignKey(LedgerGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'ledger_group_id')
     name = models.CharField(max_length=255)
-    purchase_accounts = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    is_subledger = models.BooleanField(default=False)
-    inactive = models.BooleanField(default=False)
-    type = models.CharField(max_length=255)
-    account_no = EncryptedTextField(max_length=255)
-    rtgs_ifsc_code = models.CharField(max_length=255)
-    classification = models.CharField(max_length=255)
-    is_loan_account = models.BooleanField(default=False)
-    tds_applicable = models.BooleanField(default=False)
-    address = models.CharField(max_length=255)
-    pan = models.CharField(max_length=50)
-    employee = models.BooleanField(default=False)
+    purchase_accounts = models.CharField(max_length=255, null=True, default=None)
+    code = models.CharField(max_length=50, null=True, default=None)
+    is_subledger = models.BooleanField(null=True, default=None)
+    inactive = models.BooleanField(null=True, default=None)
+    type = models.CharField(max_length=255, null=True, default=None)
+    account_no = EncryptedTextField(max_length=255, null=True, default=None)
+    rtgs_ifsc_code = models.CharField(max_length=255, null=True, default=None)
+    classification = models.CharField(max_length=255, null=True, default=None)
+    is_loan_account = models.BooleanField(null=True, default=None)
+    tds_applicable = models.BooleanField(null=True, default=None)
+    address = models.CharField(max_length=255, null=True, default=None)
+    pan = models.CharField(max_length=50, null=True, default=None)
+    employee = models.BooleanField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -187,49 +181,48 @@ def products_picture(instance, filename):
     return f"products/products/{original_filename}_{unique_id}{file_extension}"
 
 class products(models.Model):
-    STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('Inactive', 'Inactive'),
-        ('Pending','Pending'),
-    ]
     product_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column = 'product_group_id')
+    product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, db_column = 'product_group_id')
     category_id = models.ForeignKey(ProductCategories, on_delete=models.CASCADE, null=True, default=None, db_column = 'category_id')
     type_id = models.ForeignKey(ProductTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'type_id')
     code = models.CharField(max_length=50)
-    barcode = models.CharField(max_length=50)
+    barcode = models.CharField(max_length=50, null=True, default=None)
     unit_options_id = models.ForeignKey(UnitOptions, on_delete=models.CASCADE, null=True, default=None, db_column = 'unit_options_id')
-    gst_input = models.CharField(max_length=255)
-    stock_unit_id = models.ForeignKey(ProductStockUnits, on_delete=models.CASCADE, null=True, default=None, db_column = 'stock_unit_id')
-    print_barcode = models.BooleanField(default=False)
+    gst_input = models.CharField(max_length=255, null=True, default=None)
+    stock_unit_id = models.ForeignKey(ProductStockUnits, on_delete=models.CASCADE, db_column = 'stock_unit_id')
+    print_barcode = models.BooleanField(null=True, default=None)
     gst_classification_id = models.ForeignKey(ProductGstClassifications, on_delete=models.CASCADE, null=True, default=None, db_column = 'gst_classification_id')
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=products_picture)
-    sales_description = models.TextField()
-    sales_gl_id = models.ForeignKey(ProductSalesGl, on_delete=models.CASCADE, null=True, default=None, db_column = 'sales_gl_id')
-    mrp = models.DecimalField(max_digits=18, decimal_places=2)
-    minimum_price = models.DecimalField(max_digits=18, decimal_places=2)
-    sales_rate = models.DecimalField(max_digits=18, decimal_places=2)
-    wholesale_rate = models.DecimalField(max_digits=18, decimal_places=2)
-    dealer_rate = models.DecimalField(max_digits=18, decimal_places=2)
-    rate_factor = models.DecimalField(max_digits=18, decimal_places=2)
-    discount = models.DecimalField(max_digits=18, decimal_places=2)
-    dis_amount = models.DecimalField(max_digits=18, decimal_places=2)
-    purchase_description = models.TextField()
-    purchase_gl_id = models.ForeignKey(ProductPurchaseGl, on_delete=models.CASCADE, null=True, default=None, db_column = 'purchase_gl_id')
-    purchase_rate = models.DecimalField(max_digits=18, decimal_places=2)
-    purchase_rate_factor = models.DecimalField(max_digits=18, decimal_places=2)
-    purchase_discount = models.DecimalField(max_digits=18, decimal_places=2)
+    sales_description = models.TextField(null=True, default=None)
+    sales_gl_id = models.ForeignKey(ProductSalesGl, on_delete=models.CASCADE, db_column = 'sales_gl_id')
+    mrp = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    minimum_price = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    sales_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    wholesale_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    dealer_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    rate_factor = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    discount = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    dis_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    purchase_description = models.TextField(null=True, default=None)
+    purchase_gl_id = models.ForeignKey(ProductPurchaseGl, on_delete=models.CASCADE, db_column = 'purchase_gl_id')
+    purchase_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    purchase_rate_factor = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    purchase_discount = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     item_type_id = models.ForeignKey(ProductItemType, on_delete=models.CASCADE, null=True, default=None, db_column = 'item_type_id')
-    minimum_level = models.IntegerField()
-    maximum_level = models.IntegerField()
-    salt_composition = models.TextField()
+    minimum_level = models.IntegerField(null=True, default=None)
+    maximum_level = models.IntegerField(null=True, default=None)
+    salt_composition = models.TextField(null=True, default=None)
     drug_type_id = models.ForeignKey(ProductDrugTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'drug_type_id')
-    weighscale_mapping_code = models.CharField(max_length=50)
+    weighscale_mapping_code = models.CharField(max_length=50, null=True, default=None)
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column = 'brand_id')
-    purchase_warranty_months = models.IntegerField()
-    sales_warranty_months = models.IntegerField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Inclusive')
+    purchase_warranty_months = models.IntegerField(null=True, default=None)
+    sales_warranty_months = models.IntegerField(null=True, default=None)
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
