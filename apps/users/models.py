@@ -119,7 +119,7 @@ def profile_picture(instance, filename):
     original_filename = os.path.splitext(filename)[0]  # Get the filename without extension
     return f"users/{original_filename}_{unique_id}{file_extension}"
 
-
+#====
 class User(AbstractBaseUser):
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -127,7 +127,7 @@ class User(AbstractBaseUser):
         ('Other', 'Other'),
         ('Prefer Not to Say', 'Prefer Not to Say')
     ]
-    profile_picture_url = models.ImageField(max_length=255, default=None,  upload_to=profile_picture) 
+    profile_picture_url = models.ImageField(max_length=255, null = True, default=None,  upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
     username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
     email = models.EmailField(max_length=255, unique=True)
@@ -138,15 +138,15 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     first_name = models.CharField(max_length=255)
     user_id = models.AutoField(primary_key=True)
-    last_name = models.CharField(max_length=255)
-    timezone = models.CharField(max_length=100)
-    language = models.CharField(max_length=10)
+    last_name = models.CharField(max_length=255, null= True, default=None)
+    timezone = models.CharField(max_length=100, null= True, default=None)
+    language = models.CharField(max_length=10, null= True, default=None)
     last_login = models.DateTimeField()
-    date_of_birth = models.DateField()
-    bio = models.TextField() 
+    date_of_birth = models.DateField(null= True, default=None)
+    bio = models.TextField(null= True, default=None) 
     
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')
-    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column='branch_id')
+    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, null=True, default=None, db_column='branch_id')
     status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE,db_column='status_id')
     role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='role_id')
 
