@@ -1,8 +1,7 @@
 from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer
 from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User
+from utils_methods import list_all_objects, create_instance, update_instance
 from rest_framework import viewsets
-from django.shortcuts import render
-from utils_methods import *
 
 class GetUserDataViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

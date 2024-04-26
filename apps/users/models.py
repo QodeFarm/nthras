@@ -1,10 +1,10 @@
+from utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db.models.signals import pre_delete
 from apps.company.models import Companies
 from apps.masters.models import Statuses
 from apps.company.models import Branches
 from django.dispatch import receiver
-from utils_variables import *
 from django.db import models
 import uuid, os
 
@@ -130,19 +130,19 @@ class User(AbstractBaseUser):
     profile_picture_url = models.ImageField(max_length=255, default=None,  upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
     username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
-    timezone = models.CharField(max_length=100)
-    language = models.CharField(max_length=10)
+    email = models.EmailField(max_length=255, unique=True)
     otp_required = models.SmallIntegerField(default=False)
     mobile= models.CharField(max_length=20, unique=True)
-    first_name = models.CharField(max_length=255)
-    last_login = models.DateTimeField()
-    last_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField()
-    email = models.EmailField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    first_name = models.CharField(max_length=255)
     user_id = models.AutoField(primary_key=True)
+    last_name = models.CharField(max_length=255)
+    timezone = models.CharField(max_length=100)
+    language = models.CharField(max_length=10)
+    last_login = models.DateTimeField()
+    date_of_birth = models.DateField()
     bio = models.TextField() 
     
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')
@@ -156,7 +156,7 @@ class User(AbstractBaseUser):
         db_table = userstable
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender', 'timezone','company_id','status_id','branch_id','role_id'] 
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender','otp_required', 'timezone','company_id','status_id','branch_id','role_id'] 
 
     def __str__(self):
         return self.username

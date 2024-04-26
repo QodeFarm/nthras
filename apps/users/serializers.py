@@ -1,10 +1,8 @@
 from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User
-from django.core.files.storage import default_storage
+from apps.company.serializers import ModCompaniesSerializer, ModBranchesSerializer
+from apps.masters.serializers import ModStatusesSerializer
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
-from apps.company.serializers import *
-from apps.masters.serializers import *
-from django.conf import settings
 import os
 
 #=========================MOD_SERIALIZATION=========================
