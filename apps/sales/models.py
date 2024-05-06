@@ -145,8 +145,8 @@ class SalesPriceList(models.Model): #required fields are updated
     customer_category_id = models.ForeignKey(CustomerCategories, on_delete=models.CASCADE, db_column='customer_category_id')
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column='brand_id')
     effective_From = models.DateField()
-    effective_date = models.DateField(null=True, default=None)
-    group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column='group_id')
+    # effective_date = models.DateField(null=True, default=None)
+    # group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column='group_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
