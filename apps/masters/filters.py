@@ -40,6 +40,7 @@ class TransportersFilters(filters.FilterSet):
     gst_no = filters.CharFilter(lookup_expr='exact')
 
 
+
 class ProductTypesFilter(FilterSet):
     type_name = filters.CharFilter(lookup_expr='icontains')
 

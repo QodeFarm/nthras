@@ -192,6 +192,7 @@ class TransportersViews(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
 
+
 class ProductTypesViewSet(viewsets.ModelViewSet):
     queryset = ProductTypes.objects.all()
     serializer_class = ProductTypesSerializer
