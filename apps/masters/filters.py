@@ -1,4 +1,7 @@
-from django_filters import rest_framework as filters
+from django_filters import rest_framework as filters, FilterSet, CharFilter, NumberFilter
+import datetime
+from django.utils import timezone
+from .models import BrandSalesman
 
 class LedgerGroupsFilters(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
@@ -35,3 +38,33 @@ class TransportersFilters(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
     code = filters.CharFilter(lookup_expr='exact')
     gst_no = filters.CharFilter(lookup_expr='exact')
+
+
+
+class ProductTypesFilter(FilterSet):
+    type_name = filters.CharFilter(lookup_expr='icontains')
+
+class ProductUniqueQuantityCodesFilter(FilterSet):
+    quantity_code_name = filters.CharFilter(lookup_expr='icontains')
+	
+class UnitOptionsFilter(FilterSet):
+    unit_name = filters.CharFilter(lookup_expr='icontains')
+	
+class ProductDrugTypesFilter(FilterSet):
+    drug_type_name = filters.CharFilter(lookup_expr='icontains')
+	
+class ProductItemTypeFilter(FilterSet):
+    item_name = filters.CharFilter(lookup_expr='icontains')
+	
+class BrandSalesmanFilter(FilterSet):
+    code = filters.CharFilter(lookup_expr='icontains')
+    name = filters.CharFilter(lookup_expr='icontains')
+    rate_on = filters.ChoiceFilter(choices=BrandSalesman.RATE_ON_CHOICES, field_name='rate_on')
+
+class ProductBrandsFilter(FilterSet):
+    brand_name = filters.CharFilter(lookup_expr='icontains')
+    code = filters.CharFilter(lookup_expr='icontains')
+    brand_salesman_id = filters.NumberFilter()
+    name = CharFilter(field_name='brand_salesman_id__name', lookup_expr='exact')
+
+
