@@ -7,6 +7,8 @@ class SaleOrderFilter(filters.FilterSet):
     created_at = filters.DateFromToRangeFilter()
     order_no = filters.CharFilter(lookup_expr='icontains')
     customer_id = filters.NumberFilter()
+    order_id = filters.NumberFilter()
+    remarks = filters.CharFilter(lookup_expr='icontains')
     customer_name = filters.CharFilter(field_name='customer_id__name', lookup_expr='icontains')
     sale_type_id = filters.NumberFilter()
     sales_type_name = filters.CharFilter(field_name='sale_type_id__name', lookup_expr='icontains')

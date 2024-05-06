@@ -14,7 +14,7 @@ class ProductGroupsViewSet(viewsets.ModelViewSet):
     serializer_class = ProductGroupsSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductGroupsFilter
-    ordering_fields = ['group_name','created_at','updated_at']
+    ordering_fields = ['group_name']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -30,7 +30,7 @@ class ProductCategoriesViewSet(viewsets.ModelViewSet):
     serializer_class = ProductCategoriesSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductCategoriesFilter
-    ordering_fields = ['category_name','code','created_at','updated_at']
+    ordering_fields = ['category_name','code']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -46,7 +46,7 @@ class ProductStockUnitsViewSet(viewsets.ModelViewSet):
     serializer_class = ProductStockUnitsSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductStockUnitsFilter
-    ordering_fields = ['stock_unit_name','quantity_code_id','created_at','updated_at']
+    ordering_fields = ['stock_unit_name','quantity_code_id']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -62,7 +62,7 @@ class ProductGstClassificationsViewSet(viewsets.ModelViewSet):
     serializer_class = ProductGstClassificationsSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductGstClassificationsFilter
-    ordering_fields = ['type','code','hsn_or_sac_code','created_at','updated_at']
+    ordering_fields = ['type','code','hsn_or_sac_code']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -78,7 +78,7 @@ class ProductSalesGlViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSalesGlSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductSalesGlFilter
-    ordering_fields = ['name','sales_accounts','code','type','account_no','rtgs_ifsc_code','address','pan','employee','created_at','updated_at']
+    ordering_fields = ['name','sales_accounts','code','type','account_no','rtgs_ifsc_code','address','pan','employee']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -94,7 +94,7 @@ class ProductPurchaseGlViewSet(viewsets.ModelViewSet):
     serializer_class = ProductPurchaseGlSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductPurchaseGlFilter
-    ordering_fields = ['name','purchase_accounts','code','type','account_no','rtgs_ifsc_code','address','pan','employee','created_at','updated_at']
+    ordering_fields = ['name','purchase_accounts','code','type','account_no','rtgs_ifsc_code','address','pan','employee']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -110,7 +110,7 @@ class productsViewSet(viewsets.ModelViewSet):
     serializer_class = productsSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductsFilter
-    ordering_fields = ['name','code','barcode','category_id','product_group_id','type_id','gst_classification_id','created_at','updated_at']
+    ordering_fields = ['name','code','barcode','category_id','product_group_id','type_id','gst_classification_id','created_at']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
