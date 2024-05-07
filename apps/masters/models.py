@@ -63,10 +63,10 @@ class Statuses(models.Model):
 class LedgerGroups(models.Model):
     ledger_group_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    inactive = models.BooleanField(default=False)
-    under_group = models.CharField(max_length=255)
-    nature = models.CharField(max_length=255)
+    code = models.CharField(max_length=50, null=True, default=None)
+    inactive = models.BooleanField(default=False, null=True)
+    under_group = models.CharField(max_length=255, null=True, default=None)
+    nature = models.CharField(max_length=255, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -91,7 +91,7 @@ class FirmStatuses(models.Model):
 class Territory(models.Model):
     territory_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -104,7 +104,7 @@ class Territory(models.Model):
 class CustomerCategories(models.Model):
     customer_category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -129,11 +129,11 @@ class GstCategories(models.Model):
 class CustomerPaymentTerms(models.Model):
     payment_term_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    fixed_days = models.PositiveIntegerField()
-    no_of_fixed_days = models.PositiveIntegerField()
-    payment_cycle = models.CharField(max_length=255)
-    run_on = models.CharField(max_length=255)
+    code = models.CharField(max_length=50, null=True, default=None)
+    fixed_days = models.PositiveIntegerField(null=True, default=None)
+    no_of_fixed_days = models.PositiveIntegerField(null=True, default=None)
+    payment_cycle = models.CharField(max_length=255, null=True, default=None)
+    run_on = models.CharField(max_length=255, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -146,7 +146,7 @@ class CustomerPaymentTerms(models.Model):
 class PriceCategories(models.Model):
     price_category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -159,9 +159,9 @@ class PriceCategories(models.Model):
 class Transporters(models.Model):
     transporter_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50)
-    gst_no = models.CharField(max_length=50)
-    website_url = models.CharField(max_length=255)
+    code = models.CharField(max_length=50, null=True,default=None)
+    gst_no = models.CharField(max_length=50, null=True,default=None)
+    website_url = models.CharField(max_length=255, null=True,default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
