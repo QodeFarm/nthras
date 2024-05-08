@@ -68,3 +68,5 @@ class ProductBrandsFilter(FilterSet):
     name = CharFilter(field_name='brand_salesman_id__name', lookup_expr='exact')
 
 
+class PurchaseTypesFilter(FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
