@@ -48,6 +48,7 @@ class ProductsFilter(FilterSet):
     barcode = filters.CharFilter(lookup_expr='exact')
     #Foreign key relations or functions
     category_id = filters.NumberFilter()
+    product_id = filters.NumberFilter()
     category_name = CharFilter(field_name='category_id__category_name', lookup_expr='exact')
     product_group_id = filters.NumberFilter()
     group_name = CharFilter(field_name='product_group_id__group_name', lookup_expr='exact')
