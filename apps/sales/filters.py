@@ -1,5 +1,10 @@
+# from datetime import timedelta, timezone
+from datetime import timedelta
+from django.utils import timezone
 from django_filters import rest_framework as filters
+from requests import Response
 from .models import SaleOrder,Invoices,PaymentTransactions,OrderItems,Shipments,SalesPriceList,SaleOrderReturns
+import django_filters
 
 class SaleOrderFilter(filters.FilterSet):
     order_date = filters.DateFromToRangeFilter()
@@ -16,9 +21,53 @@ class SaleOrderFilter(filters.FilterSet):
     advance_amount = filters.RangeFilter()
     doc_amount = filters.RangeFilter()
 
+    
+    last_six_orders_for_customer = filters.NumberFilter(method='get_last_six_orders')
+
+
+        # if last_six_months is None:
+        #     print('Last Six Months Executed')
+        #     six_months_ago = timezone.now() - timedelta(days=6*30)  # Roughly six months
+        #     queryset = queryset.filter(order_date__gte=six_months_ago)
+        #     return queryset
+ 
+    # http://127.0.0.1:8000/api/v1/sales/sale_order/?last_six_orders_for_customer=2
+    # http://127.0.0.1:8000/api/v1/sales/sale_order/?last_six_orders_for_customer=2&limit=3
+    # http://127.0.0.1:8000/api/v1/sales/sale_order/?last_six_orders_for_customer=1&months=7
+    def get_last_six_orders(self, queryset, name,value,months=None,limit=None,year=None):  #limit is type(int)
+        limit = self.request.query_params.get('limit',None)  # limited = no of orders
+        year = self.request.query_params.get('year',None)
+        months = self.request.query_params.get('months',None)
+
+        if limit:
+            print('Limit is Executed')
+            limit = int(limit)
+            # Filter by customer_id and limit the number of results
+            return queryset.filter(customer_id=value).order_by('-order_date')[:limit]
+        
+        if year:
+            print('Year is Executed')
+            # Filter by year & customer ID
+            queryset =  queryset.filter(order_date__year=year)
+            queryset = queryset.filter(customer_id=value)
+            return queryset
+        
+        if months:
+            print('Last Six Months Executed')
+            month = int(months)
+            six_months_ago = timezone.now() - timedelta(days=month*30)
+            queryset = queryset.filter(customer_id=value)
+            queryset = queryset.filter(order_date__gte=six_months_ago)
+            return queryset
+        
+        else: #only customer ID
+            print('Else is workng')
+            return queryset.filter(customer_id=value).order_by('-order_date')
+
+    
     class Meta:
         model = SaleOrder
-        fields =[]
+        fields =['customer_id']
 
 class InvoicesFilter(filters.FilterSet):
     invoice_date = filters.DateFilter()            
