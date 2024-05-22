@@ -18,3 +18,25 @@ class TotalView(APIView):
             except (json.JSONDecodeError, KeyError):
                 return Response({'error': 'Invalid data format'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProductDetailsView(APIView):
+    def post(self, request):
+        serializer = LastCartItemSerializer(data=request.data)
+        if serializer.is_valid():
+            last_cart_items_text = serializer.validated_data['last_cart_items']
+            try:
+                # Parse the JSON string
+                last_cart_items = json.loads(last_cart_items_text)
+                # Extract required fields
+                products = [
+                    {
+                        "ProductRetailerId": item["ProductRetailerId"],
+                        "Name": item["Name"],
+                        "Quantity": item["Quantity"]
+                    } for item in last_cart_items
+                ]
+                return Response(products, status=status.HTTP_200_OK)
+            except (json.JSONDecodeError, KeyError):
+                return Response({'error': 'Invalid data format'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
