@@ -72,15 +72,29 @@ class VoucherView(APIView):
 
         response_data = api_response.json()
         json_data_table = None
+        party = "default"
+        delivery_date = "default"
+        invoice_no = None
         extracted_values = []
         if response_data:
-              if response_data["JsonDataTable"]:
-                    json_data_table = json.loads(response_data["JsonDataTable"])
-                    extracted_values.append({
-                    'party': json_data_table[0]["Party"],
-                    'delivery_date':json_data_table[0]["delivery_date"],  
-                    'invoice_no' : json_data_table[0]["invoice_no"]                   
+            if response_data["JsonDataTable"]:
+                json_data_table = json.loads(response_data["JsonDataTable"])
+                if json_data_table[0]["Party"] is not None:
+                     party = json_data_table[0]["Party"]
+                if json_data_table[0]["delivery_date"] is not None:
+                     delivery_date = json_data_table[0]["delivery_date"]
+
+                if json_data_table[0]["invoice_no"] is None:
+                    invoice_no = "Processing"                         
+                else:
+                    invoice_no = "Ready to dispatch"
+                
+                extracted_values.append({
+                'party': party,
+                'delivery_date':delivery_date,  
+                'invoice_no' : invoice_no                 
                 })
-        return Response(extracted_values, status=status.HTTP_200_OK)        
-              
+
+        return Response({"response_data" : extracted_values}, status=status.HTTP_200_OK)        
+            
       
