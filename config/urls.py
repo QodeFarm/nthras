@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/v1/inventory/', include('apps.inventory.urls')),
     path('api/v1/purchase/', include('apps.purchase.urls')),
     path('api/v1/per_val/', include('apps.per_val.url')),
+    path('api/v1/alignbooks/', include('apps.alignbook.url')),
     path('', api_links, name='api_links'),
 ]
 
