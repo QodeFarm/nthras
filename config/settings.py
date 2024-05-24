@@ -69,7 +69,8 @@ INSTALLED_APPS = [
     'apps.inventory',
     'apps.purchase',
     'apps.users',
-    'apps.per_val'
+    'apps.per_val',
+    'apps.alignbook'
 ]
 
 MIDDLEWARE = [
