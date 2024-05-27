@@ -1,5 +1,8 @@
+import json
+from django.http import HttpResponse
 from django.shortcuts import render
-from rest_framework import viewsets
+from requests import Response
+from rest_framework import viewsets, status
 from .serializers import *
 from utils_methods import list_all_objects,create_instance,update_instance
 from django_filters.rest_framework import DjangoFilterBackend
@@ -7,6 +10,7 @@ from rest_framework.filters import OrderingFilter
 from .filters import SaleOrderFilter,InvoicesFilter,PaymentTransactionsFilter,OrderItemsFilter,ShipmentsFilter,SalesPriceListFilter,SaleOrderReturnsFilter
 # Create your views here.
 
+from rest_framework.decorators import action, api_view
     
 
 class SaleOrderView(viewsets.ModelViewSet):
@@ -29,6 +33,32 @@ class SaleOrderView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
+
+    # @action(detail=False, methods=['get'], url_path=r'download/(?P<file_format>[^/.]+)')
+    # def download_data(self, request, app_label=None, model_name=None, file_format=None):
+    #     try:
+    #         queryset = self.queryset
+    #         serializer = self.serializer_class(queryset, many=True)
+    #         data = serializer.data
+
+
+    #         if file_format == 'json':
+    #             serializer = self.serializer_class(queryset, many=True)
+    #             data = serializer.data
+                
+    #             # Serialize the data to JSON
+    #             formatted_data = json.dumps(serializer.data, indent=4)
+
+    #             # Set the Content-Disposition header to force download
+    #             response = HttpResponse(formatted_data, content_type='application/json')
+    #             response['Content-Disposition'] = f'attachment; filename="{model_name}.json"'
+    #             return response
+            
+    #     except ValueError as e:
+    #         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    #     except Exception as e:
+    #         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
 

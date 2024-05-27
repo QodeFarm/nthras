@@ -68,7 +68,8 @@ INSTALLED_APPS = [
     'apps.masters',
     'apps.inventory',
     'apps.purchase',
-    'apps.users'
+    'apps.users',
+    'apps.generic',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +81,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'middleware.download_response_middleware.DownloadResponseMiddleware',
+    'middleware.download_response_middleware.StripDownloadJsonMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
