@@ -4,7 +4,6 @@ import json
 import openpyxl
 from openpyxl.utils import get_column_letter
 from .fields import *
-   
 
 class StripDownloadJsonMiddleware:
     def __init__(self, get_response):
@@ -13,7 +12,20 @@ class StripDownloadJsonMiddleware:
     def __call__(self, request):
         # Store the original path
         original_path = request.path_info
- 
+
+        def fetch_model_fields():
+            if original_path:
+                #get the model name from URL
+                split_path = original_path.split('/')
+                download_index = split_path.index("download")
+                model_name_index = download_index - 1
+                model_name = split_path[model_name_index]
+
+                #get Required fields from fields.py
+                fields = all_model_fields[model_name]
+
+                return model_name, fields
+
 
         #------------ J S O N ------------------------------------
 
@@ -29,7 +41,7 @@ class StripDownloadJsonMiddleware:
 
         # Get the response from the next middleware or view
         response = self.get_response(request)
-        
+
         # Restore the original path_info to avoid affecting other middlewares or views
         request.path_info = original_path
         request.path = original_path
@@ -81,13 +93,14 @@ class StripDownloadJsonMiddleware:
             print('content-type = ',response['Content-Type'])
             if response.status_code == 200:
 
+                #get the model name from URL
+                model_name,fields = fetch_model_fields()
+
                 try:
                     content = response.content
                     data = content.decode('utf-8') #decode the data in content
                     data = response.data
                     extracted_data = (data['data'])
-                    
-
         
                     response = HttpResponse(json.dumps(extracted_data, indent=2), content_type='application/json')
                     response = HttpResponse(content_type='text/csv')
@@ -95,17 +108,22 @@ class StripDownloadJsonMiddleware:
 
                     writer = csv.writer(response)
                     if data:
-                        header = extracted_data[0].keys()
-                        writer.writerow(header)
-                        for item in extracted_data:
-                            writer.writerow(item.values())
 
-                    return response   
+                        # Write the header
+                        header = [field for field in extracted_data[0].keys() if field in fields]
+                        writer.writerow(header)
+
+                        # Write the data rows
+                        for item in extracted_data:
+                            row = [item[field] for field in header]
+                            writer.writerow(row)
+
+                    return response
 
                 except json.JSONDecodeError:
-                    return response  # Return the original response if JSON decoding fails 
+                    return response  # Return the original response if JSON decoding fails
 
-        #------------ E X C E L --------------------------------------                 
+        #------------ E X C E L --------------------------------------              
 
         if original_path.endswith('download/excel/'):
             # Strip the '/download/excel/' part from the URL
@@ -136,6 +154,7 @@ class StripDownloadJsonMiddleware:
                     data = content.decode('utf-8') #decode the data in content
                     data = response.data
                     extracted_data = (data['data'])
+
         
                     # dict_data = json.loads(json_data)
                     response = HttpResponse(json.dumps(extracted_data, indent=2), content_type='application/json')
@@ -151,20 +170,21 @@ class StripDownloadJsonMiddleware:
                     ws.title = "Data"
 
                     if data:
-                        # Write the headers
-                        header = extracted_data[0].keys()
-                        writer.writerow(header)
-                        for col_num, header in enumerate(header, 1):
+                        # get fields and model
+                        model_name,fields = fetch_model_fields()
+
+                        # Write the header
+                        for col_num, field in enumerate(fields, 1):
                             col_letter = get_column_letter(col_num)
-                            ws[f'{col_letter}1'] = header
+                            ws[f'{col_letter}1'] = field
 
                         # Write the data rows
                         for row_num, item in enumerate(extracted_data, 2):
-                            for col_num, (key, value) in enumerate(item.items(), 1):
+                            for col_num, field in enumerate(fields, 1):
                                 col_letter = get_column_letter(col_num)
-                                ws[f'{col_letter}{row_num}'] = str(value)  # Convert value to string
+                                ws[f'{col_letter}{row_num}'] = str(item.get(field, ''))  # Convert value to string
 
-                            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                     response['Content-Disposition'] = f'attachment; filename="excel_data_file.xlsx"'
                     wb.save(response)
 
