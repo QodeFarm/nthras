@@ -1,3 +1,3 @@
-EMAIL_USER = "enc:5e6c498cc1596e6e761bf4c9eae21c28762f0882d9dce569d2610e8467a462f9"
-EMAIL_PASS = "enc:38987b38fef60e742caa7f876ff39a1d75c763568320aca598ab1d6ece2c5530"
-EMAIL_FROM = "enc:5e6c498cc1596e6e761bf4c9eae21c28762f0882d9dce569d2610e8467a462f9"
+EMAIL_USER = "chetanppatil998@gmail.com"
+EMAIL_PASS = "ersf vuoo hjzl ghgt"
+EMAIL_FROM = "chetanppatil998@gmail.com"
