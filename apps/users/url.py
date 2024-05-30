@@ -10,15 +10,14 @@ router.register(r'modules', ModulesViewSet, basename='modules')
 router.register(r'actions', ActionsViewSet, basename='actions')
 router.register(r'userdata', GetUserDataViewSet, basename='userdata')
 router.register(r'permissions', PermissionsViewSet, basename='permissions')
-router.register(r'module_sections', ModuleSectionsViewSet, basename='modulesections')
+router.register(r'module_sections', ModuleSectionsViewSet, basename='module_sections')
 router.register(r'role_permissions', RolePermissionsViewSet, basename='role_permissions')
 
 urlpatterns = [
     path("djoser/", include("djoser.urls")),
     path("token/", include("djoser.urls.jwt")),
-    path('changepassword/',UserChangePasswordView.as_view(), name='changepassword'),
-    path('reset-password/<uid>/<token>/', UserPasswordResetView.as_view(), name='reset-password' ),
-    path('send-reset-password-email/', SendPasswordResetEmailView.as_view(), name='send-reset-password-email'),
-
+    path('change_password/',UserChangePasswordView.as_view(), name='change_password'),
+    path('reset_password/<uid>/<token>/', UserPasswordResetView.as_view(), name='reset_password' ),
+    path('reset_password_email/', SendPasswordResetEmailView.as_view(), name='reset_password_email'),
 ]
 urlpatterns += router.urls
