@@ -1,9 +1,22 @@
 import csv
+from datetime import date
+import decimal
 from django.http import HttpResponse
 import json
 import openpyxl
 from openpyxl.utils import get_column_letter
 from .fields import *
+
+
+def convert_decimal_to_float(obj):
+    if isinstance(obj, date):
+            return obj.isoformat()
+    if isinstance(obj, dict):
+        return {key: convert_decimal_to_float(value) for key, value in obj.items()}
+    elif isinstance(obj, decimal.Decimal):
+        return float(obj)
+    else:
+        return obj
 
 class StripDownloadJsonMiddleware:
     def __init__(self, get_response):
@@ -12,6 +25,7 @@ class StripDownloadJsonMiddleware:
     def __call__(self, request):
         # Store the original path
         original_path = request.path_info
+        filter_path = request.get_full_path()
 
         def fetch_model_fields():
             if original_path:
@@ -26,7 +40,57 @@ class StripDownloadJsonMiddleware:
 
                 return model_name, fields
 
+        #------------Filter J S O N ------------------------------------
 
+        if filter_path.endswith('download/json/'):
+            print('--Called Filter data Middleware--')
+            request.download_json = True
+        else:
+            request.download_json = False
+
+        # Get the response from the next middleware or view
+        response = self.get_response(request)
+
+
+        # If the original request URL ended with '/download/json/'
+        if getattr(request, 'download_json', False):
+            # Ensure the response is JSON
+            print('response.status_code = ',response.status_code)
+            print('content-type = ',response['Content-Type'])
+            if response.status_code == 200: # and 'application/json' in response['Content-Type']:
+
+                try:
+                    content = response.content
+                    data = content.decode('utf-8')
+                    data = response.data
+                    data = data['data']
+                    print('-------------------------')
+                    new_data = []
+                    print('this time data type = ',type(data))
+                    print(data)
+                    for v in data:
+                        sub_data = {}
+                        print(type(v))
+                        print(v)
+                        for k,m in v.items():
+                            sub_data[k] = m
+                        else:
+                            float_values = convert_decimal_to_float(sub_data)
+                            new_data.append(float_values)
+
+                except json.JSONDecodeError:
+                    return response  # Return the original response if JSON decoding fails
+                
+                try:
+                    # Return the data as a downloadable JSON file
+                    response = HttpResponse(json.dumps(new_data, indent=2), content_type='application/json')
+                except TypeError as e:
+                    print(f'Error : {e}')
+                    return response
+                
+                response['Content-Disposition'] = 'attachment; filename="Json_data_file.json"'
+                return response
+            
         #------------ J S O N ------------------------------------
 
         if original_path.endswith('download/json/'):
