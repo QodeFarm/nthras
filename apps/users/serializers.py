@@ -139,7 +139,7 @@ class UserChangePasswordSerializer(serializers.Serializer):
         return attrs
 
 #====================================================================================================
-
+#forgot passswd serializer
 class SendPasswordResetEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
     class Meta:
