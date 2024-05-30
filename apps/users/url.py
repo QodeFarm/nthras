@@ -21,5 +21,4 @@ urlpatterns = [
     path('send-reset-password-email/', SendPasswordResetEmailView.as_view(), name='send-reset-password-email'),
 
 ]
-
 urlpatterns += router.urls
