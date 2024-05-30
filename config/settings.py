@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djoser',
+    'drf_yasg',
     
     #modules
     'apps.vendor',
@@ -68,7 +69,9 @@ INSTALLED_APPS = [
     'apps.masters',
     'apps.inventory',
     'apps.purchase',
-    'apps.users'
+    'apps.users',
+    'apps.per_val',
+    'apps.alignbook'
 ]
 
 MIDDLEWARE = [
