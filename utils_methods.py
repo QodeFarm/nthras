@@ -16,11 +16,19 @@ def custom_upload_to(instance, filename):
 
 
 # -----------------------------Customised Filters-------------------------------
+def count_sub_dicts(main_dict):
+    count = 0
+    for value in main_dict.values():
+        if isinstance(value, dict):
+            count += 1
+    return count
+
 def sale_by_customer():
     from apps.sales.models import Invoices, SaleOrder
     sale_orders = SaleOrder.objects.select_related('customer_id').all()
 
     # Calculate summary of sales for each customer
+
     sales_summary = {}
     for sale_order in sale_orders:
         customer_id = str(sale_order.customer_id)  # Accessing the customer_id field directly, convert to str otherwise error will come
@@ -53,7 +61,14 @@ def sale_by_customer():
             summary['avg_order_value'] = total_sales_amount / num_orders
             avg = total_sales_amount / num_orders
 
-    return Response(sales_summary.values())
+    
+    # return Response(sales_summary.values())
+    response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+    return Response(response_data)
 
 #=========
 def sale_by_product(desc_param=None,p_id=None):
@@ -107,11 +122,22 @@ def sale_by_product(desc_param=None,p_id=None):
                 i = i+1
 
 
-        return Response(data.values())
+        response_data = {
+            'count': count_sub_dicts(data),
+            'msg': None,
+            'data': data.values()
+        }
+        return Response(response_data)
+    
     
     # http://127.0.0.1:8000/api/v1/sales/sale_order/?sales_by_product=true
     else:
-        return Response(sales_summary.values())
+        response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+        return Response(response_data)
 
 #==========
 def sale_return_report():
@@ -145,7 +171,12 @@ def sale_return_report():
 
         sales_summary[sale_id]['original_sale_order_info'] = json_data
 
-    return Response(sales_summary.values())
+    response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+    return Response(response_data)
 
 #===========
 def sale_order_status():
@@ -194,14 +225,14 @@ def sale_order_status():
                             'delivery_date' : delivery_date,
   
                             'invoice_id' : invoice_id,
-                            'total_amount' : amount,
+                            'total_amount' : float(amount),
                             'status': status,
 
                             'transaction_id':transaction_id if payment else None,
                             'payment_status' :pay_status if payment else None,
 
                             'order_item_id': order_item_id if order_items else None,
-                            'quantity' : quantity if order_items else None,
+                            'quantity' : float(quantity) if order_items else None,
                             'unit_price' : price if order_items else None,
 
                             'shipment_id':shipment_id if shipments else None,
@@ -211,7 +242,12 @@ def sale_order_status():
                             'shipping_company_name' :name if companies else None,
                             
                 }
-        return Response(sales_summary.values())
+        response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+        return Response(response_data)
 # ------------------------------------------------------------------------------
 
 #functions for demonstration purposes
