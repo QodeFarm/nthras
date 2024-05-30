@@ -252,11 +252,11 @@ SIMPLE_JWT = {
 DJOSER = {
     'LOGIN_FIELD': 'username',
     'USER_CREATE_PASSWORD_RETYPE': True,
-    'ACTIVATION_URL': '/activate/{uid}/{token}',
+    'ACTIVATION_URL': 'api/v1/users/activation/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SEND_CONFIRMATION_EMAIL': True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
-    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': 'password_reset/{uid}/{token}',
     'SET_PASSWORD_RETYPE': True,
     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     'TOKEN_MODEL': None,  # To Delete User Must Set it to None
