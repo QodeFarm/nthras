@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'djoser',
     'django_safe_settings',
+    'drf_yasg',
     
     #modules
     'apps.vendor',
@@ -69,7 +70,9 @@ INSTALLED_APPS = [
     'apps.masters',
     'apps.inventory',
     'apps.purchase',
-    'apps.users'
+    'apps.users',
+    'apps.per_val',
+    'apps.alignbook'
 ]
 
 MIDDLEWARE = [
