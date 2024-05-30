@@ -21,7 +21,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 from config import settings
 from config.views import api_links
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="NTHRAS",
+        default_version='v1',
+        #description="API for NTHRAS",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,13 +45,13 @@ urlpatterns = [
     path('api/v1/masters/', include('apps.masters.urls')),
     path('api/v1/products/', include('apps.products.urls')),
     path('api/v1/sales/', include('apps.sales.urls')),
-    path('api/v1/customer/', include('apps.customer.urls')),
     path('api/v1/inventory/', include('apps.inventory.urls')),
     path('api/v1/purchase/', include('apps.purchase.urls')),
     path('api/v1/generic/', include('apps.generic.urls')),
     path('api/v1/per_val/', include('apps.per_val.url')),
     path('api/v1/alignbooks/', include('apps.alignbook.url')),
     path('', api_links, name='api_links'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
 
 #below will handle media files uploaded when instance is created.
