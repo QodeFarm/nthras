@@ -1,10 +1,10 @@
 from django.db import models
 from utils_methods import *
 from utils_variables import *
-import uuid
+
 # Create your models here.
 class Warehouses(models.Model):
-    warehouse_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    warehouse_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255,null=True,default=None)
     item_type_id = models.ForeignKey('masters.ProductItemType', on_delete=models.CASCADE, null=True, default=None, db_column='item_type_id')

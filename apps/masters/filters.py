@@ -1,7 +1,8 @@
-from django_filters import rest_framework as filters, FilterSet, CharFilter
+from django_filters import rest_framework as filters, FilterSet, CharFilter, NumberFilter
+import datetime
+from django.utils import timezone
 from .models import BrandSalesman,Country, State, City
 import django_filters
-
 
 class CountryFilters(django_filters.FilterSet):
     country_name = django_filters.CharFilter(field_name='country_name', lookup_expr='icontains')
@@ -10,7 +11,7 @@ class CountryFilters(django_filters.FilterSet):
     class Meta:
         model = Country
         fields = ['country_name', 'country_code']
-    
+
 class StateFilters(django_filters.FilterSet):
     state_name = django_filters.CharFilter(field_name='state_name', lookup_expr='icontains')
     state_code = django_filters.CharFilter(field_name='state_code', lookup_expr='exact')

@@ -4,12 +4,12 @@ from apps.inventory.models import Warehouses
 from apps.masters.models import CustomerPaymentTerms, GstTypes, ProductBrands, ProductItemType, CustomerCategories, SaleTypes, ShippingCompanies, ShippingModes
 from utils_variables import saleorderreturns, saleorders, paymenttransactions, invoices, orderitems, shipments, salespricelist
 from apps.products.models import ProductGroups, products as Products
-import uuid
+
 # Create your models here.
 
 
 class SaleOrder(models.Model): #required fields are updated
-    order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order_id = models.AutoField(primary_key=True)
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column='gst_type_id')
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     email = models.CharField(max_length=255, null=True, default=None)
@@ -50,7 +50,7 @@ class SaleOrder(models.Model): #required fields are updated
 
 
 class Invoices(models.Model): #required fields are updated
-    invoice_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    invoice_id = models.AutoField(primary_key=True)
     order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='order_id')
     warehouse_id = models.ForeignKey(Warehouses, on_delete=models.CASCADE, null=True, default=None, db_column='warehouse_id')
     invoice_date = models.DateField()
@@ -68,7 +68,7 @@ class Invoices(models.Model): #required fields are updated
         db_table = invoices
 
 class PaymentTransactions(models.Model): #required fields are updated
-    transaction_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transaction_id = models.AutoField(primary_key=True)
     invoice_id = models.ForeignKey(Invoices, on_delete=models.CASCADE, db_column='invoice_id')
     payment_date = models.DateField(null=True, default=None)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, default=None)
@@ -92,7 +92,7 @@ class PaymentTransactions(models.Model): #required fields are updated
         db_table = paymenttransactions
 
 class OrderItems(models.Model): #required fields are updated
-    order_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    order_item_id = models.AutoField(primary_key=True)
     order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='order_id')
     product_id = models.ForeignKey(Products, on_delete=models.CASCADE, db_column='product_id')
     quantity = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
@@ -114,7 +114,7 @@ class OrderItems(models.Model): #required fields are updated
         db_table = orderitems
 
 class Shipments(models.Model): #required fields are updated
-    shipment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    shipment_id = models.AutoField(primary_key=True)
     destination = models.CharField(max_length=255,null=True,default=None)
     shipping_mode_id = models.ForeignKey(ShippingModes,on_delete=models.CASCADE, null=True, default=None, db_column='shipping_mode_id')
     shipping_company_id = models.ForeignKey(ShippingCompanies,on_delete=models.CASCADE, null=True, default=None, db_column='shipping_company_id')
@@ -140,7 +140,7 @@ class Shipments(models.Model): #required fields are updated
 
 
 class SalesPriceList(models.Model): #required fields are updated
-    sales_price_list_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sales_price_list_id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=255)
     customer_category_id = models.ForeignKey(CustomerCategories, on_delete=models.CASCADE, db_column='customer_category_id')
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column='brand_id')
@@ -157,7 +157,7 @@ class SalesPriceList(models.Model): #required fields are updated
         db_table = salespricelist
 
 class SaleOrderReturns(models.Model): #required fields are updated
-    sale_order_return_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sale_order_return_id = models.AutoField(primary_key=True)
     sale_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='sale_id')
     sales_return_no = models.CharField(max_length=255,null=True,default=None)
     against_bill = models.CharField(max_length=255,null=True,default=None)

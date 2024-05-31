@@ -1,17 +1,16 @@
 from django_filters import rest_framework as filters
 from .models import SaleOrder,Invoices,PaymentTransactions,OrderItems,Shipments,SalesPriceList,SaleOrderReturns
-from utils_methods import filter_uuid
 
 class SaleOrderFilter(filters.FilterSet):
     order_date = filters.DateFromToRangeFilter()
     delivery_date = filters.DateFromToRangeFilter()
     created_at = filters.DateFromToRangeFilter()
     order_no = filters.CharFilter(lookup_expr='icontains')
-    customer_id = filters.CharFilter(method=filter_uuid)
-    order_id = filters.CharFilter(method=filter_uuid)
+    customer_id = filters.NumberFilter()
+    order_id = filters.NumberFilter()
     remarks = filters.CharFilter(lookup_expr='icontains')
     customer_name = filters.CharFilter(field_name='customer_id__name', lookup_expr='icontains')
-    sale_type_id = filters.CharFilter(method=filter_uuid)
+    sale_type_id = filters.NumberFilter()
     sales_type_name = filters.CharFilter(field_name='sale_type_id__name', lookup_expr='icontains')
     item_value = filters.RangeFilter()
     advance_amount = filters.RangeFilter()
@@ -45,8 +44,8 @@ class PaymentTransactionsFilter(filters.FilterSet):
         fields = ['payment_date', 'payment_status', 'amount']
 
 class OrderItemsFilter(filters.FilterSet):
-    order_id = filters.CharFilter(method=filter_uuid)
-    product_id = filters.CharFilter(method=filter_uuid)
+    order_id = filters.NumberFilter()
+    product_id = filters.NumberFilter()
     product_name = filters.CharFilter(field_name='product_id__name',lookup_expr='icontains')
     amount = filters.RangeFilter()
     rate= filters.RangeFilter()
@@ -58,7 +57,7 @@ class OrderItemsFilter(filters.FilterSet):
 
 class ShipmentsFilter(filters.FilterSet):
     shipping_date = filters.DateFilter()
-    order_id = filters.CharFilter(method=filter_uuid)
+    order_id = filters.NumberFilter()
     shipping_tracking_no = filters.CharFilter(field_name='shipping_tracking_no', lookup_expr='icontains')
 
     class Meta:
@@ -71,18 +70,18 @@ class SalesPriceListFilter(filters.FilterSet):
     effective_range = filters.DateFromToRangeFilter(field_name='effective_From')
     customer_category_id = filters.NumberFilter()
     customer_category_name = filters.CharFilter(field_name='customer_category_id__name',lookup_expr='icontains')
-    brand_id = filters.CharFilter(method=filter_uuid)
+    brand_id = filters.NumberFilter()
     brand_name = filters.CharFilter(field_name='brand_id__name',lookup_expr='icontains')
     # group_id = filters.NumberFilter(field_name='group_id__id')
 
     class Meta:
         model = SalesPriceList
-        fields = ['effective_From', 'effective_date','effective_range','customer_category_id','customer_category_name','brand_id']
+        fields = ['effective_From', 'effective_date']
 
 class SaleOrderReturnsFilter(filters.FilterSet):
     sales_return_no = filters.CharFilter(lookup_expr='icontains')
     due_date = filters.DateFilter()
-    sale_id = filters.CharFilter(method=filter_uuid)
+    sale_id = filters.NumberFilter()
     class Meta:
         model = SaleOrderReturns
-        fields = ['sales_return_no', 'due_date','sale_id']
+        fields = ['sales_return_no', 'due_date']

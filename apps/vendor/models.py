@@ -3,12 +3,12 @@ from apps.customer.models import LedgerAccounts
 from apps.masters.models import FirmStatuses, GstCategories, PriceCategories, Territory, Transporters
 from utils_variables import vendorcategory, vendorpaymentterms, vendoragent, vendor, vendorattachments, vendoraddresses
 from utils_methods import custom_upload_to, EncryptedTextField
-import uuid
+
 
 # Create your models here.
     
 class VendorCategory(models.Model): #required fields are updated
-    vendor_category_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    vendor_category_id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, null=True, default=None)
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -22,7 +22,7 @@ class VendorCategory(models.Model): #required fields are updated
 
 
 class VendorPaymentTerms(models.Model):
-    payment_term_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    payment_term_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, null=True, default=None)
     fixed_days = models.IntegerField(null=True, default=None)
@@ -40,7 +40,7 @@ class VendorPaymentTerms(models.Model):
 
 
 class VendorAgent(models.Model):
-    vendor_agent_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    vendor_agent_id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=50, null=True, default=None)
     name = models.CharField(max_length=255)
     commission_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
@@ -67,7 +67,7 @@ class VendorAgent(models.Model):
 
 
 class Vendor(models.Model):
-    vendor_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    vendor_id = models.AutoField(primary_key=True)
     gst_no = models.CharField(max_length=255, null=True, default=None)
     name = models.CharField(max_length=255)
     print_name = models.CharField(max_length=255)
@@ -121,7 +121,7 @@ class Vendor(models.Model):
 
 
 class VendorAttachment(models.Model):
-    attachment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    attachment_id = models.AutoField(primary_key=True)
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column='vendor_id')
     attachment_name = models.CharField(max_length=255)
     attachment_path = models.CharField(max_length=255)
@@ -135,7 +135,7 @@ class VendorAttachment(models.Model):
         return f'{self.attachment_id}_{self.attachment_name}'
     
 class VendorAddress(models.Model):
-    vendor_address_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    vendor_address_id = models.AutoField(primary_key=True)
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column='vendor_id')
     ADDRESS_TYPE_CHOICES = [
         ('billing', 'Billing'),

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
-import uuid,os # type: ignore
+from passlib.hash import bcrypt  # type: ignore
+import bcrypt,uuid,os # type: ignore
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from utils_methods import EncryptedTextField
@@ -16,7 +17,7 @@ def company_logos(instance, filename):
     return f"company/{original_filename}_{unique_id}{file_extension}"
 
 class Companies(models.Model):
-    company_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    company_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     print_name = models.CharField(max_length=255)
     short_name = models.CharField(max_length=100, null=True, default =None)
@@ -50,9 +51,9 @@ class Companies(models.Model):
     authorized_person = models.CharField(max_length=255, default=None, null=True)
     iec_code = models.CharField(max_length=50, default=None, null=True)
     eway_username = models.CharField(max_length=100, default=None, null=True)
-    eway_password = EncryptedTextField(max_length=100, default=None, null=True)
+    eway_password = models.CharField(max_length=100, default=None, null=True)
     gstn_username = models.CharField(max_length=100, default=None, null=True)
-    gstn_password = EncryptedTextField(max_length=100, default=None, null=True)
+    gstn_password = models.CharField(max_length=100, default=None, null=True)
     VAT_GST_STATUS_CHOICES = (
         ('Active', 'Active'),
         ('Inactive', 'Inactive'),
@@ -91,6 +92,36 @@ class Companies(models.Model):
                 if not os.listdir(logo_dir):
                     os.rmdir(logo_dir)
 
+    def save(self, *args, **kwargs):
+        if self.pk:  # Check if instance already exists
+            original = Companies.objects.get(pk=self.pk)
+            # Ensure type consistency when comparing strings
+            byte_prefix = "b'$2b$'"
+            # Check if the incoming password is different and not already hashed
+            if self.eway_password and (self.eway_password != original.eway_password) and not self.eway_password.startswith(byte_prefix):
+                self.eway_password = bcrypt.hashpw(self.eway_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and (self.gstn_password != original.gstn_password) and not self.gstn_password.startswith(byte_prefix):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+        else:
+            # For new records, hash any passwords that aren't already hashes
+            if self.eway_password and not self.eway_password.startswith("b'$2b$'"):
+                self.eway_password = bcrypt.hashpw(self.eway_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and not self.gstn_password.startswith("b'$2b$'"):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+        super().save(*args, **kwargs)
+
+    def verify_eway_password(self, password):
+        #Here I am Verifying the eway_password using bcrypt
+        if self.eway_password:
+            return bcrypt.checkpw(password.encode(), self.eway_password)
+        return False
+
+    def verify_gstn_password(self, password):
+        #Here I am Verifying the gstn_password using bcrypt
+        if self.gstn_password:
+            return bcrypt.checkpw(password.encode(), self.gstn_password)
+        return False
+
 def branches_picture(instance, filename):
     # Get the file extension
     file_extension = os.path.splitext(filename)[-1]
@@ -105,7 +136,7 @@ def branches_picture(instance, filename):
 
 
 class Branches(models.Model):
-    branch_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    branch_id = models.AutoField(primary_key=True)
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, db_column = 'company_id')
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, default=None, null=True)
@@ -114,9 +145,9 @@ class Branches(models.Model):
     status_id = models.ForeignKey('masters.Statuses', on_delete=models.CASCADE, db_column = 'status_id')
     allowed_warehouse = models.CharField(max_length=255, default=None, null=True)
     e_way_username = models.CharField(max_length=255, default=None, null=True)
-    e_way_password = EncryptedTextField(max_length=255, default=None, null=True) 
+    e_way_password = models.CharField(max_length=255, default=None, null=True) 
     gstn_username = models.CharField(max_length=255, default=None, null=True)
-    gstn_password = EncryptedTextField(max_length=255, default=None, null=True)
+    gstn_password = models.CharField(max_length=255, default=None, null=True) 
     other_license_1 = models.CharField(max_length=255, default=None, null=True)
     other_license_2 = models.CharField(max_length=255, default=None, null=True)
     picture = models.ImageField(max_length=255, default=None, null=True, upload_to=branches_picture) 
@@ -148,9 +179,42 @@ class Branches(models.Model):
                 picture_dir = os.path.dirname(file_path)
                 if not os.listdir(picture_dir):
                     os.rmdir(picture_dir)
+
+    def save(self, *args, **kwargs):
+        if self.pk:  # Check if instance already exists
+            original = Branches.objects.get(pk=self.pk)
+
+            # Ensure type consistency when comparing strings
+            byte_prefix = "b'$2b$'"
+
+            # Check if the incoming password is different and not already hashed
+            if self.e_way_password and (self.e_way_password != original.e_way_password) and not self.e_way_password.startswith(byte_prefix):
+                self.e_way_password = bcrypt.hashpw(self.e_way_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and (self.gstn_password != original.gstn_password) and not self.gstn_password.startswith(byte_prefix):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+        else:
+            # For new records, hash any passwords that aren't already hashes
+            if self.e_way_password and not self.e_way_password.startswith("b'$2b$'"):
+                self.e_way_password = bcrypt.hashpw(self.e_way_password.encode(), bcrypt.gensalt()).decode()
+            if self.gstn_password and not self.gstn_password.startswith("b'$2b$'"):
+                self.gstn_password = bcrypt.hashpw(self.gstn_password.encode(), bcrypt.gensalt()).decode()
+
+        super().save(*args, **kwargs)
+
+    def verify_e_way_password(self, password):
+        # Verify e_way_password using bcrypt
+        if self.e_way_password:
+            return bcrypt.checkpw(password.encode(), self.e_way_password)
+        return False
+
+    def verify_gstn_password(self, password):
+        # Verify gstn_password using bcrypt
+        if self.gstn_password:
+            return bcrypt.checkpw(password.encode(), self.gstn_password)
+        return False
     
 class BranchBankDetails(models.Model):
-    bank_detail_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    bank_detail_id = models.AutoField(primary_key=True)
     branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column = 'branch_id')
     bank_name = models.CharField(max_length=255,default=None, null=True)
     account_number = EncryptedTextField(max_length=255, default=None, null=True)  # Using custom encrypted field
