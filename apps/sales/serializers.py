@@ -13,6 +13,11 @@ class ModSaleOrderSerializer(serializers.ModelSerializer):
         model = SaleOrder
         fields = ['order_id','customer_id','order_date','delivery_date']
 
+class ModInvoicesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invoices
+        fields = ['invoice_id','order_id','status']
+
 # -------------------------------------------------------
 
 
@@ -40,7 +45,7 @@ class InvoicesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PaymentTransactionsSerializer(serializers.ModelSerializer):
-    invoice = InvoicesSerializer(source='invoice_id', read_only=True)
+    invoice = ModInvoicesSerializer(source='invoice_id', read_only=True)
     
     class Meta:
         model = PaymentTransactions
