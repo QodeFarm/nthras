@@ -1,12 +1,13 @@
 #utils_methods file
-import os
-from uuid import uuid4
-from rest_framework import status
 from rest_framework.response import Response
-import base64
+from rest_framework import status
 from django.db import models
 import uuid,django_filters
 from django.db.models import Q
+from uuid import uuid4
+import base64
+import os
+
 # -------------- File Path Handler (for Vendor model only)----------------------
 def custom_upload_to(instance, filename):
     file_extension = filename.split('.')[-1]
