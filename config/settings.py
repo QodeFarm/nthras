@@ -203,7 +203,7 @@ EMAIL_HOST_PASSWORD= "osap irhp jqzl ehre"
 
 
 REST_FRAMEWORK = {    
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),  #For Securing API Endpoint
+    #'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),  #For Securing API Endpoint
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',
                                        'rest_framework.authentication.TokenAuthentication',),
     'DEFAULT_VERSION': 'v1',
