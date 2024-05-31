@@ -1,4 +1,7 @@
 from django_filters import rest_framework as filters
+import uuid
+from django.db.models import Q
+from utils_methods import filter_uuid
 
 class LedgerAccountsFilters(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
@@ -23,10 +26,18 @@ class CustomerAttachmentsFilters(filters.FilterSet):
     attachment_name = filters.CharFilter(lookup_expr='exact')
 
 class CustomerAddressesFilters(filters.FilterSet):
-    customer_id = filters.CharFilter(field_name='customer_id__name', lookup_expr='exact')
+    customer_id = filters.CharFilter(method=filter_uuid)
     city_id = filters.CharFilter(field_name='city_id__city_name', lookup_expr='exact')
     state_id = filters.CharFilter(field_name='state_id__state_name', lookup_expr='exact')
     country_id = filters.CharFilter(field_name='country_id__country_name', lookup_expr='exact')
     pin_code = filters.CharFilter(lookup_expr='exact')
     phone = filters.CharFilter(lookup_expr='exact')
     email = filters.CharFilter(lookup_expr='exact')
+
+    def filter_customer_id(self, queryset, name, value):
+        try:
+            uuid.UUID(value)
+        except ValueError:
+            # If the UUID is invalid, return an empty queryset
+            return queryset.none()
+        return queryset.filter(Q(bank_detail_id=value))

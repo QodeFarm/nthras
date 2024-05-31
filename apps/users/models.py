@@ -13,7 +13,7 @@ class Roles(models.Model):
     role_name = models.CharField( max_length=255, null=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    role_id = models.AutoField(primary_key=True)
+    role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
 
     class Meta:
@@ -26,7 +26,7 @@ class Roles(models.Model):
 class Permissions(models.Model):
     permission_name = models.CharField( max_length=255, null=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    permission_id = models.AutoField(primary_key=True)
+    permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField()
     
@@ -41,7 +41,7 @@ class RolePermissions(models.Model):
     permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE, null=True, default=None, db_column = 'permission_id')
     role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, null=True, default=None, db_column = 'role_id')
     access_level = models.CharField( max_length=255, null=False)
-    role_permission_id = models.AutoField(primary_key=True)
+    role_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     class Meta:
         db_table = rolepermissionstable
@@ -52,7 +52,7 @@ class RolePermissions(models.Model):
 
 class Actions(models.Model):
     action_name = models.CharField( max_length=255, null=False, unique=True)
-    action_id = models.AutoField(primary_key=True)
+    action_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
 
     class Meta:
@@ -64,7 +64,7 @@ class Actions(models.Model):
 
 class Modules(models.Model):
     module_name = models.CharField( max_length=255, null=False, unique=True)
-    module_id = models.AutoField(primary_key=True)
+    module_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
 
     class Meta:
@@ -77,7 +77,7 @@ class Modules(models.Model):
 class ModuleSections(models.Model):
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, null=True, default=None, db_column = 'module_id')
     section_name = models.CharField( max_length=255, null=False)
-    section_id = models.AutoField(primary_key=True)
+    section_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Meta:
         db_table = modulesections
@@ -142,7 +142,7 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
-    user_id = models.AutoField(primary_key=True)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     bio = models.TextField() 
     
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')

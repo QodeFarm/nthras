@@ -20,7 +20,7 @@ def product_groups_picture(instance, filename):
 
 # Create your models here.
 class ProductGroups(models.Model):
-    group_id = models.AutoField(primary_key=True)
+    group_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group_name = models.CharField(max_length=255)
     description = models.TextField(null=True, default=None)
     picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_groups_picture)
@@ -57,7 +57,7 @@ def product_categories_picture(instance, filename):
     return f"products/product_categories/{original_filename}_{unique_id}{file_extension}"
 
 class ProductCategories(models.Model):
-    category_id = models.AutoField(primary_key=True)
+    category_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     category_name = models.CharField(max_length=255)
     picture = models.ImageField(max_length=255,  null=True, default=None, upload_to=product_categories_picture)
     code = models.CharField(max_length=50, null=True, default=None)
@@ -82,7 +82,7 @@ class ProductCategories(models.Model):
 
 
 class ProductStockUnits(models.Model):
-    stock_unit_id = models.AutoField(primary_key=True)
+    stock_unit_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     stock_unit_name = models.CharField(max_length=255)
     description = models.TextField(null=True, default=None)
     quantity_code_id = models.ForeignKey(ProductUniqueQuantityCodes, on_delete=models.CASCADE, null=True, default=None, db_column = 'quantity_code_id')
@@ -97,7 +97,7 @@ class ProductStockUnits(models.Model):
 
 
 class ProductGstClassifications(models.Model):
-    gst_classification_id = models.AutoField(primary_key=True)
+    gst_classification_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     TYPE_CHOICES = [ 
         ('HSN', 'HSN'),
         ('SAC', 'SAC'),
@@ -118,7 +118,7 @@ class ProductGstClassifications(models.Model):
 
 
 class ProductSalesGl(models.Model):
-    sales_gl_id = models.AutoField(primary_key=True)
+    sales_gl_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     sales_accounts = models.CharField(max_length=255, null=True, default=None)
     code = models.CharField(max_length=50, null=True, default=None)
@@ -143,7 +143,7 @@ class ProductSalesGl(models.Model):
         return f"{self.sales_gl_id} {self.name}"
 
 class ProductPurchaseGl(models.Model):
-    purchase_gl_id = models.AutoField(primary_key=True)
+    purchase_gl_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     purchase_accounts = models.CharField(max_length=255, null=True, default=None)
     code = models.CharField(max_length=50, null=True, default=None)
@@ -181,7 +181,7 @@ def products_picture(instance, filename):
     return f"products/products/{original_filename}_{unique_id}{file_extension}"
 
 class products(models.Model):
-    product_id = models.AutoField(primary_key=True)
+    product_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, db_column = 'product_group_id')
     category_id = models.ForeignKey(ProductCategories, on_delete=models.CASCADE, null=True, default=None, db_column = 'category_id')

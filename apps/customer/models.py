@@ -15,7 +15,7 @@ class LedgerAccounts(models.Model):
         ('Bank', 'Bank'),
         ('Cash', 'Cash'),
     )
-    ledger_account_id = models.AutoField(primary_key=True)
+    ledger_account_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, null=True, default=None)
     is_subledger = models.BooleanField(default=False, null=True)
@@ -55,7 +55,7 @@ class Customer(models.Model):
         ('Exclusive', 'Exclusive'),
         ('Both', 'Both'),
     ]
-    customer_id = models.AutoField(primary_key=True)
+    customer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     print_name = models.CharField(max_length=255)
     identification = models.CharField(max_length=255, null=True, default=None)
@@ -110,7 +110,7 @@ class Customer(models.Model):
                     os.rmdir(picture_dir)
                     
 class CustomerAttachments(models.Model):
-    attachment_id = models.AutoField(primary_key=True)
+    attachment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     attachment_name = models.CharField(max_length=255)
     attachment_path = models.CharField(max_length=255)
@@ -129,7 +129,7 @@ class CustomerAddresses(models.Model):
         ('Billing', 'Billing'),
         ('Shipping', 'Shipping')
     ]
-    customer_address_id = models.AutoField(primary_key=True)
+    customer_address_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     address_type = models.CharField(max_length=10, choices=ADDRESS_CHOICE, null=True, default=None)
     address = models.CharField(max_length=255, null=True, default=None)
