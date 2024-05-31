@@ -123,17 +123,25 @@ class UserCreateSerializer(UserCreateSerializer):
 #=================================================================================================
 #change known Password serializer
 class UserChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=255, style={'input_type': 'password'}, write_only=True)
     password = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
     confirm_password = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
 
     class Meta:
-        fields=['password', 'confirm_password']    
+        fields=['old_password', 'password', 'confirm_password']    
     def validate(self, attrs):
+        old_password = attrs.get('old_password')
         password = attrs.get('password')
         confirm_password = attrs.get('confirm_password')
         user = self.context.get('user')
+
+        # Validate old password
+        if not user.check_password(old_password):
+            raise serializers.ValidationError({"old_password": "Old password is incorrect"})
+
         if password != confirm_password:
             raise serializers.ValidationError("Password and confirm password doesn't match")
+        
         user.set_password(password)
         user.save()
         return attrs
@@ -167,17 +175,17 @@ class SendPasswordResetEmailSerializer(serializers.Serializer):
 
 class UserPasswordResetSerializer(serializers.Serializer):
   password = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
-  password2 = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
+  confirm_password = serializers.CharField(max_length=255, style={'input_type':'password'}, write_only=True)
   class Meta:
-    fields = ['password', 'password2']
+    fields = ['password', 'confirm_password']
 
   def validate(self, attrs):
     try:
       password = attrs.get('password')
-      password2 = attrs.get('password2')
+      confirm_password = attrs.get('confirm_password')
       uid = self.context.get('uid')
       token = self.context.get('token')
-      if password != password2:
+      if password != confirm_password:
         raise serializers.ValidationError("Password and Confirm Password doesn't match")
       id = smart_str(urlsafe_base64_decode(uid))
       user = User.objects.get(user_id=id)
