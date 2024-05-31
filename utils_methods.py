@@ -2,6 +2,8 @@
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import models
+import uuid,django_filters
+from django.db.models import Q
 from uuid import uuid4
 import base64
 import os
@@ -70,6 +72,13 @@ decoded_bytes = base64.b64decode(encoded_account_number)
 # Convert bytes to string
 original_account_number = decoded_bytes.decode("utf-8")
 
+#=======================Filters for primary key===============================================
+def filter_uuid(queryset, name, value):
+    try:
+        uuid.UUID(value)
+    except ValueError:
+        return queryset.none()
+    return queryset.filter(Q(**{name: value}))
 #======================================================================
 
 def list_all_objects(self, request, *args, **kwargs):

@@ -13,7 +13,7 @@ class Roles(models.Model):
     role_name = models.CharField( max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    role_id = models.AutoField(primary_key=True)
+    role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
 
     class Meta:
@@ -26,7 +26,7 @@ class Roles(models.Model):
 class Permissions(models.Model):
     permission_name = models.CharField(max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    permission_id = models.AutoField(primary_key=True)
+    permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField()
     
