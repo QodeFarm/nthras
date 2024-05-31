@@ -1,4 +1,4 @@
-from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User
+from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserPermissions
 from apps.company.serializers import ModCompaniesSerializer, ModBranchesSerializer
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -9,7 +9,7 @@ from rest_framework import serializers
 from .utils import Utils
 from .passwdgen import *
 import os
-
+from utils_variables import baseurl
 #=========================MOD_SERIALIZATION=========================
 class ModRoleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,8 +41,38 @@ class ModModuleSectionsSerializer(serializers.ModelSerializer):
         model = ModuleSections
         fields = ['section_id','section_name']
 
+class ModUserTimeRestrictionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTimeRestrictions
+        fields = ['user_time_restrictions_id']
+
+
+class ModUserAllowedWeekdaysSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAllowedWeekdays
+        fields = ['user_allowed_weekdays_id']
+
+class ModUserPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPermissions
+        fields = ['user_permission_id']
 
 #=========================SERIALIZATIONS=========================
+class UserTimeRestrictionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTimeRestrictions
+        fields = '__all__'
+
+class UserAllowedWeekdaysSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAllowedWeekdays
+        fields = '__all__'
+
+class UserPermissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPermissions
+        fields = '__all__'
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Roles
@@ -159,7 +189,7 @@ class SendPasswordResetEmailSerializer(serializers.Serializer):
             user = User.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.user_id))
             token = CustomPasswordResetTokenGenerator().make_token(user)
-            link = 'http://127.0.0.1:8000/api/v1/users/reset_password/'+uid+'/'+token+'/'
+            link = baseurl +'/api/v1/users/reset_password/'+uid+'/'+token+'/'
             #Send Mail Code
             body='Click Following Link To Reset Your Password: ' + link
             data={

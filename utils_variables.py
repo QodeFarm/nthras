@@ -1,6 +1,8 @@
 #Table Names
 #===========:-
 
+baseurl = 'http://127.0.0.1:8000'
+
 #Company db_tables
 companytable ='companies'
 branchestable ='branches'
@@ -83,3 +85,6 @@ modulestable = 'modules'
 permissionstable = 'permissions'
 modulesections = 'module_sections'
 rolepermissionstable = 'role_permissions'
+usertimerestrictions = 'user_time_restrictions'
+userallowedweekdays = 'user_allowed_weekdays'
+userpermissions = 'user_permissions'

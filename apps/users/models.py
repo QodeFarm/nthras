@@ -1,4 +1,4 @@
-from utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable
+from utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userpermissions 
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db.models.signals import pre_delete
 from apps.company.models import Companies
@@ -42,6 +42,8 @@ class RolePermissions(models.Model):
     role_id = models.ForeignKey(Roles, on_delete=models.CASCADE,  db_column = 'role_id')
     access_level = models.CharField(max_length=255, )
     role_permission_id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = rolepermissionstable
@@ -54,6 +56,8 @@ class Actions(models.Model):
     action_name = models.CharField(max_length=255,  unique=True)
     action_id = models.AutoField(primary_key=True)
     description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = actionstable
@@ -66,6 +70,8 @@ class Modules(models.Model):
     module_name = models.CharField(max_length=255,  unique=True)
     module_id = models.AutoField(primary_key=True)
     description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = modulestable
@@ -78,6 +84,8 @@ class ModuleSections(models.Model):
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, default=None, db_column = 'module_id')
     section_name = models.CharField( max_length=255,)
     section_id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = modulesections
@@ -189,3 +197,55 @@ class User(AbstractBaseUser):
                 picture_dir = os.path.dirname(file_path)
                 if not os.listdir(picture_dir):
                     os.rmdir(picture_dir)
+
+class UserTimeRestrictions(models.Model):
+    user_time_restrictions_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
+    start_time = models.TimeField(null=False, blank=False)
+    end_time = models.TimeField(null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = usertimerestrictions
+
+    def __str__(self):
+        return f"{self.user_time_restrictions_id}"
+    
+
+class UserAllowedWeekdays(models.Model):
+    user_allowed_weekdays_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
+    WEEKDAYS = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+        ('Sunday', 'Sunday'),
+    ]
+    weekday = models.CharField(max_length=9, choices=WEEKDAYS, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = userallowedweekdays
+
+    def __str__(self):
+        return f"{self.user_allowed_weekdays_id}"
+    
+
+class UserPermissions(models.Model):
+    user_permission_id = models.AutoField(primary_key=True)
+    description = models.TextField()
+    section_id = models.ForeignKey(ModuleSections, on_delete=models.CASCADE,  db_column = 'section_id')
+    action_id = models.ForeignKey(Actions, on_delete=models.CASCADE,  db_column = 'action_id')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = userpermissions
+
+    def __str__(self):
+        return f"{self.user_permission_id}"

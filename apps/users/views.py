@@ -1,5 +1,5 @@
-from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer
-from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User
+from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, UserPermissionsSerializer
+from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserPermissions
 from utils_methods import list_all_objects, create_instance, update_instance
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
@@ -103,6 +103,44 @@ class ModuleSectionsViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
+class UserTimeRestrictionsViewSet(viewsets.ModelViewSet):
+    queryset = UserTimeRestrictions.objects.all()
+    serializer_class = UserTimeRestrictionsSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+class UserAllowedWeekdaysViewSet(viewsets.ModelViewSet):
+    queryset = UserAllowedWeekdays.objects.all()
+    serializer_class = UserAllowedWeekdaysSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+
+class UserPermissionsViewSet(viewsets.ModelViewSet):
+    queryset = UserPermissions.objects.all()
+    serializer_class = UserPermissionsSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
 #==================================================================================================
 #change known Password view
 class UserChangePasswordView(APIView):
