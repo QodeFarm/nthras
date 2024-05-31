@@ -41,7 +41,7 @@ class RolePermissions(models.Model):
     permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE,  db_column = 'permission_id')
     role_id = models.ForeignKey(Roles, on_delete=models.CASCADE,  db_column = 'role_id')
     access_level = models.CharField(max_length=255, )
-    role_permission_id = models.AutoField(primary_key=True)
+    role_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -54,7 +54,7 @@ class RolePermissions(models.Model):
 
 class Actions(models.Model):
     action_name = models.CharField(max_length=255,  unique=True)
-    action_id = models.AutoField(primary_key=True)
+    action_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -68,7 +68,7 @@ class Actions(models.Model):
 
 class Modules(models.Model):
     module_name = models.CharField(max_length=255,  unique=True)
-    module_id = models.AutoField(primary_key=True)
+    module_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -83,7 +83,7 @@ class Modules(models.Model):
 class ModuleSections(models.Model):
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, default=None, db_column = 'module_id')
     section_name = models.CharField( max_length=255,)
-    section_id = models.AutoField(primary_key=True)
+    section_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -145,7 +145,7 @@ class User(AbstractBaseUser):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     first_name = models.CharField(max_length=255)
-    user_id = models.AutoField(primary_key=True)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     last_name = models.CharField(max_length=255, null= True, default=None)
     timezone = models.CharField(max_length=100, null= True, default=None)
     language = models.CharField(max_length=10, null= True, default=None)
@@ -199,7 +199,7 @@ class User(AbstractBaseUser):
                     os.rmdir(picture_dir)
 
 class UserTimeRestrictions(models.Model):
-    user_time_restrictions_id = models.AutoField(primary_key=True)
+    user_time_restrictions_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
     start_time = models.TimeField(null=False, blank=False)
     end_time = models.TimeField(null=False, blank=False)
@@ -214,7 +214,7 @@ class UserTimeRestrictions(models.Model):
     
 
 class UserAllowedWeekdays(models.Model):
-    user_allowed_weekdays_id = models.AutoField(primary_key=True)
+    user_allowed_weekdays_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
     WEEKDAYS = [
         ('Monday', 'Monday'),
@@ -237,7 +237,7 @@ class UserAllowedWeekdays(models.Model):
     
 
 class UserPermissions(models.Model):
-    user_permission_id = models.AutoField(primary_key=True)
+    user_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
     section_id = models.ForeignKey(ModuleSections, on_delete=models.CASCADE,  db_column = 'section_id')
     action_id = models.ForeignKey(Actions, on_delete=models.CASCADE,  db_column = 'action_id')
