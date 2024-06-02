@@ -941,23 +941,58 @@ CREATE TABLE IF NOT EXISTS gst_types (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+/* Salesman Table */
+-- Stores information about salesmen.
+CREATE TABLE IF NOT EXISTS orders_salesman (
+    order_salesman_id CHAR(36) PRIMARY KEY,
+    code VARCHAR(50),
+    name VARCHAR(255) NOT NULL,
+    commission_rate DECIMAL(18,2),
+    rate_on ENUM("Qty", "Amount"),
+    amount_type ENUM("Taxable", "BillAmount"),
+    email VARCHAR(255),
+    phone VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Payment Link Types Table */
+-- Stores information about payment links.
+CREATE TABLE IF NOT EXISTS payment_link_types (
+    payment_link_type_id CHAR(36) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* order_statuses Table */
+-- Stores information about the different statuses that an order can have.
+CREATE TABLE IF NOT EXISTS order_statuses (
+    order_status_id CHAR(36) PRIMARY KEY,
+    status_name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 /* Sales Order Table */
 -- Stores information about sales orders.
 CREATE TABLE IF NOT EXISTS sale_orders(
-    order_id CHAR(36) PRIMARY KEY,
-    gst_type_id CHAR(36),
+    sale_order_id CHAR(36) PRIMARY KEY,
+    sale_type_id CHAR(36),
+    order_no VARCHAR(20) UNIQUE NOT NULL,  -- ex pattern: SO-2406-00001
+    order_date DATE NOT NULL,
     customer_id CHAR(36) NOT NULL,
+    gst_type_id CHAR(36),
     email VARCHAR(255),
     delivery_date DATE NOT NULL,
-    order_date DATE NOT NULL,
-    order_no VARCHAR(255) NOT NULL,
     ref_no VARCHAR(255),
     ref_date DATE NOT NULL,
     tax ENUM('Inclusive', 'Exclusive'),
     customer_address_id CHAR(36),
-    remarks TEXT,
     payment_term_id CHAR(36),
-    sale_type_id CHAR(36),
+    remarks TEXT,
     advance_amount DECIMAL(18, 2),
     ledger_account_id CHAR(36),
     item_value DECIMAL(18, 2),
@@ -970,6 +1005,7 @@ CREATE TABLE IF NOT EXISTS sale_orders(
     doc_amount DECIMAL(18, 2),
     vehicle_name VARCHAR(255),
     total_boxes INT,
+	order_status_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -977,39 +1013,15 @@ CREATE TABLE IF NOT EXISTS sale_orders(
     FOREIGN KEY (customer_address_id) REFERENCES customer_addresses(customer_address_id),
     FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
     FOREIGN KEY (sale_type_id) REFERENCES sale_types(sale_type_id),
-    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id)
-);
-
-/* Shipments Table */
--- Stores information about shipments.
-CREATE TABLE IF NOT EXISTS shipments (
-    shipment_id CHAR(36) PRIMARY KEY,
-    destination VARCHAR(255),
-    shipping_mode_id CHAR(36),
-    shipping_company_id CHAR(36),
-    shipping_tracking_no VARCHAR(255),
-    shipping_date DATE NOT NULL,
-    shipping_charges DECIMAL(10, 2),
-    vehicle_vessel VARCHAR(255),
-    charge_type VARCHAR(255),
-    document_through VARCHAR(255),
-    port_of_landing VARCHAR(255),
-    port_of_discharge VARCHAR(255),
-    no_of_packets INT,
-    weight DECIMAL(10, 2),
-    order_id CHAR(36) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
-    FOREIGN KEY (shipping_company_id) REFERENCES shipping_companies(shipping_company_id),
-    FOREIGN KEY (order_id) REFERENCES sale_orders(order_id)
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id),
+	FOREIGN KEY (order_status_id) REFERENCES order_statuses(order_status_id)
 );
 
 /* Order Items Table */
 -- Stores information about items in orders.
-CREATE TABLE IF NOT EXISTS order_items (
-    order_item_id CHAR(36) PRIMARY KEY,
-    order_id CHAR(36) NOT NULL,
+CREATE TABLE IF NOT EXISTS sale_order_items (
+    sale_order_item_id CHAR(36) PRIMARY KEY,
+    sale_order_id CHAR(36) NOT NULL,
     product_id CHAR(36) NOT NULL,
     quantity DECIMAL(18, 2),
     unit_price DECIMAL(18, 2),
@@ -1022,33 +1034,147 @@ CREATE TABLE IF NOT EXISTS order_items (
     tax_rate DECIMAL(18, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES sale_orders(order_id),
+    FOREIGN KEY (sale_order_id) REFERENCES sale_orders(sale_order_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
 /* Invoices Table */
 -- Stores information about invoices generated from sales orders.
-CREATE TABLE IF NOT EXISTS invoices (
-    invoice_id CHAR(36) PRIMARY KEY,
-    order_id CHAR(36) NOT NULL,
-    warehouse_id CHAR(36),
+CREATE TABLE IF NOT EXISTS sale_invoice_orders(
+    sale_invoice_id CHAR(36) PRIMARY KEY,
+    bill_type ENUM('CASH', 'CREDIT', 'OTHERS'),
     invoice_date DATE NOT NULL,
+    invoice_no VARCHAR(20) UNIQUE NOT NULL,  -- ex pattern: INV-2406-00001
+    customer_id CHAR(36) NOT NULL,
+    gst_type_id CHAR(36),
+    email VARCHAR(255),
+    ref_no VARCHAR(255),
+    ref_date DATE NOT NULL,
+    order_salesman_id CHAR(36),
+    tax ENUM('Inclusive', 'Exclusive'),
+    customer_address_id CHAR(36),
+    payment_term_id CHAR(36),
     due_date DATE,
-    status VARCHAR(50),
-    total_amount DECIMAL(10, 2),
-    sale_type_id CHAR(36),
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_link_type_id CHAR(36),
+    remarks TEXT,
+    advance_amount DECIMAL(18, 2),
+    ledger_account_id CHAR(36),
+    item_value DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    taxable DECIMAL(18, 2),
+    tax_amount DECIMAL(18, 2),
+    cess_amount DECIMAL(18, 2),
+    transport_charges DECIMAL(18, 2),
+    round_off DECIMAL(18, 2),
+    total_amount DECIMAL(18, 2),
+    vehicle_name VARCHAR(255),
+    total_boxes INT,
+	order_status_id CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES sale_orders(order_id),
-    FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id),
-    FOREIGN KEY (sale_type_id) REFERENCES sale_types(sale_type_id)
+    FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (customer_address_id) REFERENCES customer_addresses(customer_address_id),
+    FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
+    FOREIGN KEY (order_salesman_id) REFERENCES orders_salesman(order_salesman_id),
+    FOREIGN KEY (payment_link_type_id) REFERENCES payment_link_types(payment_link_type_id),
+    FOREIGN KEY (ledger_account_id) REFERENCES ledger_accounts(ledger_account_id),
+	FOREIGN KEY (order_status_id) REFERENCES order_statuses(order_status_id)
+);
+
+/* Order Items Table */
+-- Stores information about items in orders.
+CREATE TABLE IF NOT EXISTS sale_invoice_items (
+    sale_invoice_item_id CHAR(36) PRIMARY KEY,
+    sale_invoice_id CHAR(36) NOT NULL,
+    product_id CHAR(36) NOT NULL,
+    quantity DECIMAL(18, 2),
+    unit_price DECIMAL(18, 2),
+    rate DECIMAL(18, 2),
+    amount DECIMAL(18, 2),
+    discount_percentage DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    tax_code VARCHAR(255),
+    tax_rate DECIMAL(18, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_invoice_id) REFERENCES sale_invoice_orders(sale_invoice_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+/* Sale Retuns Table */
+-- Stores information about sale returns.
+CREATE TABLE IF NOT EXISTS sale_return_orders(
+    sale_return_id CHAR(36) PRIMARY KEY,
+    bill_type ENUM('CASH', 'CREDIT', 'OTHERS'),
+    return_date DATE NOT NULL,
+    return_no VARCHAR(20) UNIQUE NOT NULL,  -- ex pattern: SR-2406-00001
+    customer_id CHAR(36) NOT NULL,
+    gst_type_id CHAR(36),
+    email VARCHAR(255),
+    ref_no VARCHAR(255),
+    ref_date DATE NOT NULL,
+    order_salesman_id CHAR(36),
+    against_bill VARCHAR(255),
+    against_bill_date DATE,
+    tax ENUM('Inclusive', 'Exclusive'),
+    customer_address_id CHAR(36),
+    payment_term_id CHAR(36),
+    due_date DATE,
+    payment_link_type_id CHAR(36),
+    return_reason TEXT,
+    remarks TEXT,
+    item_value DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    taxable DECIMAL(18, 2),
+    tax_amount DECIMAL(18, 2),
+    cess_amount DECIMAL(18, 2),
+    transport_charges DECIMAL(18, 2),
+    round_off DECIMAL(18, 2),
+    total_amount DECIMAL(18, 2),
+    vehicle_name VARCHAR(255),
+    total_boxes INT,
+	order_status_id CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (customer_address_id) REFERENCES customer_addresses(customer_address_id),
+    FOREIGN KEY (payment_term_id) REFERENCES customer_payment_terms(payment_term_id),
+    FOREIGN KEY (order_salesman_id) REFERENCES orders_salesman(order_salesman_id),
+    FOREIGN KEY (payment_link_type_id) REFERENCES payment_link_types(payment_link_type_id),
+	FOREIGN KEY (order_status_id) REFERENCES order_statuses(order_status_id)
+);
+
+/* Order Items Table */
+-- Stores information about items in return orders.
+CREATE TABLE IF NOT EXISTS sale_return_items (
+    sale_return_item_id CHAR(36) PRIMARY KEY,
+    sale_return_id CHAR(36) NOT NULL,
+    product_id CHAR(36) NOT NULL,
+    quantity DECIMAL(18, 2),
+    unit_price DECIMAL(18, 2),
+    rate DECIMAL(18, 2),
+    amount DECIMAL(18, 2),
+    discount_percentage DECIMAL(18, 2),
+    discount DECIMAL(18, 2),
+    dis_amt DECIMAL(18, 2),
+    tax_code VARCHAR(255),
+    tax_rate DECIMAL(18, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sale_return_id) REFERENCES sale_return_orders(sale_return_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
 /* Payment Transactions Table */
 -- Stores information about payment transactions made against invoices.
 CREATE TABLE IF NOT EXISTS payment_transactions (
     transaction_id CHAR(36) PRIMARY KEY,
-    invoice_id CHAR(36) NOT NULL,
+    sale_invoice_id CHAR(36) NOT NULL,
     payment_date DATE,
     amount DECIMAL(10, 2),
     payment_method VARCHAR(100),
@@ -1056,9 +1182,58 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     reference_number VARCHAR(100),
     notes TEXT,
     currency VARCHAR(10),
+	transaction_type ENUM('Credit', 'Debit'),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id)
+    FOREIGN KEY (sale_invoice_id) REFERENCES sale_invoice_orders(sale_invoice_id)
+);
+
+/* Order types Table */
+-- Stores information about type of orders.
+CREATE TABLE IF NOT EXISTS order_types (
+    order_type_id CHAR(36) PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Order Attachments Table */
+-- Stores attachments associated with orders.
+CREATE TABLE IF NOT EXISTS order_attachments (
+    attachment_id CHAR(36) PRIMARY KEY,
+    order_id CHAR(36) NOT NULL,
+    attachment_name VARCHAR(255) NOT NULL,
+    attachment_path VARCHAR(255) NOT NULL,
+    order_type_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_type_id) REFERENCES order_types(order_type_id)
+);
+
+/* Order Shipments Table */
+-- Stores information about order shipments.
+CREATE TABLE IF NOT EXISTS order_shipments (
+    shipment_id CHAR(36) PRIMARY KEY,
+    order_id CHAR(36) NOT NULL,
+    destination VARCHAR(255),
+    shipping_mode_id CHAR(36),
+    shipping_company_id CHAR(36),
+    shipping_tracking_no VARCHAR(20) UNIQUE NOT NULL,  -- ex pattern: SHIP-2406-00001
+    shipping_date DATE NOT NULL,
+    shipping_charges DECIMAL(10, 2),
+    vehicle_vessel VARCHAR(255),
+    charge_type VARCHAR(255),
+    document_through VARCHAR(255),
+    port_of_landing VARCHAR(255),
+    port_of_discharge VARCHAR(255),
+    no_of_packets INT,
+    weight DECIMAL(10, 2),
+    order_type_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (shipping_mode_id) REFERENCES shipping_modes(shipping_mode_id),
+    FOREIGN KEY (shipping_company_id) REFERENCES shipping_companies(shipping_company_id),
+    FOREIGN KEY (order_type_id) REFERENCES order_types(order_type_id)
 );
 
 /* Purchase Types Table */
@@ -1189,21 +1364,6 @@ CREATE TABLE IF NOT EXISTS purchase_price_list (
     FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
 );
 
-/* Sale Order Returns Table */
--- Stores information about sales order returns.
-CREATE TABLE IF NOT EXISTS sale_order_returns (
-    sale_order_return_id CHAR(36) PRIMARY KEY,
-    sale_id CHAR(36) NOT NULL,
-    sales_return_no VARCHAR(255),
-    against_bill VARCHAR(255),
-    against_bill_date DATE,
-    due_date DATE,
-    payment_link VARCHAR(255),
-    return_reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (sale_id) REFERENCES sale_orders(order_id)
-);
  /* purchase_order_returns Table */
 -- Stores information about purchase order returns.
 CREATE TABLE IF NOT EXISTS purchase_order_returns (
