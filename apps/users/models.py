@@ -237,7 +237,7 @@ class UserAllowedWeekdays(models.Model):
     
 
 class UserPermissions(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
     section_id = models.ForeignKey(ModuleSections, on_delete=models.CASCADE,  db_column = 'section_id')
     action_id = models.ForeignKey(Actions, on_delete=models.CASCADE,  db_column = 'action_id')
