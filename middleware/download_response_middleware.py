@@ -144,7 +144,7 @@ class StripDownloadJsonMiddleware:
                     return response
 
         #------------------- FILTER DATA - EXCEL FORMAT ------------------------------
-        # Description: Below code downloads data in CSV format
+        # Description: Below code downloads data in EXCEL format
         # The script verifies each URL to determine if it ends with 'download/excel/'
         #-----------------------------------------------------------------------------
 
@@ -230,7 +230,7 @@ class StripDownloadJsonMiddleware:
                 return response
 
         #------------------- MODEL DATA - CSV FORMAT --------------------------------
-        # Description: Below code downloads data in JSON format
+        # Description: Below code downloads data in CSV format
         # The script verifies each URL to determine if it ends with '/download/csv/'
         #----------------------------------------------------------------------------
 
@@ -286,7 +286,7 @@ class StripDownloadJsonMiddleware:
                     return response  # Return the original response if JSON decoding fails
 
         #------------------- MODEL DATA - EXCEL FORMAT -----------------------------
-        # Description: Below code downloads data in JSON format
+        # Description: Below code downloads data in EXCEL format
         # The script verifies each URL to determine if it ends with '/download/excel/'
         #----------------------------------------------------------------------------        
 
