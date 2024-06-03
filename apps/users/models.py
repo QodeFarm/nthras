@@ -199,7 +199,7 @@ class User(AbstractBaseUser):
                     os.rmdir(picture_dir)
 
 class UserTimeRestrictions(models.Model):
-    user_time_restrictions_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
     start_time = models.TimeField(null=False, blank=False)
     end_time = models.TimeField(null=False, blank=False)
@@ -210,11 +210,11 @@ class UserTimeRestrictions(models.Model):
         db_table = usertimerestrictions
 
     def __str__(self):
-        return f"{self.user_time_restrictions_id}"
+        return f"{self.id}"
     
 
 class UserAllowedWeekdays(models.Model):
-    user_allowed_weekdays_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
     WEEKDAYS = [
         ('Monday', 'Monday'),
@@ -233,11 +233,11 @@ class UserAllowedWeekdays(models.Model):
         db_table = userallowedweekdays
 
     def __str__(self):
-        return f"{self.user_allowed_weekdays_id}"
+        return f"{self.id}"
     
 
 class UserPermissions(models.Model):
-    user_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
     section_id = models.ForeignKey(ModuleSections, on_delete=models.CASCADE,  db_column = 'section_id')
     action_id = models.ForeignKey(Actions, on_delete=models.CASCADE,  db_column = 'action_id')
