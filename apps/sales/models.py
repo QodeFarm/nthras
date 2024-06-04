@@ -5,17 +5,20 @@ from apps.masters.models import CustomerPaymentTerms, GstTypes, ProductBrands, P
 from utils_variables import saleorderreturns, saleorders, paymenttransactions, invoices, saleinvoiceitemstable, shipments, salespricelist, saleorderitemstable, saleinvoiceorderstable, salereturnorderstable, salereturnitemstable, orderattachmentstable, ordershipmentstable
 from apps.products.models import ProductGroups, products as Products
 import uuid
+from utils_methods import OrderNumberMixin
 # Create your models here.
 
 
-class SaleOrder(models.Model): #required fields are updated
+class SaleOrder(OrderNumberMixin): #required fields are updated
     sale_order_id  = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column='gst_type_id')
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     email = models.CharField(max_length=255, null=True, default=None)
     delivery_date = models.DateField()
     order_date = models.DateField()
-    order_no = models.CharField(max_length=20,unique=True)
+    order_no = models.CharField(max_length=20, unique=True, default='')
+    order_no_prefix = 'SO'
+    order_no_field = 'order_no'
     ref_no = models.CharField(max_length=255, null=True, default=None)
     ref_date = models.DateField()
     TAX_CHOICES = [
@@ -88,12 +91,14 @@ class SaleOrderItems(models.Model):
     def __str__(self):
         return str(self.sale_order_item_id)
     
-class SaleInvoiceOrders(models.Model):
+class SaleInvoiceOrders(OrderNumberMixin):
     sale_invoice_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     BILL_TYPE_CHOICES = [('CASH', 'Cash'),('CREDIT', 'Credit'),('OTHERS', 'Others'),]
     bill_type = models.CharField(max_length=6, choices=BILL_TYPE_CHOICES)
     invoice_date = models.DateField()
-    invoice_no = models.CharField(max_length=20, unique=True)
+    invoice_no = models.CharField(max_length=20, unique=True,default='')
+    order_no_prefix = 'SO-INV'
+    order_no_field = 'invoice_no'
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     gst_type_id = models.ForeignKey('masters.GstTypes', on_delete=models.CASCADE, db_column='gst_type_id', null=True, default=None)
     email = models.EmailField(max_length=255, null=True, default=None)
@@ -128,7 +133,7 @@ class SaleInvoiceOrders(models.Model):
         db_table = saleinvoiceorderstable
 
     def __str__(self):
-        return self.invoice_no
+        return self.sale_invoice_id
     
 class PaymentTransactions(models.Model): #required fields are updated
     transaction_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -178,12 +183,14 @@ class SaleInvoiceItems(models.Model): #required fields are updated
     class Meta:
         db_table = saleinvoiceitemstable
 
-class SaleReturnOrders(models.Model):
+class SaleReturnOrders(OrderNumberMixin):
     sale_return_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     BILL_TYPE_CHOICES = [('CASH', 'Cash'),('CREDIT', 'Credit'),('OTHERS', 'Others'),]
     bill_type = models.CharField(max_length=6, choices=BILL_TYPE_CHOICES)  
     return_date = models.DateField()
-    return_no = models.CharField(max_length=20, unique=True)
+    return_no = models.CharField(max_length=20, unique=True, default='')
+    order_no_prefix = 'SR'
+    field_name = 'return_no'
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     gst_type_id = models.ForeignKey('masters.GstTypes', on_delete=models.CASCADE, db_column='gst_type_id', null=True, default=None)
     email = models.EmailField(max_length=255, null=True, default=None)
@@ -219,7 +226,7 @@ class SaleReturnOrders(models.Model):
         db_table = salereturnorderstable
 
     def __str__(self):
-        return self.return_no
+        return self.sale_return_id
     
 class SaleReturnItems(models.Model):
     sale_return_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -259,13 +266,15 @@ class OrderAttachments(models.Model):
         return self.attachment_name
     
 
-class OrderShipments(models.Model):
+class OrderShipments(OrderNumberMixin):
     shipment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order_id = models.CharField(max_length=255)
     destination = models.CharField(max_length=255, null=True, default=None)
     shipping_mode_id = models.ForeignKey('masters.ShippingModes', on_delete=models.CASCADE, db_column='shipping_mode_id', null=True, default=None)
     shipping_company_id = models.ForeignKey('masters.ShippingCompanies', on_delete=models.CASCADE, db_column='shipping_company_id', null=True, default=None)
-    shipping_tracking_no = models.CharField(max_length=20, unique=True)
+    shipping_tracking_no = models.CharField(max_length=20, unique=True, default='')
+    order_no_prefix = 'SHIP'
+    order_no_field = 'shipping_tracking_no'
     shipping_date = models.DateField()
     shipping_charges = models.DecimalField(max_digits=10, decimal_places=2)
     vehicle_vessel = models.CharField(max_length=255, null=True, default=None)
@@ -278,9 +287,10 @@ class OrderShipments(models.Model):
     order_type_id = models.ForeignKey('masters.OrderTypes', on_delete=models.CASCADE, db_column='order_type_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
 
     class Meta:
         db_table = ordershipmentstable
 
     def __str__(self):
-        return self.shipping_tracking_no
+        return self.shipment_id

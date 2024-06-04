@@ -123,3 +123,61 @@ def update_instance(self, request, *args, **kwargs):
 
 def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
+
+#==================================================
+# utils_methods.py
+import os
+import json
+from django.utils import timezone
+
+SEQUENCE_FILE_PATH = 'order_sequences.json'
+
+def load_sequences():
+    if not os.path.exists(SEQUENCE_FILE_PATH):
+        return {}
+    with open(SEQUENCE_FILE_PATH, 'r') as file:
+        return json.load(file)
+
+def save_sequences(sequences):
+    with open(SEQUENCE_FILE_PATH, 'w') as file:
+        json.dump(sequences, file)
+
+def generate_order_number(order_type_prefix):
+    current_date = timezone.now()
+    date_str = current_date.strftime('%d%m')  # Format DDMM
+    
+    sequences = load_sequences()
+    
+    # Generate a key for the order type and date
+    key = f"{order_type_prefix}-{date_str}"
+    
+    # Get the current sequence number from the dictionary, default to 0 if not found
+    sequence_number = sequences.get(key, 0)
+    
+    # Increment the sequence number
+    sequence_number += 1
+    
+    # Store the updated sequence number back in the dictionary
+    sequences[key] = sequence_number
+    save_sequences(sequences)
+    
+    # Format the sequence number with leading zeros to ensure it is 5 digits
+    sequence_number_str = f"{sequence_number:05d}"
+    
+    # Construct the order number
+    order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
+    return order_number
+
+
+
+class OrderNumberMixin(models.Model):
+    order_no_prefix = ''
+    order_no_field = 'order_no'
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not getattr(self, self.order_no_field):
+            setattr(self, self.order_no_field, generate_order_number(self.order_no_prefix))
+        super().save(*args, **kwargs)
