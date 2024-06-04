@@ -1,7 +1,7 @@
 #Table Names
 #===========:-
 
-baseurl = 'http://127.0.0.1:8000'
+baseurl = 'http://195.35.20.172:8000/'
 
 #Company db_tables
 companytable ='companies'
