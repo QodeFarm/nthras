@@ -235,3 +235,44 @@ class ShippingCompaniesSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingCompanies
         fields = '__all__'
+
+class ModOrdersSalesmanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrdersSalesman
+        fields = ['order_salesman_id','name']
+
+class OrdersSalesmanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrdersSalesman
+        fields = '__all__'
+
+class ModPaymentLinkTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentLinkTypes
+        fields = ['payment_link_type_id','name']
+
+
+class PaymentLinkTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentLinkTypes
+        fields = '__all__'
+
+class ModOrderStatusesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderStatuses
+        fields = ['order_status_id','status_name']
+
+class OrderStatusesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderStatuses
+        fields = '__all__'
+
+class ModOrderTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderTypes
+        fields = ['order_type_id','name']
+
+class OrderTypesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderTypes
+        fields = '__all__'

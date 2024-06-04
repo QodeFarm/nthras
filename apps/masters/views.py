@@ -379,3 +379,56 @@ class ShippingModesView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
+class OrdersSalesmanView(viewsets.ModelViewSet):
+    queryset = OrdersSalesman.objects.all()
+    serializer_class = OrdersSalesmanSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+
+class PaymentLinkTypesView(viewsets.ModelViewSet):
+    queryset = PaymentLinkTypes.objects.all()
+    serializer_class = PaymentLinkTypesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+class OrderStatusesView(viewsets.ModelViewSet):
+    queryset = OrderStatuses.objects.all()
+    serializer_class = OrderStatusesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+class OrderTypesView(viewsets.ModelViewSet):
+    queryset = OrderTypes.objects.all()
+    serializer_class = OrderTypesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)

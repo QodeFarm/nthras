@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 from utils_methods import *
 from utils_variables import *
+from django.core.validators import RegexValidator
 
 # Create your models here.
 class Country(models.Model):
@@ -352,3 +353,62 @@ class ShippingModes(models.Model):
     
     class Meta:
         db_table = shippingmodes
+
+class OrdersSalesman(models.Model):
+    order_salesman_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=50, null=True, default=None)
+    name = models.CharField(max_length=255)
+    commission_rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
+    ORDER_RATE_CHOICES = [('Qty', 'Quantity'),('Amount', 'Amount'),]
+    rate_on = models.CharField(max_length=6, choices=ORDER_RATE_CHOICES, null=True, default=None)
+    AMOUNT_TYPE_CHOICES = [('Taxable', 'Taxable'),('BillAmount', 'Bill Amount'),]
+    amount_type = models.CharField(max_length=10, choices=AMOUNT_TYPE_CHOICES, null=True, default=None)
+    email = models.EmailField(max_length=255, null=True, default=None)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone = models.CharField(validators=[phone_regex], max_length=20, default=None, null=True)  # validators should be a list
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = orderssalesmantable
+
+class PaymentLinkTypes(models.Model):
+    payment_link_type_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=255, null=True,default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = paymentlinktable
+
+    def __str__(self):
+        return self.name
+
+class OrderStatuses(models.Model):
+    order_status_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    status_name = models.CharField(max_length=100)
+    description = models.CharField(max_length=255, null=True,default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = orderstatusestable
+
+    def __str__(self):
+        return self.status_name
+    
+class OrderTypes(models.Model):
+    order_type_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = ordertypestable
+
+    def __str__(self):
+        return self.name
