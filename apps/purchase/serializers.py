@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 from .serializers import *
 from apps.vendor.serializers import ModVendorSerializer,ModVendorAgentSerializer,VendorAddressSerializer,ModVendorPaymentTermsSerializer
-from apps.masters.serializers import ModProductBrandsSerializer, PurchaseTypesSerializer,ModStateSerializer, ModGstTypesSerializer,ShippingModesSerializer,ModShippingCompaniesSerializer
+from apps.masters.serializers import ModProductBrandsSerializer, PurchaseTypesSerializer, ModGstTypesSerializer
 from apps.customer.serializers import ModLedgerAccountsSerializers,ModCustomersSerializer
 from apps.products.serializers import ModproductsSerializer
 

@@ -1,6 +1,6 @@
 from django.db import models
 from utils_variables import *
-from apps.masters.models import PurchaseTypes,State,ProductBrands, GstTypes,ShippingModes,ShippingCompanies
+from apps.masters.models import PurchaseTypes,State,ProductBrands, GstTypes, OrderStatuses
 from apps.customer.models import LedgerAccounts,CustomerCategories
 from apps.vendor.models import Vendor,VendorAgent,VendorAddress,VendorPaymentTerms
 from apps.products.models import Products
@@ -106,7 +106,7 @@ class PurchaseInvoiceOrders(OrderNumberMixin):
     transport_charges = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
     round_off = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
     total_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
-    #order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
+    order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -172,7 +172,7 @@ class PurchaseReturnOrders(OrderNumberMixin):
     transport_charges = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     round_off = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-    #order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
+    order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
