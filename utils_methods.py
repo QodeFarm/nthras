@@ -125,7 +125,7 @@ def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
 
 #==================================================
-# utils_methods.py
+#Patterns
 import os
 import json
 from django.utils import timezone
@@ -144,7 +144,7 @@ def save_sequences(sequences):
 
 def generate_order_number(order_type_prefix):
     current_date = timezone.now()
-    date_str = current_date.strftime('%d%m')  # Format DDMM
+    date_str = current_date.strftime('%y%m') 
     
     sequences = load_sequences()
     
