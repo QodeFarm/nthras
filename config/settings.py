@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djoser',
-    'django_safe_settings',
+    # 'django_safe_settings',
     'drf_yasg',
     
     #modules
@@ -125,7 +125,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "cnl",
         "USER": "root",
-        "PASSWORD": "enc:40b7b367f2501d558725a8953b388c7d",
+        "PASSWORD": "",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -280,5 +280,5 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
 
-from django_safe_settings.patch import patch_all  # type: ignore
-patch_all()
+# from django_safe_settings.patch import patch_all  # type: ignore
+# patch_all()

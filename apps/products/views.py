@@ -106,7 +106,7 @@ class ProductPurchaseGlViewSet(viewsets.ModelViewSet):
         return update_instance(self, request, *args, **kwargs)
 		
 class productsViewSet(viewsets.ModelViewSet):
-    queryset = products.objects.all()
+    queryset = Products.objects.all()
     serializer_class = productsSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_class = ProductsFilter

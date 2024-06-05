@@ -20,6 +20,7 @@ class PurchaseOrdersSerializer(serializers.ModelSerializer):
     payment_term = ModVendorPaymentTermsSerializer(source='payment_term_id',read_only=True)
     purchase_type = PurchaseTypesSerializer(source='purchase_type_id',read_only=True)
     ledger_account = ModLedgerAccountsSerializers(source='ledger_account_id',read_only=True)
+    #order_status = ModOrderStatusesSerializers(source='order_status_id',read_only=True)
 
     class Meta:
         model = PurchaseOrders
@@ -37,21 +38,64 @@ class PurchaseorderItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseorderItems
         fields = '__all__'
-
-
-class ModPurchaseShipmentsSerializer(serializers.ModelSerializer):
+        
+class ModPurchaseInvoiceOrdersSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PurchaseShipments
-        fields = ['purchase_shipment_id','destination','shipping_tracking_no','shipping_date','shipping_charges']
+        model = PurchaseInvoiceOrders
+        fields = ['purchase_invoice_id', 'invoice_no']
 
-class PurchaseShipmentsSerializer(serializers.ModelSerializer):
-    purchaseorder = ModPurchaseOrdersSerializer(source='purchaseorder_id',read_only=True)
-    shipping_mode = ShippingModesSerializer(source='shipping_mode_id',read_only=True)
-    shipping_company = ModShippingCompaniesSerializer(source='shipping_company_id',read_only=True)
-    port_state = ModStateSerializer(source='port_state_id',read_only=True)
+class PurchaseInvoiceOrdersSerializer(serializers.ModelSerializer):
+    gst_type = ModGstTypesSerializer(source='gst_type_id',read_only=True)
+    vendor = ModVendorSerializer(source='vendor_id',read_only=True)
+    vendor_agent = ModVendorAgentSerializer(source='vendor_agent_id',read_only=True)
+    vendor_address = VendorAddressSerializer(source='vendor_address_id',read_only=True)
+    payment_term = ModVendorPaymentTermsSerializer(source='payment_term_id',read_only=True)
+    purchase_type = PurchaseTypesSerializer(source='purchase_type_id',read_only=True)
+    ledger_account = ModLedgerAccountsSerializers(source='ledger_account_id',read_only=True)
+    # order_status = ModOrderStatusesSerializers(source='order_status_id',read_only=True)
+        
+    class Meta:
+        model = PurchaseInvoiceOrders
+        fields = '__all__'
+
+class ModPurchaseInvoiceItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseInvoiceItem
+        fields = ['purchase_invoice_item_id', 'quantity', 'amount']
+
+class PurchaseInvoiceItemSerializer(serializers.ModelSerializer):
+    purchase_invoice = ModPurchaseInvoiceOrdersSerializer(source='purchase_invoice_id',read_only=True)
+    product = ModproductsSerializer(source='product_id',read_only=True)
+    class Meta:
+        model = PurchaseInvoiceItem
+        fields = '__all__'
+
+class ModPurchaseReturnOrdersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseReturnOrders
+        fields = ['purchase_return_id', 'return_date', 'return_no']
+
+class PurchaseReturnOrdersSerializer(serializers.ModelSerializer):
+    purchase_type = PurchaseTypesSerializer(source='purchase_type_id',read_only=True)
+    gst_type = ModGstTypesSerializer(source='gst_type_id',read_only=True)
+    vendor = ModVendorSerializer(source='vendor_id',read_only=True)
+    vendor_agent = ModVendorAgentSerializer(source='vendor_agent_id',read_only=True)
+    vendor_address = VendorAddressSerializer(source='vendor_address_id',read_only=True)
+    payment_term = ModVendorPaymentTermsSerializer(source='payment_term_id',read_only=True)
+    # order_status = ModOrderStatusesSerializers(source='order_status_id',read_only=True)    
 
     class Meta:
-        model = PurchaseShipments
+        model = PurchaseReturnOrders
+        fields = '__all__'
+        
+class ModPurchaseReturnItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseReturnItems
+        fields = ['purchase_return_item_id', 'quantity', 'amount']
+
+class PurchaseReturnItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseReturnItems
         fields = '__all__'
 
 class ModPurchasePriceListSerializer(serializers.ModelSerializer):
@@ -65,17 +109,5 @@ class PurchasePriceListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchasePriceList
-        fields = '__all__'
-
-class ModPurchaseOrderReturnsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PurchaseOrderReturns
-        fields = ['purchase_order_return_id','purchase_return_no','payment_link','due_date','return_reason']
-
-class PurchaseOrderReturnsSerializer(serializers.ModelSerializer):
-    purchaseorder = ModPurchaseOrdersSerializer(source='purchaseorder_id',read_only=True)
-
-    class Meta:
-        model = PurchaseOrderReturns
         fields = '__all__'
 

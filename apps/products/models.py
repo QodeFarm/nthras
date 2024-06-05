@@ -180,7 +180,7 @@ def products_picture(instance, filename):
     original_filename = os.path.splitext(filename)[0]  # Get the filename without extension
     return f"products/products/{original_filename}_{unique_id}{file_extension}"
 
-class products(models.Model):
+class Products(models.Model):
     product_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, db_column = 'product_group_id')

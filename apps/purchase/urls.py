@@ -6,9 +6,12 @@ from .views  import *
 router = routers.DefaultRouter()
 router.register(r'purchase_orders', PurchaseOrdersViewSet)
 router.register(r'purchaseorder_items', PurchaseorderItemsViewSet)
-router.register(r'purchase_shipments', PurchaseShipmentsViewSet)
+router.register(r'purchase_invoice_orders', PurchaseInvoiceOrdersViewSet)
+router.register(r'purchase_invoice_items', PurchaseInvoiceItemViewSet)
+router.register(r'purchase_return_orders', PurchaseReturnOrdersViewSet) 
+router.register(r'purchase_return_items', PurchaseReturnItemsViewSet)
 router.register(r'purchase_price_list', PurchasePriceListViewSet)
-router.register(r'purchase_order_returns', PurchaseOrderReturnsViewSet)
+
 
 
 urlpatterns = [
