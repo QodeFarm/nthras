@@ -6,11 +6,22 @@ from utils_methods import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from .filters import *
+from django.utils import timezone
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+import os
+import json
+
+
 
 # Create your views here.
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_class = CountryFilters
+    ordering_fields = []
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -24,6 +35,9 @@ class CountryViewSet(viewsets.ModelViewSet):
 class StateViewSet(viewsets.ModelViewSet):
     queryset = State.objects.all()
     serializer_class = StateSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_class = StateFilters
+    ordering_fields = []
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -37,6 +51,9 @@ class StateViewSet(viewsets.ModelViewSet):
 class CityViewSet(viewsets.ModelViewSet):
     queryset = City.objects.all()
     serializer_class = CitySerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_class = CityFilters
+    ordering_fields = []
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -370,3 +387,104 @@ class ShippingModesView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
+class OrdersSalesmanView(viewsets.ModelViewSet):
+    queryset = OrdersSalesman.objects.all()
+    serializer_class = OrdersSalesmanSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+
+class PaymentLinkTypesView(viewsets.ModelViewSet):
+    queryset = PaymentLinkTypes.objects.all()
+    serializer_class = PaymentLinkTypesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+class OrderStatusesView(viewsets.ModelViewSet):
+    queryset = OrderStatuses.objects.all()
+    serializer_class = OrderStatusesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+    
+class OrderTypesView(viewsets.ModelViewSet):
+    queryset = OrderTypes.objects.all()
+    serializer_class = OrderTypesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+
+
+SEQUENCE_FILE_PATH = 'order_sequences.json'
+
+
+def load_sequences():
+    if not os.path.exists(SEQUENCE_FILE_PATH):
+        return {}
+    with open(SEQUENCE_FILE_PATH, 'r') as file:
+        return json.load(file)
+
+def save_sequences(sequences):
+    with open(SEQUENCE_FILE_PATH, 'w') as file:
+        json.dump(sequences, file)
+
+def generate_order_number(order_type_prefix):
+    current_date = timezone.now()
+    date_str = current_date.strftime('%y%m')
+
+    sequences = load_sequences()
+
+    key = f"{order_type_prefix}-{date_str}"
+    sequence_number = sequences.get(key, 0)
+    sequence_number += 1
+    sequences[key] = sequence_number
+    save_sequences(sequences)
+
+    sequence_number_str = f"{sequence_number:05d}"
+    order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
+    return order_number
+
+@api_view(['GET'])
+def generate_order_number_view(request, order_type_prefix):
+    try:
+        valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP']
+        if order_type_prefix not in valid_prefixes:
+            return Response({"error": "Invalid prefix"}, status=status.HTTP_400_BAD_REQUEST)
+
+        order_number = generate_order_number(order_type_prefix)
+        
+        response_data = {
+            'count': 1,
+            'msg': None,
+            'data': {'order_number': order_number}
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

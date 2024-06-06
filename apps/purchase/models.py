@@ -4,11 +4,11 @@ from apps.masters.models import PurchaseTypes,State,ProductBrands, GstTypes,Ship
 from apps.customer.models import LedgerAccounts,CustomerCategories
 from apps.vendor.models import Vendor,VendorAgent,VendorAddress,VendorPaymentTerms
 from apps.products.models import products
-
+import uuid
 
 # Create your models here.
 class PurchaseOrders(models.Model):
-    purchaseorder_id = models.AutoField(primary_key=True)
+    purchaseorder_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'GST_Type_id')
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column = 'vendor_id')
     email = models.EmailField(max_length=255, null=True, default=None)
@@ -47,7 +47,7 @@ class PurchaseOrders(models.Model):
         return f"{self.purchaseorder_id}"
 
 class PurchaseorderItems(models.Model):
-    purchaseorder_item_id = models.AutoField(primary_key=True)
+    purchaseorder_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     purchaseorder_id = models.ForeignKey(PurchaseOrders, on_delete=models.CASCADE, db_column = 'purchaseorder_id')
     product_id = models.ForeignKey(products, on_delete=models.CASCADE, db_column = 'product_id')
     quantity = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
@@ -69,7 +69,7 @@ class PurchaseorderItems(models.Model):
         return f"{self.purchaseorder_item_id}"
 
 class PurchaseShipments(models.Model):
-    purchase_shipment_id = models.AutoField(primary_key=True)
+    purchase_shipment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     purchaseorder_id = models.ForeignKey(PurchaseOrders, on_delete=models.CASCADE, db_column = 'purchaseorder_id')
     destination = models.CharField(max_length=255, null=True, default=None)
     shipping_mode_id = models.ForeignKey(ShippingModes, on_delete=models.CASCADE, null=True, default=None, db_column = 'shipping_mode_id')
@@ -97,7 +97,7 @@ class PurchaseShipments(models.Model):
         return f"{self.purchase_shipment_id}"
 
 class PurchasePriceList(models.Model):
-    purchase_price_list_id = models.AutoField(primary_key=True)
+    purchase_price_list_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.CharField(max_length=255)
     customer_category_id = models.ForeignKey(CustomerCategories, on_delete=models.CASCADE, db_column = 'customer_category_id')
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column = 'brand_id')
@@ -112,7 +112,7 @@ class PurchasePriceList(models.Model):
         return f"{self.purchase_price_list_id}"
 
 class PurchaseOrderReturns(models.Model):
-    purchase_order_return_id = models.AutoField(primary_key=True)
+    purchase_order_return_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     purchaseorder_id = models.ForeignKey(PurchaseOrders, on_delete=models.CASCADE, db_column = 'purchaseorder_id')
     purchase_return_no = models.CharField(max_length=255, null=True, default=None)
     payment_link = models.CharField(max_length=255, null=True, default=None)
