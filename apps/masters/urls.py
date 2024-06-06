@@ -30,9 +30,12 @@ router.register(r'shipping_modes', ShippingModesView)
 router.register(r'sale_types', SaleTypesView)
 router.register(r'gst_types', GstTypesView)
 
+router.register(r'orders_salesman', OrdersSalesmanView)
+router.register(r'payment_link_type', PaymentLinkTypesView)
+router.register(r'order_status', OrderStatusesView)
+router.register(r'order_types', OrderTypesView)
+
 urlpatterns = [
     path('', include(router.urls)),
-    
+    path('generate_order_number/<str:order_type_prefix>/', generate_order_number_view, name='generate_order_number'),
 ]
-
-
