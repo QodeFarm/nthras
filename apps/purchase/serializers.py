@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 from .serializers import *
 from apps.vendor.serializers import ModVendorSerializer,ModVendorAgentSerializer,VendorAddressSerializer,ModVendorPaymentTermsSerializer
-from apps.masters.serializers import ModProductBrandsSerializer, PurchaseTypesSerializer, ModGstTypesSerializer
+from apps.masters.serializers import ModOrderStatusesSerializer, ModProductBrandsSerializer, PurchaseTypesSerializer, ModGstTypesSerializer
 from apps.customer.serializers import ModLedgerAccountsSerializers,ModCustomersSerializer
 from apps.products.serializers import ModproductsSerializer
 
@@ -20,7 +20,7 @@ class PurchaseOrdersSerializer(serializers.ModelSerializer):
     payment_term = ModVendorPaymentTermsSerializer(source='payment_term_id',read_only=True)
     purchase_type = PurchaseTypesSerializer(source='purchase_type_id',read_only=True)
     ledger_account = ModLedgerAccountsSerializers(source='ledger_account_id',read_only=True)
-    #order_status = ModOrderStatusesSerializers(source='order_status_id',read_only=True)
+    order_status = ModOrderStatusesSerializer(source='order_status_id',read_only=True)
 
     class Meta:
         model = PurchaseOrders
@@ -52,7 +52,7 @@ class PurchaseInvoiceOrdersSerializer(serializers.ModelSerializer):
     payment_term = ModVendorPaymentTermsSerializer(source='payment_term_id',read_only=True)
     purchase_type = PurchaseTypesSerializer(source='purchase_type_id',read_only=True)
     ledger_account = ModLedgerAccountsSerializers(source='ledger_account_id',read_only=True)
-    # order_status = ModOrderStatusesSerializers(source='order_status_id',read_only=True)
+    order_status = ModOrderStatusesSerializer(source='order_status_id',read_only=True)
         
     class Meta:
         model = PurchaseInvoiceOrders
@@ -82,7 +82,7 @@ class PurchaseReturnOrdersSerializer(serializers.ModelSerializer):
     vendor_agent = ModVendorAgentSerializer(source='vendor_agent_id',read_only=True)
     vendor_address = VendorAddressSerializer(source='vendor_address_id',read_only=True)
     payment_term = ModVendorPaymentTermsSerializer(source='payment_term_id',read_only=True)
-    # order_status = ModOrderStatusesSerializers(source='order_status_id',read_only=True)    
+    order_status = ModOrderStatusesSerializer(source='order_status_id',read_only=True)   
 
     class Meta:
         model = PurchaseReturnOrders
