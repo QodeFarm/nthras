@@ -53,10 +53,12 @@ warehousestable ='warehouses'
 
 #purchase db_tables
 purchaseorderstable = 'purchase_orders'
-purchaseorderitemstable = 'purchaseorder_items'
-purchaseshipmentstable = 'purchase_shipments'
+purchaseorderitemstable = 'purchase_order_items'
+purchaseinvoiceorders = 'purchase_invoice_orders'
+purchaseinvoiceitems = 'purchase_invoice_items'
+purchasereturnorders = 'purchase_return_orders'
+purchasereturnitems = 'purchase_return_items'
 purchasepricelisttable = 'purchase_price_list'
-purchaseorderreturnstable = 'purchase_order_returns'
 
 #Master db_tables
 countrytable = 'country'

@@ -3,7 +3,7 @@ from apps.customer.models import CustomerAddresses, LedgerAccounts, Customer
 from apps.inventory.models import Warehouses
 from apps.masters.models import CustomerPaymentTerms, GstTypes, ProductBrands, ProductItemType, CustomerCategories, SaleTypes, ShippingCompanies, ShippingModes
 from utils_variables import saleorderreturns, saleorders, paymenttransactions, invoices, saleinvoiceitemstable, shipments, salespricelist, saleorderitemstable, saleinvoiceorderstable, salereturnorderstable, salereturnitemstable, orderattachmentstable, ordershipmentstable
-from apps.products.models import ProductGroups, products as Products
+from apps.products.models import ProductGroups, Products
 import uuid
 from utils_methods import OrderNumberMixin
 # Create your models here.

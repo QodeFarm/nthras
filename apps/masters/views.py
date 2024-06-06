@@ -474,7 +474,7 @@ def generate_order_number(order_type_prefix):
 @api_view(['GET'])
 def generate_order_number_view(request, order_type_prefix):
     try:
-        valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP']
+        valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP', 'PO', 'PO-INV', 'PR']
         if order_type_prefix not in valid_prefixes:
             return Response({"error": "Invalid prefix"}, status=status.HTTP_400_BAD_REQUEST)
 

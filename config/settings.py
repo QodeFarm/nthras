@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djoser',
-    'django_safe_settings',
+    # 'django_safe_settings',
     'drf_yasg',
     
     #modules
@@ -283,5 +283,5 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
 
-from django_safe_settings.patch import patch_all  # type: ignore
-patch_all()
+# from django_safe_settings.patch import patch_all  # type: ignore
+# patch_all()

@@ -120,7 +120,7 @@ class ProductPurchaseGlSerializer(serializers.ModelSerializer):
 
 class ModproductsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = products
+        model = Products
         fields = ['product_id','name']
 
 class productsSerializer(serializers.ModelSerializer):
@@ -136,7 +136,7 @@ class productsSerializer(serializers.ModelSerializer):
     drug_type = ProductDrugTypesSerializer(source='drug_type_id',read_only=True)
     brand = ModProductBrandsSerializer(source='brand_id',read_only=True)
     class Meta:
-        model = products
+        model = Products
         fields = '__all__'
 
     def create(self, validated_data):
