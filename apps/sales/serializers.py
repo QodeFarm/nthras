@@ -4,7 +4,7 @@ from apps.inventory.serializers import ModWarehousesSerializer
 from apps.masters.serializers import ModCustomerCategoriesSerializers, ModGstTypesSerializer, ModProductBrandsSerializer, ModSaleTypesSerializer, ModShippingCompaniesSerializer, ShippingModesSerializer, ModOrdersSalesmanSerializer, ModPaymentLinkTypesSerializer, ModOrderStatusesSerializer, ModOrderTypesSerializer
 from apps.products.serializers import ModProductGroupsSerializer, ModproductsSerializer
 from .models import *
-
+from django.conf import settings
 
 #----------Modified Serializers--------------------------
 
@@ -24,9 +24,6 @@ class ModSaleInvoiceOrdersSerializer(serializers.ModelSerializer):
         fields = ['sale_invoice_id','invoice_date','invoice_no',]
 # -------------------------------------------------------
 
-
-
-
 class SaleOrderSerializer(serializers.ModelSerializer):
     gst_type = ModGstTypesSerializer(source='gst_type_id', read_only=True)
     customer = ModCustomersSerializer(source='customer_id', read_only=True)
@@ -38,7 +35,7 @@ class SaleOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleOrder
         fields = '__all__'
-
+        
 class PaymentTransactionsSerializer(serializers.ModelSerializer):
     invoice = ModSaleInvoiceOrdersSerializer(source='sale_invoice_id', read_only=True)
     
@@ -97,7 +94,7 @@ class SaleReturnOrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = SaleReturnOrders
         fields = '__all__'
-
+    
 class SaleReturnItemsSerializer(serializers.ModelSerializer):
     sale_return = ModSaleReturnOrdersSerializer(source='sale_return_id', read_only=True)
     product = ModproductsSerializer(source='product_id', read_only=True)

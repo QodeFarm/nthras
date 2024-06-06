@@ -7,6 +7,8 @@ from django.db.models import Q
 from uuid import uuid4
 import base64
 import os
+import json
+from django.utils import timezone
 
 # -------------- File Path Handler (for Vendor model only)----------------------
 def custom_upload_to(instance, filename):
@@ -126,10 +128,6 @@ def perform_update(self, serializer):
 
 #==================================================
 #Patterns
-import os
-import json
-from django.utils import timezone
-
 SEQUENCE_FILE_PATH = 'order_sequences.json'
 
 def load_sequences():
@@ -144,31 +142,21 @@ def save_sequences(sequences):
 
 def generate_order_number(order_type_prefix):
     current_date = timezone.now()
-    date_str = current_date.strftime('%y%m') 
+    date_str = current_date.strftime('%y%m')
     
     sequences = load_sequences()
     
-    # Generate a key for the order type and date
     key = f"{order_type_prefix}-{date_str}"
     
-    # Get the current sequence number from the dictionary, default to 0 if not found
     sequence_number = sequences.get(key, 0)
-    
-    # Increment the sequence number
     sequence_number += 1
-    
-    # Store the updated sequence number back in the dictionary
     sequences[key] = sequence_number
     save_sequences(sequences)
     
-    # Format the sequence number with leading zeros to ensure it is 5 digits
     sequence_number_str = f"{sequence_number:05d}"
     
-    # Construct the order number
     order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
     return order_number
-
-
 
 class OrderNumberMixin(models.Model):
     order_no_prefix = ''

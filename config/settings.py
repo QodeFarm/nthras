@@ -273,6 +273,9 @@ DJOSER = {
     # },
 }
 
+BASE_URL = 'http://127.0.0.1:8000'
+MASTERS_BASE_URL = f'{BASE_URL}/api/v1/masters'
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",

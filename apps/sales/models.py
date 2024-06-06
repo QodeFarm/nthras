@@ -190,7 +190,7 @@ class SaleReturnOrders(OrderNumberMixin):
     return_date = models.DateField()
     return_no = models.CharField(max_length=20, unique=True, default='')
     order_no_prefix = 'SR'
-    field_name = 'return_no'
+    order_no_field = 'return_no'
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='customer_id')
     gst_type_id = models.ForeignKey('masters.GstTypes', on_delete=models.CASCADE, db_column='gst_type_id', null=True, default=None)
     email = models.EmailField(max_length=255, null=True, default=None)
