@@ -125,7 +125,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "cnl",
         "USER": "root",
-        "PASSWORD": "",
+        "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -272,6 +272,9 @@ DJOSER = {
     #     'password_changed_confirmation': 'users.email.PasswordChangedConfirmationEmail',
     # },
 }
+
+BASE_URL = 'http://127.0.0.1:8000'
+MASTERS_BASE_URL = f'{BASE_URL}/api/v1/masters'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

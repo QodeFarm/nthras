@@ -13,12 +13,12 @@ class PurchaseOrders(OrderNumberMixin):
     purchase_type_id = models.ForeignKey(PurchaseTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'purchase_type_id')
     order_date = models.DateField()
     order_no = models.CharField(max_length=255, unique=True, default='')
+    order_no_prefix = 'PO'
+    order_no_field = 'order_no'
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'GST_Type_id')
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column = 'vendor_id')
     email = models.EmailField(max_length=255, null=True, default=None)
     delivery_date = models.DateField(blank=True, null=True)
-    order_no_prefix = 'PO'
-    field_name = 'order_no'
     ref_no = models.CharField(max_length=255, null=True, default=None)
     ref_date = models.DateField(blank=True, null=True)
     vendor_agent_id = models.ForeignKey(VendorAgent, on_delete=models.CASCADE, null=True, default=None, db_column = 'vendor_agent_id')
@@ -39,7 +39,7 @@ class PurchaseOrders(OrderNumberMixin):
     cess_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     round_off = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     total_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
-    #order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
+    order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 	
@@ -75,9 +75,9 @@ class PurchaseInvoiceOrders(OrderNumberMixin):
     purchase_invoice_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     purchase_type_id = models.ForeignKey(PurchaseTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'purchase_type_id')
     invoice_date = models.DateField()
-    invoice_no = models.CharField(max_length=20, unique=True)
+    invoice_no = models.CharField(max_length=20, unique=True, default='')
     order_no_prefix = 'PO-INV'
-    field_name = 'invoice_no'
+    order_no_field = 'invoice_no'
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'GST_Type_id')
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column = 'vendor_id')
     email = models.EmailField(max_length=255, blank=True, null=True)
@@ -119,8 +119,8 @@ class PurchaseInvoiceOrders(OrderNumberMixin):
 
 class PurchaseInvoiceItem(models.Model):
     purchase_invoice_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    purchase_invoice_id = models.ForeignKey(PurchaseInvoiceOrders, on_delete=models.CASCADE)
-    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    purchase_invoice_id = models.ForeignKey(PurchaseInvoiceOrders, on_delete=models.CASCADE, db_column = 'purchase_invoice_id')
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE, db_column = 'product_id')
     quantity = models.DecimalField(max_digits=18, decimal_places=2)
     unit_price = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
@@ -148,9 +148,9 @@ class PurchaseReturnOrders(OrderNumberMixin):
     purchase_return_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     purchase_type_id = models.ForeignKey(PurchaseTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'purchase_type_id')
     return_date = models.DateField()
-    return_no = models.CharField(max_length=20, unique=True)
+    return_no = models.CharField(max_length=20, unique=True, default='')
     order_no_prefix = 'PR'
-    field_name = 'return_no'
+    order_no_field = 'return_no'
     gst_type_id = models.ForeignKey(GstTypes, on_delete=models.CASCADE, null=True, default=None, db_column = 'GST_Type_id')
     vendor_id = models.ForeignKey(Vendor, on_delete=models.CASCADE, db_column = 'vendor_id')
     email = models.EmailField(max_length=255, null=True, blank=True)
@@ -184,8 +184,8 @@ class PurchaseReturnOrders(OrderNumberMixin):
 
 class PurchaseReturnItems(models.Model):
     purchase_return_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    purchase_return_id = models.ForeignKey(PurchaseReturnOrders, on_delete=models.CASCADE)
-    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    purchase_return_id = models.ForeignKey(PurchaseReturnOrders, on_delete=models.CASCADE, db_column='purchase_return_id')
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE, db_column='product_id')
     quantity = models.DecimalField(max_digits=18, decimal_places=2)
     unit_price = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     rate = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
