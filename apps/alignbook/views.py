@@ -107,8 +107,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import PhoneNumberSerializer
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter # type: ignore
+from reportlab.pdfgen import canvas # type: ignore
 from django.http import FileResponse
 
 class FetchOutstandingLCView(APIView):
@@ -1294,7 +1294,6 @@ class FetchOutstandingLCView(APIView):
  
 
                                 return FileResponse(buffer, as_attachment=True, filename='outstanding_lc.pdf')
-                                    #return Response({"outstanding_lc": outstanding_lc,"bill_date" : bill_date,"ref_no" : ref_no, "due_amount" : due_amount, "bill_amount" : bill_amount, "outstanding_lc_running" : outstanding_lc_running}, status=status.HTTP_200_OK)
                             else:
                                 return Response({"error": "Invalid data format in JsonDataTable field"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                         else:
