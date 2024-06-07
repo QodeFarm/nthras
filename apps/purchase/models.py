@@ -1,7 +1,7 @@
 from django.db import models
 from utils_variables import *
-from apps.masters.models import PurchaseTypes,State,ProductBrands, GstTypes, OrderStatuses
-from apps.customer.models import LedgerAccounts,CustomerCategories
+from apps.masters.models import PurchaseTypes,State,ProductBrands, GstTypes, OrderStatuses,CustomerCategories
+from apps.customer.models import LedgerAccounts
 from apps.vendor.models import Vendor,VendorAgent,VendorAddress,VendorPaymentTerms
 from apps.products.models import Products
 import uuid

@@ -325,6 +325,9 @@ class ProductBrandsViewSet(viewsets.ModelViewSet):
 class PurchaseTypesViewSet(viewsets.ModelViewSet):
     queryset = PurchaseTypes.objects.all()
     serializer_class = PurchaseTypesSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_class = PurchaseTypesFilter
+    ordering_fields = ['name']
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)

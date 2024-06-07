@@ -94,6 +94,8 @@ class ModPurchaseReturnItemsSerializer(serializers.ModelSerializer):
         fields = ['purchase_return_item_id', 'quantity', 'amount']
 
 class PurchaseReturnItemsSerializer(serializers.ModelSerializer):
+    purchase_return = ModPurchaseReturnOrdersSerializer(source='purchase_return_id',read_only=True)
+    product = ModproductsSerializer(source='product_id',read_only=True)
     class Meta:
         model = PurchaseReturnItems
         fields = '__all__'
