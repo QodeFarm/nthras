@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djoser',
+    # 'django_safe_settings',
+    'drf_yasg',
     
     #modules
     'apps.vendor',
@@ -68,7 +70,9 @@ INSTALLED_APPS = [
     'apps.masters',
     'apps.inventory',
     'apps.purchase',
-    'apps.users'
+    'apps.users',
+    'apps.per_val',
+    'apps.alignbook'
 ]
 
 MIDDLEWARE = [
@@ -119,7 +123,7 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "nthras",
+        "NAME": "cnl",
         "USER": "root",
         "PASSWORD": "root",
         "HOST": "127.0.0.1",
@@ -194,8 +198,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = EMAIL_USER
-EMAIL_HOST_PASSWORD= EMAIL_PASS 
+EMAIL_HOST_USER = "qodefarm7@gmail.com" 
+EMAIL_HOST_PASSWORD= "osap irhp jqzl ehre" 
 
 
 REST_FRAMEWORK = {    
@@ -207,7 +211,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=8),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
@@ -248,11 +252,11 @@ SIMPLE_JWT = {
 DJOSER = {
     'LOGIN_FIELD': 'username',
     'USER_CREATE_PASSWORD_RETYPE': True,
-    'ACTIVATION_URL': '/activate/{uid}/{token}',
+    'ACTIVATION_URL': 'api/v1/users/activation/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SEND_CONFIRMATION_EMAIL': True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
-    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': 'password_reset/{uid}/{token}',
     'SET_PASSWORD_RETYPE': True,
     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     'TOKEN_MODEL': None,  # To Delete User Must Set it to None
@@ -269,6 +273,9 @@ DJOSER = {
     # },
 }
 
+BASE_URL = 'http://127.0.0.1:8000'
+MASTERS_BASE_URL = f'{BASE_URL}/api/v1/masters'
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -276,3 +283,5 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
 
+# from django_safe_settings.patch import patch_all  # type: ignore
+# patch_all()

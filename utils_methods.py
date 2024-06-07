@@ -1,10 +1,14 @@
 #utils_methods file
-import os
-from uuid import uuid4
-from rest_framework import status
 from rest_framework.response import Response
-import base64
+from rest_framework import status
 from django.db import models
+import uuid,django_filters
+from django.db.models import Q
+from uuid import uuid4
+import base64
+import os
+import json
+from django.utils import timezone
 
 # -------------- File Path Handler (for Vendor model only)----------------------
 def custom_upload_to(instance, filename):
@@ -70,6 +74,13 @@ decoded_bytes = base64.b64decode(encoded_account_number)
 # Convert bytes to string
 original_account_number = decoded_bytes.decode("utf-8")
 
+#=======================Filters for primary key===============================================
+def filter_uuid(queryset, name, value):
+    try:
+        uuid.UUID(value)
+    except ValueError:
+        return queryset.none()
+    return queryset.filter(Q(**{name: value}))
 #======================================================================
 
 def list_all_objects(self, request, *args, **kwargs):
@@ -114,3 +125,47 @@ def update_instance(self, request, *args, **kwargs):
 
 def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
+
+#==================================================
+#Patterns
+SEQUENCE_FILE_PATH = 'order_sequences.json'
+
+def load_sequences():
+    if not os.path.exists(SEQUENCE_FILE_PATH):
+        return {}
+    with open(SEQUENCE_FILE_PATH, 'r') as file:
+        return json.load(file)
+
+def save_sequences(sequences):
+    with open(SEQUENCE_FILE_PATH, 'w') as file:
+        json.dump(sequences, file)
+
+def generate_order_number(order_type_prefix):
+    current_date = timezone.now()
+    date_str = current_date.strftime('%y%m')
+    
+    sequences = load_sequences()
+    
+    key = f"{order_type_prefix}-{date_str}"
+    
+    sequence_number = sequences.get(key, 0)
+    sequence_number += 1
+    sequences[key] = sequence_number
+    save_sequences(sequences)
+    
+    sequence_number_str = f"{sequence_number:05d}"
+    
+    order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
+    return order_number
+
+class OrderNumberMixin(models.Model):
+    order_no_prefix = ''
+    order_no_field = 'order_no'
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not getattr(self, self.order_no_field):
+            setattr(self, self.order_no_field, generate_order_number(self.order_no_prefix))
+        super().save(*args, **kwargs)
