@@ -7,13 +7,19 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 
 router.register(r'sale_order', SaleOrderView)
-router.register(r'payment_transactions', PaymentTransactionsView)
-router.register(r'shipments', ShipmentsView)
-router.register(r'order_items', OrderItemsView)
-router.register(r'invoices', InvoicesView)
 router.register(r'sales_price_list', SalesPriceListView)
-router.register(r'sale_order_returns', SaleOrderReturnsView)
+router.register(r'sale_order_items', SaleOrderItemsView)
+router.register(r'sale_invoice_order',SaleInvoiceOrdersView)
+router.register(r'payment_transactions', PaymentTransactionsView)
+router.register(r'sale_invoice_items', SaleInvoiceItemsView)
+router.register(r'sale_return_orders', SaleReturnOrdersView)
+router.register(r'sale_return_items', SaleReturnItemsView)
+router.register(r'order_attachements', OrderAttachmentsView)
+router.register(r'order_shipments', OrderShipmentsView)
 
 urlpatterns = [
     path('',include(router.urls))
 ]
+
+
+

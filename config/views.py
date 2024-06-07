@@ -16,7 +16,6 @@ def api_links(request):
         ('api/v1/sales/', 'Sales API'),
         ('api/v1/inventory/', 'Inventory API'),
         ('api/v1/purchase/', 'Purchase API'),
-        ('api/v1/generic/', 'Generic API'),
         ('swagger/','Swagger')
     ]
 

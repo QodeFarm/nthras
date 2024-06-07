@@ -1,7 +1,7 @@
 #Table Names
 #===========:-
 
-baseurl = 'http://127.0.0.1:8000'
+baseurl = 'http://195.35.20.172:8000/'
 
 #Company db_tables
 companytable ='companies'
@@ -36,20 +36,29 @@ saleorders = 'sale_orders'
 paymenttransactions = 'payment_transactions'
 invoices = 'invoices'
 warehouses = 'warehouses'
-orderitems = 'order_items'
+saleinvoiceitemstable = 'sale_invoice_items'
 shipments = 'shipments'
 salespricelist  = 'sales_price_list'
 saleorderreturns = 'sale_order_returns'
+orderssalesmantable = 'orders_salesman'
+saleorderitemstable = 'sale_order_items'
+saleinvoiceorderstable = 'sale_invoice_orders'
+salereturnorderstable = 'sale_return_orders'
+salereturnitemstable = 'sale_return_items'
+orderattachmentstable = 'order_attachments' 
+ordershipmentstable = 'order_shipments'
 
 #inventory db_tables
 warehousestable ='warehouses'
 
 #purchase db_tables
 purchaseorderstable = 'purchase_orders'
-purchaseorderitemstable = 'purchaseorder_items'
-purchaseshipmentstable = 'purchase_shipments'
+purchaseorderitemstable = 'purchase_order_items'
+purchaseinvoiceorders = 'purchase_invoice_orders'
+purchaseinvoiceitems = 'purchase_invoice_items'
+purchasereturnorders = 'purchase_return_orders'
+purchasereturnitems = 'purchase_return_items'
 purchasepricelisttable = 'purchase_price_list'
-purchaseorderreturnstable = 'purchase_order_returns'
 
 #Master db_tables
 countrytable = 'country'
@@ -76,6 +85,9 @@ shippingcompanies = 'shipping_companies'
 gsttypes = 'gst_types'
 shippingmodes = 'shipping_modes'
 saletypes = 'sale_types'
+paymentlinktable = 'payment_link_types'
+orderstatusestable = 'order_statuses'
+ordertypestable = 'order_types'
 
 #Authentication db_tables
 userstable = 'users'

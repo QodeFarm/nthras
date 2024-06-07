@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djoser',
-    'django_safe_settings',
+    # 'django_safe_settings',
     'drf_yasg',
     
     #modules
@@ -85,7 +85,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'middleware.download_response_middleware.DownloadResponseMiddleware',
     'middleware.download_response_middleware.StripDownloadJsonMiddleware',
 ]
 
@@ -128,7 +127,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "cnl",
         "USER": "root",
-        "PASSWORD": "enc:40b7b367f2501d558725a8953b388c7d",
+        "PASSWORD": "root",
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
@@ -276,6 +275,9 @@ DJOSER = {
     # },
 }
 
+BASE_URL = 'http://127.0.0.1:8000'
+MASTERS_BASE_URL = f'{BASE_URL}/api/v1/masters'
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -283,5 +285,5 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
 
-from django_safe_settings.patch import patch_all  # type: ignore
-patch_all()
+# from django_safe_settings.patch import patch_all  # type: ignore
+# patch_all()
