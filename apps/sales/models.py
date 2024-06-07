@@ -58,8 +58,6 @@ class SalesPriceList(models.Model): #required fields are updated
     customer_category_id = models.ForeignKey(CustomerCategories, on_delete=models.CASCADE, db_column='customer_category_id')
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column='brand_id')
     effective_From = models.DateField()
-    # effective_date = models.DateField(null=True, default=None)
-    # group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column='group_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -129,11 +127,12 @@ class SaleInvoiceOrders(OrderNumberMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f'{self.sale_invoice_id}'
+
     class Meta:
         db_table = saleinvoiceorderstable
 
-    def __str__(self):
-        return self.sale_invoice_id
     
 class PaymentTransactions(models.Model): #required fields are updated
     transaction_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -226,7 +225,7 @@ class SaleReturnOrders(OrderNumberMixin):
         db_table = salereturnorderstable
 
     def __str__(self):
-        return self.sale_return_id
+        return f'{self.sale_return_id}'
     
 class SaleReturnItems(models.Model):
     sale_return_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -263,7 +262,7 @@ class OrderAttachments(models.Model):
         db_table = orderattachmentstable
 
     def __str__(self):
-        return self.attachment_name
+        return f'{self.attachment_name}'
     
 
 class OrderShipments(OrderNumberMixin):
@@ -293,4 +292,4 @@ class OrderShipments(OrderNumberMixin):
         db_table = ordershipmentstable
 
     def __str__(self):
-        return self.shipment_id
+        return f'{self.shipment_id}'
