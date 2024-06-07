@@ -1,9 +1,13 @@
 from io import BytesIO
+import os
+from uuid import uuid4
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import requests
 import json
+
+from django.conf import settings
 
 class VoucherView(APIView):
     def post(self, request):
@@ -109,7 +113,7 @@ from rest_framework import status
 from .serializers import PhoneNumberSerializer
 from reportlab.lib.pagesizes import letter # type: ignore
 from reportlab.pdfgen import canvas # type: ignore
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 
 class FetchOutstandingLCView(APIView):
     def post(self, request):
@@ -1271,29 +1275,47 @@ class FetchOutstandingLCView(APIView):
 
                             if isinstance(data_2, list) and len(data_2) > 0:
                                 record = data_2[0]
-                                fields = {
-                                    "outstanding_lc": record.get("outstanding_lc"),
-                                    "bill_date": record.get("bill_date"),
-                                    "ref_no": record.get("ref_no"),
-                                    "due_amount": record.get("due_amount"),
-                                    "bill_amount": record.get("bill_amount"),
-                                    "outstanding_lc_running": record.get("outstanding_lc_running")
-                                }
-
-                                buffer = BytesIO()
-                                p = canvas.Canvas(buffer, pagesize=letter)
-                                y_position = 750
-                                for field_name, field_value in fields.items():
-                                    p.drawString(100, y_position, f"{field_name.replace('_', ' ').title()}: {field_value}")
-                                    y_position -= 20
-
-                                p.showPage()
-                                p.save()
+                                outstanding_lc = record.get("outstanding_lc")
+                                bill_date = record.get("bill_date")
+                                ref_no = record.get("ref_no")
+                                due_amount = record.get("due_amount")
+                                bill_amount = record.get("bill_amount")
+                                outstanding_lc_runnin = record.get("outstanding_lc_running")
                                 
-                                buffer.seek(0)
- 
 
-                                return FileResponse(buffer, as_attachment=True, filename='outstanding_lc.pdf')
+                                # buffer = BytesIO()
+                                # p = canvas.Canvas(buffer, pagesize=letter)
+                                # y_position = 750
+                                # for field_name, field_value in fields.items():
+                                #     p.drawString(100, y_position, f"{field_name.replace('_', ' ').title()}: {field_value}")
+                                #     y_position -= 20
+
+                                # p.showPage()
+                                # p.save()
+                                
+                                # buffer.seek(0)
+ 
+                                if outstanding_lc is not None:
+                                    # Generate PDF
+                                    pdf_filename = f"{uuid4()}.pdf"
+                                    pdf_path = os.path.join(settings.MEDIA_ROOT, pdf_filename)
+                                    p = canvas.Canvas(pdf_path, pagesize=letter)                                
+
+                                    # Add the fields to the PDF
+                                    p.drawString(100, 750, f"Outstanding LC: {outstanding_lc}")
+                                    p.drawString(100, 730, f"bill_date: {bill_date}")
+                                    p.drawString(100, 710, f"ref_no: {ref_no}")
+                                    p.drawString(100, 690, f"due_amount: {due_amount}")
+                                    p.drawString(100, 670, f"Bill Amount: {bill_amount}")
+                                    p.drawString(100, 650, f"bill_amount: {bill_amount}")
+                                    p.drawString(100, 630, f"outstanding_lc_running: {outstanding_lc_runnin}")
+
+                                    p.showPage()
+                                    p.save()
+
+                                    pdf_url = request.build_absolute_uri(f"{settings.MEDIA_URL}{pdf_filename}")   
+                                
+                                    return Response({"outstanding_lc": outstanding_lc, "pdf_url": pdf_url}, status=status.HTTP_200_OK)
                             else:
                                 return Response({"error": "Invalid data format in JsonDataTable field"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                         else:
