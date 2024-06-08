@@ -7,6 +7,8 @@ from django.db.models import Q
 from uuid import uuid4
 import base64
 import os
+import json
+from django.utils import timezone
 
 # -------------- File Path Handler (for Vendor model only)----------------------
 def custom_upload_to(instance, filename):
@@ -72,25 +74,293 @@ decoded_bytes = base64.b64decode(encoded_account_number)
 # Convert bytes to string
 original_account_number = decoded_bytes.decode("utf-8")
 
-#=======================Filters for primary key===============================================
+
+# -----------------------------Filters for primary key-------------------------------
 def filter_uuid(queryset, name, value):
     try:
         uuid.UUID(value)
     except ValueError:
         return queryset.none()
     return queryset.filter(Q(**{name: value}))
-#======================================================================
+
+
+# -----------------------------Customised Filters-------------------------------
+def count_sub_dicts(main_dict):
+    count = 0
+    for value in main_dict.values():
+        if isinstance(value, dict):
+            count += 1
+    return count
+
+def sale_by_customer():
+    from apps.sales.models import SaleInvoiceOrders, SaleOrder, SaleOrderItems
+    sale_orders = SaleOrder.objects.select_related('customer_id').all()
+
+    # Calculate summary of sales for each customer
+
+    sales_summary = {}
+    for sale_order in sale_orders:
+        customer_info = str(sale_order.customer_id)  # Accessing the customer_id field directly, convert to str otherwise error will come
+        customer_name = customer_info.split('_')[0]
+        customer_id = customer_info.split('_')[1]
+
+
+        if customer_id not in sales_summary:
+            customer_data = {
+                'customer_id': customer_id, #convert to str otherwise error will come
+                'name': customer_name,  # Assuming customer_id is a field in SaleOrder model
+            }
+            sales_summary[customer_id] = {
+                'customer_name': customer_name,
+                'customer_id': customer_id,
+                'total_sales_amount': 0,
+                'num_of_sale_orders': 0,
+                'avg_order_value': 0
+            }
+
+        # Calculae total sale amount, in each iteration, each 'amount' in 'SaleOrderItems' is Summed up.
+        sale_order_info = SaleOrderItems.objects.filter(sale_order_id=sale_order.sale_order_id)
+        amount = 0
+        for val in sale_order_info:
+            amount = val.amount + amount
+
+        if amount is not None:
+            sales_summary[customer_id]['total_sales_amount'] += amount
+
+        #Total iterations in this loop is equal to No of SaleOrders for one customer.
+        sales_summary[customer_id]['num_of_sale_orders'] += 1
+
+    # Calculate average order value
+    for summary in sales_summary.values():
+        total_sales_amount = summary['total_sales_amount']
+        num_orders = summary['num_of_sale_orders']
+        if num_orders != 0:
+            summary['avg_order_value'] = total_sales_amount / num_orders
+            avg = total_sales_amount / num_orders
+
+    
+    # return Response(sales_summary.values())
+    response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+    return Response(response_data)
+
+#=========
+def sale_by_product(desc_param=None,p_id=None):
+    from apps.sales.models import OrderItems
+    from apps.products.models import products
+    order_items = OrderItems.objects.select_related('product_id').all()
+
+    # Calculate summary of sales for each product
+    sales_summary = {}
+    for order_item in order_items:
+        product_id = str(order_item.product_id)  #get item example : Apple
+        product_id = product_id[0]    # get that itemm  ID
+        if product_id not in sales_summary:
+            sales_summary[product_id] = {
+                'product_id': product_id,
+                'name': order_item.product_id.name,  #item name Example Apple
+                'total_quantity_sold': 0,
+                'total_revenue': 0,
+                'avg_selling_price': 0
+            }
+
+        # Fetch related product information
+        product = products.objects.get(product_id=product_id)
+
+        # Update sales summary
+        sales_summary[product_id]['total_quantity_sold'] += order_item.quantity
+        sales_summary[product_id]['total_revenue'] += order_item.quantity * product.sales_rate
+
+    # Calculate average selling price
+    for product_id, summary in sales_summary.items():
+        total_quantity_sold = summary['total_quantity_sold']
+        if total_quantity_sold != 0:
+            summary['avg_selling_price'] = summary['total_revenue'] / total_quantity_sold
+
+    #http://127.0.0.1:8000/api/v1/sales/sale_order/?sales_by_product=true&p_id=1
+    if p_id: 
+        rec = sales_summary[p_id]
+        return Response(rec)
+    
+    # http://127.0.0.1:8000/api/v1/sales/sale_order/?sales_by_product=true&desc=true
+    if desc_param == 'true':     
+        # return Response(sales_summary.values())
+        sorted_data = sorted(sales_summary.values(), key=lambda x: x['total_quantity_sold'], reverse=True)
+        data = {}
+        i = 1
+        for item in sorted_data: #data is still in decimal format in sorted_data. To avoid the error, data is converted to float data type
+                item['total_quantity_sold'] = float(item['total_quantity_sold'])
+                item['total_revenue'] = float(item['total_revenue'])
+                item['avg_selling_price'] = float(item['avg_selling_price'])
+                data[i] = item
+                i = i+1
+
+
+        response_data = {
+            'count': count_sub_dicts(data),
+            'msg': None,
+            'data': data.values()
+        }
+        return Response(response_data)
+    
+    
+    # http://127.0.0.1:8000/api/v1/sales/sale_order/?sales_by_product=true
+    else:
+        response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+        return Response(response_data)
+
+#==========
+def sale_return_report():
+    from apps.sales.models import SaleOrderReturns, SaleOrder
+    from apps.sales.serializers import ModSaleOrderSerializer
+    # Retrieve all returns with related return information
+    sale_order_returns = SaleOrderReturns.objects.select_related('sale_id').all()
+
+    # Calculate summary of sales for each product
+    sales_summary = {}
+    for sale_order_return in sale_order_returns:
+        sale_id = str(sale_order_return.sale_id)  #get order ID 
+
+
+        if sale_id not in sales_summary:
+            sales_summary[sale_id] = {
+                'sale_order_return_id': str(sale_order_return),  # from SaleOrderReturns
+                'sale_id': sale_id,   # From SaleOrder
+                'original_sale_order_info': sale_id,   # sale_id Details
+                'reason_for_return': sale_order_return.return_reason,
+                'amount_refunded': 0,
+            }
+
+        # sale_orders = SaleOrder.objects.all()
+        sale_orders = SaleOrder.objects.filter(order_id=sale_id)
+
+        serializer = ModSaleOrderSerializer(sale_orders, many=True)
+
+        # Convert the serialized data to JSON format
+        json_data = {'sale_id': serializer.data}
+
+        sales_summary[sale_id]['original_sale_order_info'] = json_data
+
+    response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+    return Response(response_data)
+
+#===========
+def sale_order_status():
+        from apps.sales.models import SaleOrder, Invoices,PaymentTransactions,OrderItems,Shipments
+        from apps.masters.models import ShippingCompanies
+        delivery_dates = SaleOrder.objects.values_list('delivery_date', flat=True)
+        sale_orders = SaleOrder.objects.values_list('order_id', flat=True)
+
+        sales_summary = {}
+        
+        for sale_order,delivery_date in zip(sale_orders,delivery_dates):
+            order_id = str(sale_order)  #get order ID 
+
+            invoices = Invoices.objects.filter(order_id=order_id)
+            for invoices in invoices:
+                invoice_id = invoices.invoice_id                     # get invoice_id 
+                invoices = Invoices.objects.get(pk=invoice_id)
+                amount = invoices.total_amount
+                status = invoices.status
+
+                payment = PaymentTransactions.objects.filter(invoice_id=invoice_id) if invoices else None
+                for id in payment:
+                    transaction_id = id.transaction_id
+                    pay_status = id.payment_status
+
+                order_items = OrderItems.objects.filter(order_id=order_id) 
+                for id in order_items:
+                    order_item_id = id.order_item_id
+                    quantity = id.quantity
+                    price = id.unit_price
+
+                shipments = Shipments.objects.filter(order_id=order_id) 
+                for id in shipments:
+                    shipment_id = id.shipment_id
+                    shipping_tracking_no = id.shipping_tracking_no
+                    destination = id.destination
+                    shipping_date = id.shipping_date
+                
+                companies = ShippingCompanies.objects.filter(shipping_company_id=shipment_id)
+                for name in companies:
+                    name = name.name
+
+            if order_id not in sales_summary:
+                sales_summary[order_id] = {
+                            'order_id' : order_id,
+                            'delivery_date' : delivery_date,
+  
+                            'invoice_id' : invoice_id,
+                            'total_amount' : float(amount),
+                            'status': status,
+
+                            'transaction_id':transaction_id if payment else None,
+                            'payment_status' :pay_status if payment else None,
+
+                            'order_item_id': order_item_id if order_items else None,
+                            'quantity' : float(quantity) if order_items else None,
+                            'unit_price' : price if order_items else None,
+
+                            'shipment_id':shipment_id if shipments else None,
+                            'shipping_tracking_no' :shipping_tracking_no if shipments else None,
+                            'destination' :destination if shipments else None,
+                            'shipping_date' :shipping_date if shipments else None,
+                            'shipping_company_name' :name if companies else None,
+                            
+                }
+        response_data = {
+            'count': count_sub_dicts(sales_summary),
+            'msg': None,
+            'data': sales_summary.values()
+        }
+        return Response(response_data)
+# ------------------------------------------------------------------------------
 
 def list_all_objects(self, request, *args, **kwargs):
     queryset = self.filter_queryset(self.get_queryset())
     serializer = self.get_serializer(queryset, many=True)
-    message = "NO RECORDS INSERTED" if not serializer.data else None
-    response_data = {
-        'count': queryset.count(),
-        'msg': message,
-        'data': serializer.data
-    }
-    return Response(response_data)
+
+
+    sales_by_customer = request.query_params.get('sales_by_customer', 'false').lower() == 'true'
+    if sales_by_customer:
+        return sale_by_customer()
+    
+    sales_by_product = request.query_params.get('sales_by_product', 'false').lower() == 'true'
+    p_id = request.query_params.get('p_id', None)
+    desc_param = request.query_params.get('desc')
+    
+    if sales_by_product:
+        return sale_by_product(desc_param,p_id)
+    
+    sales_return_report = request.query_params.get('sales_return_report', 'false').lower() == 'true'
+    if sales_return_report:
+        return sale_return_report()
+    
+    sales_order_status = request.query_params.get('sales_order_status', 'false').lower() == 'true'
+    if sales_order_status:
+        return sale_order_status()
+    
+    
+    else:
+
+        message = "NO RECORDS INSERTED" if not serializer.data else None
+        response_data = {
+            'count': queryset.count(),
+            'msg': message,
+            'data': serializer.data
+        }
+        return Response(response_data)
 
 def create_instance(self, request, *args, **kwargs):
     serializer = self.get_serializer(data=request.data)
@@ -123,3 +393,48 @@ def update_instance(self, request, *args, **kwargs):
 
 def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
+
+
+#==================================================
+#Patterns
+SEQUENCE_FILE_PATH = 'order_sequences.json'
+
+def load_sequences():
+    if not os.path.exists(SEQUENCE_FILE_PATH):
+        return {}
+    with open(SEQUENCE_FILE_PATH, 'r') as file:
+        return json.load(file)
+
+def save_sequences(sequences):
+    with open(SEQUENCE_FILE_PATH, 'w') as file:
+        json.dump(sequences, file)
+
+def generate_order_number(order_type_prefix):
+    current_date = timezone.now()
+    date_str = current_date.strftime('%y%m')
+    
+    sequences = load_sequences()
+    
+    key = f"{order_type_prefix}-{date_str}"
+    
+    sequence_number = sequences.get(key, 0)
+    sequence_number += 1
+    sequences[key] = sequence_number
+    save_sequences(sequences)
+    
+    sequence_number_str = f"{sequence_number:05d}"
+    
+    order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
+    return order_number
+
+class OrderNumberMixin(models.Model):
+    order_no_prefix = ''
+    order_no_field = 'order_no'
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not getattr(self, self.order_no_field):
+            setattr(self, self.order_no_field, generate_order_number(self.order_no_prefix))
+        super().save(*args, **kwargs)
