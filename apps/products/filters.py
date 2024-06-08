@@ -2,7 +2,7 @@ from django_filters import rest_framework as filters, FilterSet, CharFilter, Num
 import datetime
 from django.utils import timezone
 from .models import ProductGstClassifications
-from utils_methods import filter_uuid
+from config.utils_methods import filter_uuid
 
 class ProductGroupsFilter(FilterSet):
     group_name = filters.CharFilter(lookup_expr='icontains')

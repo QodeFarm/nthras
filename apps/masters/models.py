@@ -3,8 +3,8 @@ import uuid
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
-from utils_methods import *
-from utils_variables import *
+from config.utils_methods import *
+from config.utils_variables import *
 from django.core.validators import RegexValidator
 
 # Create your models here.
