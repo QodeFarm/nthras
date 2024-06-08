@@ -4,8 +4,8 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 from apps.masters.models import *
-from utils_methods import EncryptedTextField
-from utils_variables import *
+from config.utils_methods import EncryptedTextField
+from config.utils_variables import *
 
 # Create your models here.
 

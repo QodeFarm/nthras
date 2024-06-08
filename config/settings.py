@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-from email_credentials import *
+from config.email_credentials import *
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

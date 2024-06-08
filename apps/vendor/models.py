@@ -1,8 +1,8 @@
 from django.db import models
 from apps.customer.models import LedgerAccounts
 from apps.masters.models import FirmStatuses, GstCategories, PriceCategories, Territory, Transporters
-from utils_variables import vendorcategory, vendorpaymentterms, vendoragent, vendor, vendorattachments, vendoraddresses
-from utils_methods import custom_upload_to, EncryptedTextField
+from config.utils_variables import vendorcategory, vendorpaymentterms, vendoragent, vendor, vendorattachments, vendoraddresses
+from config.utils_methods import custom_upload_to, EncryptedTextField
 import uuid
 
 # Create your models here.

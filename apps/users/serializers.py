@@ -9,7 +9,7 @@ from rest_framework import serializers
 from .utils import Utils
 from .passwdgen import *
 import os
-from utils_variables import baseurl
+from config.utils_variables import baseurl
 #=========================MOD_SERIALIZATION=========================
 class ModRoleSerializer(serializers.ModelSerializer):
     class Meta:

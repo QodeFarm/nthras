@@ -1,6 +1,6 @@
 # from django_filters import rest_framework as filters
 # from .models import SaleOrder,Invoices,PaymentTransactions,OrderItems,Shipments,SalesPriceList,SaleOrderReturns
-# from utils_methods import filter_uuid
+# from config.utils_methods import filter_uuid
 
 # class SaleOrderFilter(filters.FilterSet):
 #     order_date = filters.DateFromToRangeFilter()

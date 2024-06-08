@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from .serializers import *
-from utils_methods import list_all_objects,create_instance,update_instance
+from config.utils_methods import list_all_objects,create_instance,update_instance
 # from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework.filters import OrderingFilter
 #from .filters import SaleOrderFilter,InvoicesFilter,PaymentTransactionsFilter,OrderItemsFilter,ShipmentsFilter,SalesPriceListFilter,SaleOrderReturnsFilter
