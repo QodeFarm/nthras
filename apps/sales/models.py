@@ -1,10 +1,10 @@
 from django.db import models
 from apps.customer.models import CustomerAddresses, LedgerAccounts, Customer
 from apps.masters.models import CustomerPaymentTerms, GstTypes, ProductBrands, CustomerCategories, SaleTypes, ShippingCompanies, ShippingModes
-from utils_variables import  saleorders, paymenttransactions, saleinvoiceitemstable, shipments, salespricelist, saleorderitemstable, saleinvoiceorderstable, salereturnorderstable, salereturnitemstable, orderattachmentstable, ordershipmentstable
+from config.utils_variables import  saleorders, paymenttransactions, saleinvoiceitemstable, shipments, salespricelist, saleorderitemstable, saleinvoiceorderstable, salereturnorderstable, salereturnitemstable, orderattachmentstable, ordershipmentstable
 from apps.products.models import  Products
 import uuid
-from utils_methods import OrderNumberMixin
+from config.utils_methods import OrderNumberMixin
 # Create your models here.
 
 

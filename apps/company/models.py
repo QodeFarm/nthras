@@ -3,8 +3,8 @@ from django.core.validators import RegexValidator
 import uuid,os # type: ignore
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from utils_methods import EncryptedTextField
-from utils_variables import companytable, branchestable, branchbankdetails
+from config.utils_methods import EncryptedTextField
+from config.utils_variables import companytable, branchestable, branchbankdetails
 
 def company_logos(instance, filename):
     # Get the file extension

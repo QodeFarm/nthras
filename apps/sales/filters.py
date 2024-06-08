@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 from .models import *
-from utils_methods import filter_uuid
+from config.utils_methods import filter_uuid
 
 class SaleOrderFilter(filters.FilterSet):
     sale_order_id = filters.CharFilter(method=filter_uuid)

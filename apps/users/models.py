@@ -1,4 +1,4 @@
-from utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userpermissions 
+from config.utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userpermissions 
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db.models.signals import pre_delete
 from apps.company.models import Companies

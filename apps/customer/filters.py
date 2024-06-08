@@ -1,7 +1,7 @@
 from django_filters import rest_framework as filters
 import uuid
 from django.db.models import Q
-from utils_methods import filter_uuid
+from config.utils_methods import filter_uuid
 
 class LedgerAccountsFilters(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')

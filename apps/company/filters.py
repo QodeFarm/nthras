@@ -1,7 +1,7 @@
 import django_filters,uuid
 from .models import Companies, Branches, BranchBankDetails
 from django.db.models import Q
-from utils_methods import filter_uuid
+from config.utils_methods import filter_uuid
 
 class CompaniesFilters(django_filters.FilterSet):
     company_id = django_filters.CharFilter(method=filter_uuid)

@@ -10,7 +10,7 @@ from apps.products.serializers import ModproductsSerializer
 class ModPurchaseOrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrders
-        fields = ['purchaseorder_id','email','delivery_date','order_date','order_no','ref_no','ref_date']
+        fields = ['purchase_order_id','email','delivery_date','order_date','order_no','ref_no','ref_date']
 
 class PurchaseOrdersSerializer(serializers.ModelSerializer):
     gst_type = ModGstTypesSerializer(source='gst_type_id',read_only=True)

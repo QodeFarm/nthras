@@ -1,6 +1,6 @@
 from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, UserPermissionsSerializer
 from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserPermissions
-from utils_methods import list_all_objects, create_instance, update_instance
+from config.utils_methods import list_all_objects, create_instance, update_instance
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response

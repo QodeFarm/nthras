@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
-from utils_methods import *
-from utils_variables import *
+from config.utils_methods import *
+from config.utils_variables import *
 
 # Create your views here.
 class WarehousesViewSet(viewsets.ModelViewSet):

@@ -1,6 +1,6 @@
 from django.db import models
-from utils_methods import *
-from utils_variables import *
+from config.utils_methods import *
+from config.utils_variables import *
 import uuid
 # Create your models here.
 class Warehouses(models.Model):
