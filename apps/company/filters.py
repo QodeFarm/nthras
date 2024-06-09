@@ -30,7 +30,7 @@ class BranchesFilters(django_filters.FilterSet):
 class BranchBankDetailsFilters(django_filters.FilterSet):
     bank_detail_id = django_filters.CharFilter(method=filter_uuid)
     bank_name = django_filters.CharFilter(field_name='bank_name', lookup_expr='icontains')
-    branch_id = django_filters.NumberFilter(field_name='branch_id', lookup_expr='exact')
+    branch_id = django_filters.CharFilter(field_name='branch_id', lookup_expr='exact')
     branch_name = django_filters.CharFilter(field_name='bank_name', lookup_expr='icontains')
 
     class Meta:
