@@ -111,7 +111,7 @@ class GetUserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['user_id','username','first_name','last_name','email','mobile','otp_required','profile_picture_url','bio','timezone','language','created_at','updated_at','last_login','date_of_birth','gender','is_active','company_id','status_id','branch_id', 'branch','status','company']  
-    
+
 class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User
@@ -140,7 +140,13 @@ class UserCreateSerializer(UserCreateSerializer):
             instance.profile_picture_url = profile_picture_url
             instance.save()
         return super().update(instance, validated_data)
-
+#=================================================================================================
+#login serializer
+class UserLoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=55)
+    class Meta:
+        model = User
+        fields =['username', 'password']
 #=================================================================================================
 #change known Password serializer
 class UserChangePasswordSerializer(serializers.Serializer):
