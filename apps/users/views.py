@@ -1,8 +1,10 @@
-from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, UserPermissionsSerializer
+from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, UserPermissionsSerializer
 from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserPermissions
 from config.utils_methods import list_all_objects, create_instance, update_instance
 from rest_framework.decorators import permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
+from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .renderers import UserRenderer
@@ -141,6 +143,47 @@ class UserPermissionsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+#==================================================================================================
+# Creating tokens manually
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    profile_picture_url = None
+    if user.profile_picture_url:
+        profile_picture_url = user.profile_picture_url.url  
+
+    return {
+        'Username': user.username,
+        'First name' : user.first_name,
+        'last_name' : user.last_name,
+        'Email' : user.email,
+        'mobile' : user.mobile,
+        'Profile picture URL': profile_picture_url,
+
+        'company_id' : str(user.company_id.company_id),
+        'branch_id' : str(user.branch_id.branch_id),
+        'status_id' : str(user.status_id.status_id),
+        'role_id' : str(user.status_id.status_id),
+
+        'Refresh': str(refresh),
+        'Access': str(refresh.access_token),
+    }
+
+#login View
+class UserLoginView(APIView):
+    renderer_classes = [UserRenderer]
+    def post(self, request, format=None):
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.data.get('username')
+        password = serializer.data.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            token = get_tokens_for_user(user)
+            return Response({"status": True, "message": 'Login Success', "token": token}, status=status.HTTP_200_OK)
+        else:
+            return Response({"errors": {'non_field_errors': ['Username or Password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
+
 #==================================================================================================
 #change known Password view
 class UserChangePasswordView(APIView):
