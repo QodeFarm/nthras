@@ -1,4 +1,4 @@
-from config.utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userpermissions, userroles
+from config.utils_variables import rolestable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userroles
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db.models.signals import pre_delete
 from apps.company.models import Companies
@@ -10,10 +10,10 @@ import uuid, os
 
 
 class Roles(models.Model):
+    role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role_name = models.CharField( max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     description = models.TextField()
 
     class Meta:
@@ -23,41 +23,13 @@ class Roles(models.Model):
         return f"{self.role_id}.{self.role_name}"
 
 
-class Permissions(models.Model):
-    permission_name = models.CharField(max_length=255,  unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    updated_at = models.DateTimeField(auto_now=True)
-    description = models.TextField()
-    
-    class Meta:
-        db_table = permissionstable
-
-    def __str__(self):
-        return f"{self.permission_id}.{self.permission_name}"
-    
-
-class RolePermissions(models.Model):
-    permission_id = models.ForeignKey(Permissions, on_delete=models.CASCADE,  db_column = 'permission_id')
-    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE,  db_column = 'role_id')
-    access_level = models.CharField(max_length=255, )
-    role_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        db_table = rolepermissionstable
-
-    def __str__(self):
-        return f"{self.role_permission_id}.{self.access_level}"
-
-
 class Actions(models.Model):
-    action_name = models.CharField(max_length=255,  unique=True)
     action_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    description = models.TextField()
+    action_name = models.CharField(max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    description = models.TextField()
+
 
     class Meta:
         db_table = actionstable
@@ -67,11 +39,11 @@ class Actions(models.Model):
 
 
 class Modules(models.Model):
-    module_name = models.CharField(max_length=255,  unique=True)
     module_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    description = models.TextField()
+    module_name = models.CharField(max_length=255,  unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    description = models.TextField()
 
     class Meta:
         db_table = modulestable
@@ -82,9 +54,9 @@ class Modules(models.Model):
 
 class ModuleSections(models.Model):
     module_id = models.ForeignKey(Modules, on_delete=models.CASCADE, default=None, db_column = 'module_id')
-    section_name = models.CharField( max_length=255,)
     section_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    section_name = models.CharField( max_length=255,)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -92,8 +64,6 @@ class ModuleSections(models.Model):
 
     def __str__(self):
         return f"{self.section_id}.{self.section_name}"
-
-
 
 class UserManager(BaseUserManager):
     '''Creating User'''
@@ -129,33 +99,28 @@ def profile_picture(instance, filename):
 
 #====
 class User(AbstractBaseUser):
-    GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-        ('Other', 'Other'),
-        ('Prefer Not to Say', 'Prefer Not to Say')
-    ]
+    GENDER_CHOICES = [('Male', 'Male'),('Female', 'Female'),('Other', 'Other'),('Prefer Not to Say', 'Prefer Not to Say')]
     profile_picture_url = models.ImageField(max_length=255, null = True, default=None,  upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
     username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    last_name = models.CharField(max_length=255, null= True, default=None)
+    timezone = models.CharField(max_length=100, null= True, default=None)
+    language = models.CharField(max_length=10, null= True, default=None)
+    date_of_birth = models.DateField(null= True, default=None)
     email = models.EmailField(max_length=255, unique=True)
     otp_required = models.SmallIntegerField(default=False)
     mobile= models.CharField(max_length=20, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    bio = models.TextField(null= True, default=None)
     is_active = models.BooleanField(default=True)
     first_name = models.CharField(max_length=255)
-    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    last_name = models.CharField(max_length=255, null= True, default=None)
-    timezone = models.CharField(max_length=100, null= True, default=None)
-    language = models.CharField(max_length=10, null= True, default=None)
     last_login = models.DateTimeField()
-    date_of_birth = models.DateField(null= True, default=None)
-    bio = models.TextField(null= True, default=None) 
-    
-    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')
-    branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, null=True, default=None, db_column='branch_id')
-    status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE,db_column='status_id')
+     
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, db_column='company_id')
+    branch_id  = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column='branch_id')
+    status_id  = models.ForeignKey(Statuses, on_delete=models.CASCADE, db_column='status_id')
 
     objects = UserManager()
     
@@ -163,7 +128,7 @@ class User(AbstractBaseUser):
         db_table = userstable
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender','otp_required', 'timezone','company_id','status_id','branch_id','role_id'] 
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender','otp_required', 'timezone','company_id','status_id','branch_id'] 
 
     def __str__(self):
         return self.username
@@ -197,6 +162,7 @@ class User(AbstractBaseUser):
                 if not os.listdir(picture_dir):
                     os.rmdir(picture_dir)
 
+
 class UserRoles(models.Model):
     user_role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False),
     user_id  = models.ForeignKey(User, on_delete=models.CASCADE, db_column = 'user_id'),
@@ -207,9 +173,13 @@ class UserRoles(models.Model):
     class Meta:
         db_table = userroles
 
+    def __str__(self):
+        return f"{self.user_role_id}"
+    
+
 class UserTimeRestrictions(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     start_time = models.TimeField(null=False, blank=False)
     end_time = models.TimeField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -223,18 +193,10 @@ class UserTimeRestrictions(models.Model):
     
 
 class UserAllowedWeekdays(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
-    WEEKDAYS = [
-        ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'),
-        ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'),
-        ('Friday', 'Friday'),
-        ('Saturday', 'Saturday'),
-        ('Sunday', 'Sunday'),
-    ]
+    WEEKDAYS = [('Monday', 'Monday'),('Tuesday', 'Tuesday'),('Wednesday', 'Wednesday'),('Thursday', 'Thursday'),('Friday', 'Friday'),('Saturday', 'Saturday'),('Sunday', 'Sunday'),]
     weekday = models.CharField(max_length=9, choices=WEEKDAYS, null=False, blank=False)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -245,16 +207,17 @@ class UserAllowedWeekdays(models.Model):
         return f"{self.id}"
     
 
-class UserPermissions(models.Model):
-    user_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    description = models.TextField()
+class RolePermissions(models.Model):
     section_id = models.ForeignKey(ModuleSections, on_delete=models.CASCADE,  db_column = 'section_id')
-    action_id = models.ForeignKey(Actions, on_delete=models.CASCADE,  db_column = 'action_id')
+    module_id  = models.ForeignKey(Modules, on_delete=models.CASCADE,  db_column = 'module_id')
+    action_id  = models.ForeignKey(Actions, on_delete=models.CASCADE,  db_column = 'action_id')
+    role_permission_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    role_id    = models.ForeignKey(Roles, on_delete=models.CASCADE,  db_column = 'role_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     class Meta:
-        db_table = userpermissions
+        db_table = rolepermissionstable
 
     def __str__(self):
-        return f"{self.user_permission_id}"
+        return f"{self.role_permission_id}"

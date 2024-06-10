@@ -1,4 +1,4 @@
-from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserPermissions
+from .models import Roles, Actions, Modules, RolePermissions, ModuleSections, User, UserRoles, UserTimeRestrictions, UserAllowedWeekdays
 from apps.company.serializers import ModCompaniesSerializer, ModBranchesSerializer
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -15,16 +15,6 @@ class ModRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Roles
         fields = ['role_id','role_name']
-
-class ModPermissionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permissions
-        fields = ['permission_id','permission_name']
-
-class ModRolePermissionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RolePermissions
-        fields = ['role_permission_id','access_level']
 
 class ModModulesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,11 +41,15 @@ class ModUserAllowedWeekdaysSerializer(serializers.ModelSerializer):
         model = UserAllowedWeekdays
         fields = ['user_allowed_weekdays_id']
 
-class ModUserPermissionsSerializer(serializers.ModelSerializer):
+class ModRolePermissionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserPermissions
-        fields = ['user_permission_id']
+        model = RolePermissions
+        fields = ['role_permission_id']
 
+class ModUserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRoles
+        fields = ['user_role_id']
 #=========================SERIALIZATIONS=========================
 class UserTimeRestrictionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,19 +61,9 @@ class UserAllowedWeekdaysSerializer(serializers.ModelSerializer):
         model = UserAllowedWeekdays
         fields = '__all__'
 
-class UserPermissionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserPermissions
-        fields = '__all__'
-
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Roles
-        fields = '__all__'
-
-class PermissionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permissions
         fields = '__all__'
 
 class ActionsSerializer(serializers.ModelSerializer):
@@ -100,9 +84,17 @@ class ModuleSectionsSerializer(serializers.ModelSerializer):
 
 class RolePermissionsSerializer(serializers.ModelSerializer):
     role = ModRoleSerializer(source='role_id', read_only = True)
-    permission = ModPermissionsSerializer(source='permission_id', read_only = True)
+    module = ModModulesSerializer(source='module_id', read_only = True)
+    action =  ModActionsSerializer(source='action_id', read_only = True)
+    section = ModuleSectionsSerializer(source='section_id', read_only = True)
+
     class Meta:
         model = RolePermissions
+        fields = '__all__'
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRoles
         fields = '__all__'
 
 class GetUserDataSerializer(serializers.ModelSerializer):

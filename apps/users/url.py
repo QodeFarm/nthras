@@ -5,20 +5,22 @@ from djoser.views import UserViewSet
 from rest_framework_simplejwt import views as jwtview
 from django.contrib.auth import get_user_model
 from rest_framework.routers import DefaultRouter
-from apps.users.views import RoleViewSet, ModulesViewSet, ActionsViewSet, GetUserDataViewSet, PermissionsViewSet, ModuleSectionsViewSet, RolePermissionsViewSet, SendPasswordResetEmailView, UserChangePasswordView, UserPasswordResetView, UserTimeRestrictionsViewSet, UserAllowedWeekdaysViewSet, UserPermissionsViewSet
+from apps.users.views import RoleViewSet, ModulesViewSet, ActionsViewSet, GetUserDataViewSet,  ModuleSectionsViewSet, RolePermissionsViewSet, SendPasswordResetEmailView, UserChangePasswordView, UserPasswordResetView, UserRoleViewSet, UserTimeRestrictionsViewSet, UserAllowedWeekdaysViewSet
 router = DefaultRouter()
+
 router.register(r"create_user", views.UserViewSet)
 router.register(r'role', RoleViewSet, basename='role')
 router.register(r'modules', ModulesViewSet, basename='modules')
 router.register(r'actions', ActionsViewSet, basename='actions')
 router.register(r'userdata', GetUserDataViewSet, basename='userdata')
-router.register(r'permissions', PermissionsViewSet, basename='permissions')
 router.register(r'module_sections', ModuleSectionsViewSet, basename='module_sections')
-router.register(r'role_permissions', RolePermissionsViewSet, basename='role_permissions')
 
 router.register(r'user_time_restrictions', UserTimeRestrictionsViewSet, basename='user_time_restrictions')
 router.register(r'user_allowed_weekday', UserAllowedWeekdaysViewSet, basename='user_allowed_weekday')
-router.register(r'user_permissions', UserPermissionsViewSet, basename='user_permissions')
+
+router.register(r'user_roles', UserRoleViewSet, basename='user_role')  #new
+router.register(r'role_permissions', RolePermissionsViewSet, basename='role_permissions')
+#router.register(r'user_permissions', UserPermissionsViewSet, basename='user_permissions')
 
 urlpatterns = [
     path('activation/<uid>/<token>/', UserViewSet.as_view({'post': 'activation'}), name='activation'),
