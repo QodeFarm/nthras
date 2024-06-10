@@ -160,13 +160,8 @@ def get_tokens_for_user(user):
         'mobile' : user.mobile,
         'Profile picture URL': profile_picture_url,
 
-        'company_id' : str(user.company_id.company_id),
-        'branch_id' : str(user.branch_id.branch_id),
-        'status_id' : str(user.status_id.status_id),
-        'role_id' : str(user.status_id.status_id),
-
-        'Refresh': str(refresh),
-        'Access': str(refresh.access_token),
+        'refresh_token': str(refresh),
+        'access_token': str(refresh.access_token),
     }
 
 #login View
@@ -180,7 +175,7 @@ class UserLoginView(APIView):
         user = authenticate(username=username, password=password)
         if user is not None:
             token = get_tokens_for_user(user)
-            return Response({"status": True, "message": 'Login Success', "token": token}, status=status.HTTP_200_OK)
+            return Response({"status": True, "msg": 'Login Success', "data": token}, status=status.HTTP_200_OK)
         else:
             return Response({"errors": {'non_field_errors': ['Username or Password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
 
@@ -191,7 +186,7 @@ class UserChangePasswordView(APIView):
     def post(self, request, format=None):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
-        return Response({"status": True,"message": 'Password Changed Successfully'}, status=status.HTTP_200_OK)
+        return Response({"status": True,"msg": 'Password Changed Successfully'}, status=status.HTTP_200_OK)
 
 #=================================================================================================
 #Forgot Password
@@ -201,7 +196,7 @@ class SendPasswordResetEmailView(APIView):
     def post(self, request, format=None):
         serializer = SendPasswordResetEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({"status": True, "message": 'Password Reset Link Send. Please Check Your Email'}, status=status.HTTP_200_OK)
+        return Response({"status": True, "msg": 'Password Reset Link Send. Please Check Your Email'}, status=status.HTTP_200_OK)
         
 
 @permission_classes([AllowAny])
@@ -211,4 +206,4 @@ class UserPasswordResetView(APIView):
         serializer = UserPasswordResetSerializer(
             data=request.data, context={'uid': uid, 'token': token})
         serializer.is_valid(raise_exception=True)
-        return Response({"status": True, "message": 'Password Reset Successfully'}, status=status.HTTP_200_OK)
+        return Response({"status": True, "msg": 'Password Reset Successfully'}, status=status.HTTP_200_OK)
