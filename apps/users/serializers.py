@@ -46,7 +46,6 @@ class ModUserTimeRestrictionsSerializer(serializers.ModelSerializer):
         model = UserTimeRestrictions
         fields = ['user_time_restrictions_id']
 
-
 class ModUserAllowedWeekdaysSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAllowedWeekdays
@@ -78,31 +77,26 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Roles
         fields = '__all__'
 
-
 class PermissionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permissions
         fields = '__all__'
-
 
 class ActionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actions
         fields = '__all__'
 
-
 class ModulesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Modules
         fields = '__all__'
-
 
 class ModuleSectionsSerializer(serializers.ModelSerializer):
     module = ModModulesSerializer(source='module_id', read_only = True)
     class Meta:
         model = ModuleSections
         fields = '__all__'
-
 
 class RolePermissionsSerializer(serializers.ModelSerializer):
     role = ModRoleSerializer(source='role_id', read_only = True)
@@ -115,12 +109,10 @@ class GetUserDataSerializer(serializers.ModelSerializer):
     company = ModCompaniesSerializer(source='company_id', read_only = True)
     branch = ModBranchesSerializer(source='branch_id', read_only = True)
     status = ModStatusesSerializer(source='status_id', read_only = True)
-    role = ModRoleSerializer(source='role_id', read_only = True)
     class Meta:
         model = User
-        fields = ['user_id','username','first_name','last_name','email','mobile','otp_required','profile_picture_url','bio','timezone','language','created_at','updated_at','last_login','date_of_birth','gender','is_active','company_id','status_id','role_id','branch_id', 'branch','status','company','role']  
+        fields = ['user_id','username','first_name','last_name','email','mobile','otp_required','profile_picture_url','bio','timezone','language','created_at','updated_at','last_login','date_of_birth','gender','is_active','company_id','status_id','branch_id', 'branch','status','company']  
     
- 
 class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = User

@@ -1,4 +1,4 @@
-from config.utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userpermissions 
+from config.utils_variables import rolestable, permissionstable, rolepermissionstable, actionstable, modulestable, modulesections, userstable, usertimerestrictions, userallowedweekdays, userpermissions, userroles
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db.models.signals import pre_delete
 from apps.company.models import Companies
@@ -156,7 +156,6 @@ class User(AbstractBaseUser):
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE,db_column='company_id')
     branch_id = models.ForeignKey(Branches, on_delete=models.CASCADE, null=True, default=None, db_column='branch_id')
     status_id = models.ForeignKey(Statuses, on_delete=models.CASCADE,db_column='status_id')
-    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column='role_id')
 
     objects = UserManager()
     
@@ -197,6 +196,16 @@ class User(AbstractBaseUser):
                 picture_dir = os.path.dirname(file_path)
                 if not os.listdir(picture_dir):
                     os.rmdir(picture_dir)
+
+class UserRoles(models.Model):
+    user_role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False),
+    user_id  = models.ForeignKey(User, on_delete=models.CASCADE, db_column = 'user_id'),
+    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column = 'role_id'),
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = userroles
 
 class UserTimeRestrictions(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
