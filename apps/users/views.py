@@ -158,7 +158,7 @@ def get_tokens_for_user(user):
         'last_name' : user.last_name,
         'email' : user.email,
         'mobile' : user.mobile,
-        'profile_picture_URL': profile_picture_url,
+        'profile_picture_url': profile_picture_url,
 
         'refresh_token': str(refresh),
         'access_token': str(refresh.access_token),
