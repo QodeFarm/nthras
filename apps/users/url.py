@@ -20,7 +20,6 @@ router.register(r'user_allowed_weekday', UserAllowedWeekdaysViewSet, basename='u
 
 router.register(r'user_roles', UserRoleViewSet, basename='user_role')  #new
 router.register(r'role_permissions', RolePermissionsViewSet, basename='role_permissions')
-#router.register(r'user_permissions', UserPermissionsViewSet, basename='user_permissions')
 
 urlpatterns = [
     path('activation/<uid>/<token>/', UserViewSet.as_view({'post': 'activation'}), name='activation'),

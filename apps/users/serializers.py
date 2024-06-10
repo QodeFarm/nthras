@@ -50,6 +50,11 @@ class ModUserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRoles
         fields = ['user_role_id']
+
+class ModUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_id']
 #=========================SERIALIZATIONS=========================
 class UserTimeRestrictionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,6 +98,8 @@ class RolePermissionsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserRoleSerializer(serializers.ModelSerializer):
+    role = ModRoleSerializer(source='role_id', read_only = True)
+    user = ModUserSerializer(source='user_id', read_only = True)
     class Meta:
         model = UserRoles
         fields = '__all__'
