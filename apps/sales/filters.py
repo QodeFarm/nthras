@@ -1,6 +1,8 @@
+from datetime import timedelta, timezone
 from django_filters import rest_framework as filters
 from .models import *
 from config.utils_methods import filter_uuid
+from rest_framework.decorators import action
 
 class SaleOrderFilter(filters.FilterSet):
     sale_order_id = filters.CharFilter(method=filter_uuid)
@@ -22,9 +24,40 @@ class SaleOrderFilter(filters.FilterSet):
     status_name = filters.CharFilter(field_name='order_status_id__status_name', lookup_expr='icontains')  
     created_at = filters.DateFromToRangeFilter()
 
+    # # http://127.0.0.1:8000/api/v1/sales/sale_order/?last_six_orders_for_customer=2
+    # # http://127.0.0.1:8000/api/v1/sales/sale_order/?last_six_orders_for_customer=2&limit=3
+    # # http://127.0.0.1:8000/api/v1/sales/sale_order/?last_six_orders_for_customer=1&months=7
+    
+    last_six_orders_for_customer = filters.CharFilter(method='get_last_six_orders')
+    @action(detail=False, methods=['get'])
+    def get_last_six_orders(self, queryset,name,value,months=None,limit=None,year=None):
+        limit = self.request.query_params.get('limit',None)  # limited = no of orders
+        year = self.request.query_params.get('year',None)
+        months = self.request.query_params.get('months',None)
+
+        if limit:
+            limit = int(limit)
+            # Filter by customer_id and limit the number of results
+            return queryset.filter(customer_id=value).order_by('-order_date')[:limit]
+        
+        if year:
+            # Filter by year & customer ID
+            queryset =  queryset.filter(order_date__year=year)
+            queryset = queryset.filter(customer_id=value)
+            return queryset
+       
+        if months:
+            month = int(months)
+            six_months_ago = timezone.now() - timedelta(days=month*30)
+            queryset = queryset.filter(customer_id=value)
+            queryset = queryset.filter(order_date__gte=six_months_ago)
+            return queryset
+        else:
+            return queryset.filter(customer_id=value).order_by('-order_date')
+
     class Meta:
         model = SaleOrder
-        fields =[]
+        fields =['customer_id']
 
 class SalesPriceListFilter(filters.FilterSet):
     sales_price_list_id = filters.CharFilter(method=filter_uuid)

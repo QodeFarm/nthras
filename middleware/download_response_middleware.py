@@ -31,8 +31,8 @@ def convert_decimal_to_float(obj):
         return obj
 
 # Below function is useful when the response data in dict type, but in the dictionary required data avilable at key 'data'.
-# This required data is type of <class dict_values>  which is not possible process, so this function is useful to process the all objects
-# and if any object data is in Decimal format then it converts to float data type by using function : convert_decimal_to_float
+# This required data is type of <class dict_values>  which is not possible to process, so this function is useful to process the all objects
+# and if any object data is in Decimal format then by using function it converts to float data type  [function name: convert_decimal_to_float]
 def process_the_dict_values_data(response):
     content = response.content
     data = content.decode('utf-8')
@@ -135,7 +135,8 @@ class StripDownloadJsonMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.method == 'GET':
+        if request.method == 'GET' and ('download' in request.path_info or 'download' in request.get_full_path()):
+            print("\n<----Hello i'm Middleware------>'\n")
             # Store the original path
             original_path = request.path_info
             # Store the fill path including filtering options
@@ -273,7 +274,7 @@ class StripDownloadJsonMiddleware:
             if getattr(request, 'download_excel', False):
                 # Ensure the response is JSON
                 if response.status_code == 200:
-                    response = download_fields_excel_data(response)
+                    response = download_fields_excel_data(response,original_path)
                     return response
                 
             #------------------- FILTER DATA - JSON FORMAT ------------------------------
@@ -367,15 +368,15 @@ class StripDownloadJsonMiddleware:
                     ws = wb.active
                     ws.title = f'{filter_name}'
 
-                    custom_filters = ['sales_by_customer','sales_by_product','sales_return_report']
+                    custom_filters = ['sales_by_customer','sales_by_product','sales_return_report','sales_order_status']
 
                     if filter_name not in custom_filters:
-                        print('\n\nNormal filter data is fetched\n\n')
+                        print('------>Normal filter data is fetched\n\n')
                         response = download_fields_excel_data(response,original_path)
                         return response
     
                     if new_data and filter_name in custom_filters: #if new_data:
-                        print('\n\nCustom Filter data is fetched\n\n')
+                        print('----- >Custom Filter data is fetched\n\n')
                         # Write the headers
                         header = new_data[0].keys()
                         writer.writerow(header)
@@ -410,16 +411,17 @@ class StripDownloadJsonMiddleware:
 
                         return response
             
-            return response # This will return original response as it is if no '/download/{format_name}/' is detected
+        response = self.get_response(request)
+        return response # This will return original response as it is if no '/download/{format_name}/' is detected
 
-        elif request.method == 'POST':
-            response = self.get_response(request)
-            return response
+        # elif request.method == 'POST':
+        #     response = self.get_response(request)
+        #     return response
         
-        elif request.method == 'DELETE':
-            response = self.get_response(request)
-            return response
+        # elif request.method == 'DELETE':
+        #     response = self.get_response(request)
+        #     return response
         
-        elif request.method in ['PUT', 'PATCH']:
-            response = self.get_response(request)
-            return response
+        # elif request.method in ['PUT', 'PATCH']:
+        #     response = self.get_response(request)
+        #     return response

@@ -195,7 +195,7 @@ class SaleReturnOrders(OrderNumberMixin):
     ref_no = models.CharField(max_length=255, null=True, default=None)
     ref_date = models.DateField()
     order_salesman_id = models.ForeignKey('masters.OrdersSalesman', on_delete=models.CASCADE, db_column='order_salesman_id', null=True, default=None)
-    against_bill = models.CharField(max_length=255, null=True, default=None)
+    against_bill = models.CharField(max_length=255, null=True, default=None) # Invoice no
     against_bill_date = models.DateField(null=True, default=None)
     TAX_CHOICES = [('Inclusive', 'Inclusive'),('Exclusive', 'Exclusive'),]
     tax = models.CharField(max_length=10, choices=TAX_CHOICES, null=True, default=None)

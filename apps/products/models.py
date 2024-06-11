@@ -230,7 +230,7 @@ class Products(models.Model):
         db_table = productstable
 
     def __str__(self):
-        return f"{self.product_id} {self.name}"
+        return f"{self.product_id}_{self.name}"
 
     @receiver(pre_delete, sender='products.products')
     def delete_branches_picture(sender, instance, **kwargs):
