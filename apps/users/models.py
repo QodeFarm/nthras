@@ -118,7 +118,6 @@ class User(AbstractBaseUser):
     first_name = models.CharField(max_length=255)
     last_login = models.DateTimeField()
      
-    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE, db_column='company_id')
     branch_id  = models.ForeignKey(Branches, on_delete=models.CASCADE, db_column='branch_id')
     status_id  = models.ForeignKey(Statuses, on_delete=models.CASCADE, db_column='status_id')
 
@@ -128,7 +127,7 @@ class User(AbstractBaseUser):
         db_table = userstable
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender','otp_required', 'timezone','company_id','status_id','branch_id'] 
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender','otp_required', 'timezone','status_id','branch_id'] 
 
     def __str__(self):
         return self.username
@@ -161,21 +160,6 @@ class User(AbstractBaseUser):
                 picture_dir = os.path.dirname(file_path)
                 if not os.listdir(picture_dir):
                     os.rmdir(picture_dir)
-
-
-class UserRoles(models.Model):
-    user_role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False),
-    user_id  = models.ForeignKey(User, on_delete=models.CASCADE, db_column = 'user_id'),
-    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column = 'role_id'),
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = userroles
-
-    def __str__(self):
-        return f"{self.user_role_id}"
-    
 
 class UserTimeRestrictions(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
@@ -221,3 +205,16 @@ class RolePermissions(models.Model):
 
     def __str__(self):
         return f"{self.role_permission_id}"
+    
+class UserRoles(models.Model):
+    user_role_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE,  db_column = 'user_id')
+    role_id = models.ForeignKey(Roles, on_delete=models.CASCADE, db_column = 'role_id')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = userroles
+    
+    def __str__(self):
+        return f"{self.user_role_id}"

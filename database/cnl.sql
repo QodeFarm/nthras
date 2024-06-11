@@ -204,7 +204,6 @@ CREATE TABLE IF NOT EXISTS branch_bank_details (
 CREATE TABLE IF NOT EXISTS users (
     user_id CHAR(36) PRIMARY KEY,
     branch_id CHAR(36),
-    company_id CHAR(36) NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
@@ -224,10 +223,8 @@ CREATE TABLE IF NOT EXISTS users (
     date_of_birth DATE,
     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say'),
     INDEX idx_branch_id (branch_id),
-    INDEX idx_company_id (company_id),
     INDEX idx_status_id (status_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
-    FOREIGN KEY (company_id) REFERENCES companies(company_id),
     FOREIGN KEY (status_id) REFERENCES statuses(status_id)
 ) ENGINE=InnoDB;
 

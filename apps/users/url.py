@@ -5,7 +5,7 @@ from djoser.views import UserViewSet
 from rest_framework_simplejwt import views as jwtview
 from django.contrib.auth import get_user_model
 from rest_framework.routers import DefaultRouter
-from apps.users.views import RoleViewSet, ModulesViewSet, ActionsViewSet, GetUserDataViewSet, ModuleSectionsViewSet, RolePermissionsViewSet, SendPasswordResetEmailView, UserChangePasswordView, UserPasswordResetView, UserRoleViewSet, UserTimeRestrictionsViewSet, UserAllowedWeekdaysViewSet, UserLoginView
+from apps.users.views import RoleViewSet, ModulesViewSet, ActionsViewSet, GetUserDataViewSet, ModuleSectionsViewSet, RolePermissionsViewSet, SendPasswordResetEmailView, UserChangePasswordView, UserPasswordResetView, UserTimeRestrictionsViewSet, UserAllowedWeekdaysViewSet, UserLoginView, UserRoleViewSet
 router = DefaultRouter()
 
 router.register(r"create_user", views.UserViewSet)
@@ -18,7 +18,7 @@ router.register(r'module_sections', ModuleSectionsViewSet, basename='module_sect
 router.register(r'user_time_restrictions', UserTimeRestrictionsViewSet, basename='user_time_restrictions')
 router.register(r'user_allowed_weekday', UserAllowedWeekdaysViewSet, basename='user_allowed_weekday')
 
-router.register(r'user_roles', UserRoleViewSet, basename='user_role')  #new
+router.register(r'user_roles', UserRoleViewSet, basename='user_role')  
 router.register(r'role_permissions', RolePermissionsViewSet, basename='role_permissions')
 
 urlpatterns = [
