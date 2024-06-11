@@ -122,15 +122,15 @@ CREATE TABLE IF NOT EXISTS companies (
     gstn_password VARCHAR(100),
     vat_gst_status ENUM('Active', 'Inactive', 'Pending'),
     gst_type ENUM('Goods', 'Service', 'Both'),
-    einvoice_approved_only TINYINT(1) DEFAULT 0,
+    einvoice_approved_only BOOLEAN DEFAULT 0,
     marketplace_url VARCHAR(255),
     drug_license_no VARCHAR(50),
     other_license_1 VARCHAR(50),
     other_license_2 VARCHAR(50),
-    turnover_less_than_5cr TINYINT(1) DEFAULT 0,
+    turnover_less_than_5cr BOOLEAN DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    is_deleted TINYINT(1) DEFAULT 0,
+    is_deleted BOOLEAN DEFAULT 0,
 	FOREIGN KEY (state_id) REFERENCES state(state_id),
 	FOREIGN KEY (country_id) REFERENCES country(country_id),
     FOREIGN KEY (city_id) REFERENCES city(city_id)
@@ -140,19 +140,9 @@ CREATE TABLE IF NOT EXISTS companies (
 -- Defines various statuses that can be applied to records within the system, such as Active, Inactive, Pending Approval.
 CREATE TABLE IF NOT EXISTS statuses (
     status_id CHAR(36) PRIMARY KEY,
-    status_name VARCHAR(50) NOT NULL UNIQUE,
+    status_name VARCHAR(50) NOT NULL UNIQUE DEFAULT 'Pending',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
-/* Roles Table */
--- Lists the roles that can be assigned to users, determining permissions and access levels within the ERP system.
-CREATE TABLE IF NOT EXISTS roles (
-    role_id CHAR(36) PRIMARY KEY,
-    role_name VARCHAR(255) NOT NULL UNIQUE,
-    description VARCHAR(512),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 /* Branches Table */
@@ -214,15 +204,13 @@ CREATE TABLE IF NOT EXISTS branch_bank_details (
 CREATE TABLE IF NOT EXISTS users (
     user_id CHAR(36) PRIMARY KEY,
     branch_id CHAR(36),
-    company_id CHAR(36) NOT NULL,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255),
     email VARCHAR(255) NOT NULL,
     mobile VARCHAR(20) NOT NULL,
-    otp_required TINYINT(1) DEFAULT 0,
-    role_id CHAR(36) NOT NULL,
+    otp_required BOOLEAN DEFAULT 0,
     status_id CHAR(36) NOT NULL,
     profile_picture_url VARCHAR(255),
     bio VARCHAR(1024),
@@ -234,62 +222,34 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP,
     date_of_birth DATE,
     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say'),
+    title ENUM('Mr','Ms'),
     INDEX idx_branch_id (branch_id),
-    INDEX idx_company_id (company_id),
-    INDEX idx_role_id (role_id),
     INDEX idx_status_id (status_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
-    FOREIGN KEY (company_id) REFERENCES companies(company_id),
-    FOREIGN KEY (role_id) REFERENCES roles(role_id),
     FOREIGN KEY (status_id) REFERENCES statuses(status_id)
 ) ENGINE=InnoDB;
 
-/* user_time_restrictions Table */
--- Defines specific times during which users are allowed to access the ERP system, enhancing security and compliance.
-CREATE TABLE IF NOT EXISTS user_time_restrictions (
-    id CHAR(36) PRIMARY KEY,
-    user_id CHAR(36) NOT NULL,
-    start_time TIME NOT NULL,
-    end_time TIME NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-) ENGINE=InnoDB;
-
-/* user_allowed_weekdays Table */
--- Specifies the days of the week on which users are permitted to access the ERP system, further customizing access control.
-CREATE TABLE IF NOT EXISTS user_allowed_weekdays (
-    id CHAR(36) PRIMARY KEY,
-    user_id CHAR(36) NOT NULL,
-    weekday ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-) ENGINE=InnoDB;
-
-/* Permissions Table */
--- Defines specific actions or access rights that can be granted to roles, forming the basis of the ERP system's security model.
-CREATE TABLE IF NOT EXISTS permissions (
-    permission_id CHAR(36) PRIMARY KEY,
-    permission_name VARCHAR(255) NOT NULL UNIQUE,
+/* Roles Table */
+-- Lists the roles that can be assigned to users, determining permissions and access levels within the ERP system.
+CREATE TABLE IF NOT EXISTS roles (
+    role_id CHAR(36) PRIMARY KEY,
+    role_name VARCHAR(255) NOT NULL UNIQUE,
     description VARCHAR(512),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-/* Role_Permissions Table */
--- Defines the relationship between roles and permissions, including the access level for each permission assigned to a role.
-CREATE TABLE IF NOT EXISTS role_permissions (
-    role_permission_id CHAR(36) PRIMARY KEY,
+/* User_roles Table */
+-- Maintain user roles many to many relations
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_role_id CHAR(36) PRIMARY KEY, 
+    user_id CHAR(36) NOT NULL,
     role_id CHAR(36) NOT NULL,
-    permission_id CHAR(36) NOT NULL,
-    access_level VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE (role_id, permission_id),
-    FOREIGN KEY (role_id) REFERENCES roles(role_id),
-    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id)
-) ENGINE=InnoDB;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)ENGINE=InnoDB;
 
 /* Modules Table */
 -- Stores information about different modules within the ERP system, such as HR, Finance, etc.
@@ -322,17 +282,44 @@ CREATE TABLE IF NOT EXISTS actions (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-/* User_Permissions Table */
--- Connects users with specific permissions, denoting what actions a user can perform in different module sections.
-CREATE TABLE IF NOT EXISTS user_permissions (
-    user_permission_id CHAR(36) PRIMARY KEY,
+/* Role_permissions Table */
+-- Connects roles with specific permissions, denoting what actions a user can perform in different module sections.
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role_permission_id CHAR(36) PRIMARY KEY,
+    role_id CHAR(36) NOT NULL,
+    module_id CHAR(36) NOT NULL,
     section_id CHAR(36) NOT NULL,
     action_id CHAR(36) NOT NULL,
-    description VARCHAR(512),
+    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE,
+    FOREIGN KEY (module_id) REFERENCES modules(module_id) ON DELETE CASCADE,
+    FOREIGN KEY (section_id) REFERENCES module_sections(section_id) ON DELETE CASCADE,
+    FOREIGN KEY (action_id) REFERENCES actions(action_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)ENGINE=InnoDB;
+
+
+/* user_time_restrictions Table */
+-- Defines specific times during which users are allowed to access the ERP system, enhancing security and compliance.
+CREATE TABLE IF NOT EXISTS user_time_restrictions (
+    id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (section_id) REFERENCES module_sections(section_id),
-    FOREIGN KEY (action_id) REFERENCES actions(action_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+) ENGINE=InnoDB;
+
+/* user_allowed_weekdays Table */
+-- Specifies the days of the week on which users are permitted to access the ERP system, further customizing access control.
+CREATE TABLE IF NOT EXISTS user_allowed_weekdays (
+    id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    weekday ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
 
 /* Ledger Groups Table */

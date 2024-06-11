@@ -1,5 +1,5 @@
-from .serializers import RoleSerializer, PermissionsSerializer, ActionsSerializer, ModulesSerializer, RolePermissionsSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, UserPermissionsSerializer
-from .models import Roles, Permissions, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserPermissions
+from .serializers import RoleSerializer, ActionsSerializer, ModulesSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, RolePermissionsSerializer, UserRoleSerializer
+from .models import Roles, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserRoles
 from config.utils_methods import list_all_objects, create_instance, update_instance
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -10,6 +10,20 @@ from rest_framework.views import APIView
 from .renderers import UserRenderer
 from rest_framework import viewsets
 from rest_framework import status
+
+class UserRoleViewSet(viewsets.ModelViewSet):
+    queryset = UserRoles.objects.all()
+    serializer_class = UserRoleSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
+        
 
 class GetUserDataViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -35,34 +49,6 @@ class RoleViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
-
-class PermissionsViewSet(viewsets.ModelViewSet):
-    queryset = Permissions.objects.all()
-    serializer_class = PermissionsSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
-    
-
-class RolePermissionsViewSet(viewsets.ModelViewSet):
-    queryset = RolePermissions.objects.all()
-    serializer_class = RolePermissionsSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        return create_instance(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
-
 
 class ActionsViewSet(viewsets.ModelViewSet):
     queryset = Actions.objects.all()
@@ -105,6 +91,7 @@ class ModuleSectionsViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
+    
 class UserTimeRestrictionsViewSet(viewsets.ModelViewSet):
     queryset = UserTimeRestrictions.objects.all()
     serializer_class = UserTimeRestrictionsSerializer
@@ -117,6 +104,7 @@ class UserTimeRestrictionsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
     
 class UserAllowedWeekdaysViewSet(viewsets.ModelViewSet):
     queryset = UserAllowedWeekdays.objects.all()
@@ -131,9 +119,10 @@ class UserAllowedWeekdaysViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
 
-class UserPermissionsViewSet(viewsets.ModelViewSet):
-    queryset = UserPermissions.objects.all()
-    serializer_class = UserPermissionsSerializer
+
+class RolePermissionsViewSet(viewsets.ModelViewSet):
+    queryset = RolePermissions.objects.all()
+    serializer_class = RolePermissionsSerializer
 
     def list(self, request, *args, **kwargs):
         return list_all_objects(self, request, *args, **kwargs)
@@ -143,6 +132,8 @@ class UserPermissionsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
+    
+
 #==================================================================================================
 # Creating tokens manually
 def get_tokens_for_user(user):
