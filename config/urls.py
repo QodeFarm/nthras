@@ -24,6 +24,7 @@ from config.views import api_links
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from apps.users.custom_schema_generator import CustomOpenAPISchemaGenerator  
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -33,6 +34,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
+    generator_class=CustomOpenAPISchemaGenerator
 )
 
 urlpatterns = [
