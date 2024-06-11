@@ -100,10 +100,10 @@ def profile_picture(instance, filename):
 #====
 class User(AbstractBaseUser):
     GENDER_CHOICES = [('Male', 'Male'),('Female', 'Female'),('Other', 'Other'),('Prefer Not to Say', 'Prefer Not to Say')]
-    TITLE_CHOICES = [('Mr', 'Mr'),('Miss', 'Miss'),('Mrs', 'Mrs'),('Ms', 'Ms'),('Mx', 'Mx')]
+    TITLE_CHOICES = [('Mr.', 'Mr.'),('Ms.', 'Ms.')]
     profile_picture_url = models.ImageField(max_length=255, null = True, default=None,  upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
-    title = models.CharField(max_length=20, choices=TITLE_CHOICES, default='Mrs')
+    title = models.CharField(max_length=20, choices=TITLE_CHOICES, default=None)
     username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     last_name = models.CharField(max_length=255, null= True, default=None)

@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP,
     date_of_birth DATE,
     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say'),
-    title ENUM('Mr', 'Miss', 'Mrs', 'Ms', 'Mx'),
+    title ENUM('Mr','Ms'),
     INDEX idx_branch_id (branch_id),
     INDEX idx_status_id (status_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id),

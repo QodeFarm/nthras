@@ -18,7 +18,7 @@ router.register(r'module_sections', ModuleSectionsViewSet, basename='module_sect
 router.register(r'user_time_restrictions', UserTimeRestrictionsViewSet, basename='user_time_restrictions')
 router.register(r'user_allowed_weekday', UserAllowedWeekdaysViewSet, basename='user_allowed_weekday')
 
-router.register(r'user_roles', UserRoleViewSet, basename='user_role')  
+router.register(r'user_roles', UserRoleViewSet, basename='user_roles')  
 router.register(r'role_permissions', RolePermissionsViewSet, basename='role_permissions')
 
 urlpatterns = [
