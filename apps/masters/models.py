@@ -52,7 +52,7 @@ class City(models.Model):
 
 class Statuses(models.Model):
     status_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    status_name = models.CharField(max_length=50, unique=True)
+    status_name = models.CharField(max_length=50, unique=True, default='Pending')
 
     def __str__(self):
         return f"{self.status_name}"

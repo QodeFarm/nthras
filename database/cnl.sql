@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS companies (
 -- Defines various statuses that can be applied to records within the system, such as Active, Inactive, Pending Approval.
 CREATE TABLE IF NOT EXISTS statuses (
     status_id CHAR(36) PRIMARY KEY,
-    status_name VARCHAR(50) NOT NULL UNIQUE,
+    status_name VARCHAR(50) NOT NULL UNIQUE DEFAULT 'Pending',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -222,6 +222,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP,
     date_of_birth DATE,
     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say'),
+    title ENUM('Mr', 'Miss', 'Mrs', 'Ms', 'Mx'),
     INDEX idx_branch_id (branch_id),
     INDEX idx_status_id (status_id),
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id),

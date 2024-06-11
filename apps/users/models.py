@@ -100,8 +100,10 @@ def profile_picture(instance, filename):
 #====
 class User(AbstractBaseUser):
     GENDER_CHOICES = [('Male', 'Male'),('Female', 'Female'),('Other', 'Other'),('Prefer Not to Say', 'Prefer Not to Say')]
+    TITLE_CHOICES = [('Mr', 'Mr'),('Miss', 'Miss'),('Mrs', 'Mrs'),('Ms', 'Ms'),('Mx', 'Mx')]
     profile_picture_url = models.ImageField(max_length=255, null = True, default=None,  upload_to=profile_picture) 
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default='Prefer Not to Say')
+    title = models.CharField(max_length=20, choices=TITLE_CHOICES, default='Mrs')
     username = models.CharField(verbose_name="Username",max_length=255,unique=True) 
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     last_name = models.CharField(max_length=255, null= True, default=None)
@@ -109,7 +111,7 @@ class User(AbstractBaseUser):
     language = models.CharField(max_length=10, null= True, default=None)
     date_of_birth = models.DateField(null= True, default=None)
     email = models.EmailField(max_length=255, unique=True)
-    otp_required = models.SmallIntegerField(default=False)
+    otp_required = models.BooleanField(default=False)
     mobile= models.CharField(max_length=20, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -127,7 +129,7 @@ class User(AbstractBaseUser):
         db_table = userstable
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url','bio', 'language', 'date_of_birth', 'gender','otp_required', 'timezone','status_id','branch_id'] 
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'mobile', 'profile_picture_url', 'bio', 'language', 'date_of_birth', 'gender', 'title', 'otp_required', 'timezone', 'status_id', 'branch_id'] 
 
     def __str__(self):
         return self.username

@@ -111,7 +111,8 @@ class GetUserDataSerializer(serializers.ModelSerializer):
     status = ModStatusesSerializer(source='status_id', read_only = True)
     class Meta:
         model = User
-        exclude = ('password',) #['user_id','username','first_name','last_name','email','mobile','otp_required','profile_picture_url','bio','timezone','language','created_at','updated_at','last_login','date_of_birth','gender','is_active','status_id','branch_id', 'branch','status']  
+        #exclude = ('password',) #
+        fields = ['email', 'user_id','username','title', 'first_name', 'last_name', 'mobile', 'otp_required', 'profile_picture_url', 'bio', 'timezone', 'language', 'created_at', 'updated_at', 'last_login', 'date_of_birth', 'gender', 'is_active', 'status_id', 'branch_id', 'branch', 'status']  
 
 class UserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
