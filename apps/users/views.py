@@ -2,10 +2,13 @@ from .serializers import RoleSerializer, ActionsSerializer, ModulesSerializer, M
 from .models import Roles, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserRoles
 from config.utils_methods import list_all_objects, create_instance, update_instance
 from rest_framework.decorators import permission_classes
+from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from .renderers import UserRenderer
 from rest_framework import viewsets
@@ -133,7 +136,6 @@ class RolePermissionsViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
-
 #==================================================================================================
 # Creating tokens manually
 def get_tokens_for_user(user):
@@ -166,9 +168,9 @@ class UserLoginView(APIView):
         user = authenticate(username=username, password=password)
         if user is not None:
             token = get_tokens_for_user(user)
-            return Response({"status":True, "msg":'Login Success', "data": token}, status=status.HTTP_200_OK)
+            return Response({'count':'1', 'msg':'Login Success', 'data':[token]}, status=status.HTTP_200_OK)
         else:
-            return Response({"status":False, "msg":'Username or Password is not valid', "data":[]}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'count':'1', 'msg':'Username or Password is not valid', 'data':[]}, status=status.HTTP_404_NOT_FOUND)
 
 #==================================================================================================
 #change known Password view
@@ -177,7 +179,7 @@ class UserChangePasswordView(APIView):
     def post(self, request, format=None):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
-        return Response({"status":True, "msg":'Password Changed Successfully', "data":[]}, status=status.HTTP_200_OK)
+        return Response({'count':'1', 'msg':'Password Changed Successfully', 'data':[]}, status=status.HTTP_200_OK)
 
 #=================================================================================================
 #Forgot Password
@@ -187,7 +189,7 @@ class SendPasswordResetEmailView(APIView):
     def post(self, request, format=None):
         serializer = SendPasswordResetEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({"status":True, "msg":'Password Reset Link Send. Please Check Your Email', "data":[]}, status=status.HTTP_200_OK)
+        return Response({'count':'1', 'msg':'Password Reset Link Send. Please Check Your Email', 'data':[]}, status=status.HTTP_200_OK)
         
 
 @permission_classes([AllowAny])
@@ -197,4 +199,43 @@ class UserPasswordResetView(APIView):
         serializer = UserPasswordResetSerializer(
             data=request.data, context={'uid': uid, 'token': token})
         serializer.is_valid(raise_exception=True)
-        return Response({"status":True, "msg":'Password Reset Successfully', "data":[]}, status=status.HTTP_200_OK)
+        return Response({'count':'1', 'msg':'Password Reset Successfully', 'data':[]}, status=status.HTTP_200_OK)
+
+#=================================================================================================
+class CustomUserCreateViewSet(DjoserUserViewSet):
+    def create(self, request, *args, **kwargs):
+        try:
+            response = super().create(request, *args, **kwargs)
+            custom_response_data = {
+            'count':'1',
+            'msg':'Success! Your user account has been created. Please check your mailbox',
+            'data':[response.data]
+            }
+            return Response(custom_response_data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            error_response_data = {
+                'count':'1',
+                'msg':'User creation failed due to validation errors.',
+                'data':[e.detail]
+            }
+            return Response(error_response_data, status=status.HTTP_400_BAD_REQUEST)
+
+#=================================================================================================
+class CustomUserActivationViewSet(DjoserUserViewSet):
+    @action(["post"], detail=False)
+    def activation(self, request, *args, **kwargs):
+        try:
+            response = super().activation(request, *args, **kwargs)
+            custom_response_data = {
+                'count':'1',
+                'msg':'Successfully activated the user!',
+                'data':[]
+            }
+            return Response(custom_response_data, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            error_response_data = {
+                'count':'1',
+                'msg':'User activation failed due to validation errors.',
+                'data':[e.detail],
+            }
+            return Response(error_response_data, status=status.HTTP_400_BAD_REQUEST)

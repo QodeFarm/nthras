@@ -1,10 +1,9 @@
 from .models import Roles, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserRoles
-from apps.company.serializers import ModCompaniesSerializer, ModBranchesSerializer
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
+from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from apps.company.serializers import ModBranchesSerializer
 from apps.masters.serializers import ModStatusesSerializer
-from djoser.serializers import UserCreateSerializer
-from django.forms import ValidationError
 from rest_framework import serializers
 from .utils import Utils
 from .passwdgen import *
@@ -111,11 +110,11 @@ class GetUserDataSerializer(serializers.ModelSerializer):
     status = ModStatusesSerializer(source='status_id', read_only = True)
     class Meta:
         model = User
-        #exclude = ('password',) #
-        fields = ['email', 'user_id','username','title', 'first_name', 'last_name', 'mobile', 'otp_required', 'profile_picture_url', 'bio', 'timezone', 'language', 'created_at', 'updated_at', 'last_login', 'date_of_birth', 'gender', 'is_active', 'status_id', 'branch_id', 'branch', 'status']  
-
-class UserCreateSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
+        fields = ['email', 'user_id','username','title', 'first_name', 'last_name', 'mobile', 'otp_required', 'profile_picture_url', 'bio', 'timezone', 'language', 'created_at', 'updated_at', 'last_login', 'date_of_birth', 'gender', 'is_active', 'status_id', 'branch_id', 'branch', 'status']   #if we use here '__all__' then it shows password field also.
+#=================================================================================================
+#user create Serializer
+class CustomUserCreateSerializer(BaseUserCreateSerializer):
+    class Meta(BaseUserCreateSerializer.Meta):
         model = User
         fields = '__all__'
 

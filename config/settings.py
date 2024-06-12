@@ -261,9 +261,12 @@ DJOSER = {
     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     'TOKEN_MODEL': None,  # To Delete User Must Set it to None
     'SERIALIZERS':{
-        'user_create': 'apps.users.serializers.UserCreateSerializer',
-        'user': 'apps.users.serializers.UserCreateSerializer',
+        'user_create': 'apps.users.serializers.CustomUserCreateSerializer',
+        'user': 'apps.users.serializers.CustomUserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    },
+    'VIEWSETS': {
+        'user': 'apps.users.views.CustomUserViewSet',
     },
     # 'EMAIL': {
     #     'activation': 'users.email.ActivationEmail',
