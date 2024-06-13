@@ -20,7 +20,7 @@ def product_groups_picture(instance, filename):
 
 # Create your models here.
 class ProductGroups(models.Model):
-    group_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product_group_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group_name = models.CharField(max_length=255)
     description = models.TextField(null=True, default=None)
     picture = models.ImageField(max_length=255, null=True, default=None, upload_to=product_groups_picture)
@@ -31,7 +31,7 @@ class ProductGroups(models.Model):
         db_table = productgroupstable
 
     def __str__(self):
-        return f"{self.group_id} {self.group_name}"
+        return f"{self.product_group_id} {self.group_name}"
 
     @receiver(pre_delete, sender='products.ProductGroups')
     def delete_branches_picture(sender, instance, **kwargs):
