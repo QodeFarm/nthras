@@ -1,4 +1,4 @@
-from io import BytesIO
+from django.conf import settings
 import os
 from uuid import uuid4
 from rest_framework.views import APIView
@@ -7,7 +7,15 @@ from rest_framework import status
 import requests
 import json
 
-from django.conf import settings
+
+from datetime import datetime
+from .serializers import PhoneNumberSerializer
+from reportlab.lib.pagesizes import letter # type: ignore
+from reportlab.pdfgen import canvas # type: ignore
+from django.http import FileResponse, HttpResponse
+
+
+
 
 class VoucherView(APIView):
     def post(self, request):
@@ -104,17 +112,6 @@ class VoucherView(APIView):
             
 #==============================================================================================================
 
-import requests
-import json
-from datetime import datetime
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import PhoneNumberSerializer
-from reportlab.lib.pagesizes import letter # type: ignore
-from reportlab.pdfgen import canvas # type: ignore
-from django.http import FileResponse, HttpResponse
-
 class FetchOutstandingLCView(APIView):
     def post(self, request):
         serializer = PhoneNumberSerializer(data=request.data)
@@ -145,7 +142,6 @@ class FetchOutstandingLCView(APIView):
                     for item in data:
                         if item["phone"] == phone_number:
                             user_id = item["id"]
-                            print(f"user_id for {phone_number}: {user_id}") #<== PRINT Statement
                             break
                     else:
                         return Response({"error": "Phone number not found"}, status=status.HTTP_404_NOT_FOUND)  
@@ -1281,20 +1277,7 @@ class FetchOutstandingLCView(APIView):
                                 due_amount = record.get("due_amount")
                                 bill_amount = record.get("bill_amount")
                                 outstanding_lc_runnin = record.get("outstanding_lc_running")
-                                
-
-                                # buffer = BytesIO()
-                                # p = canvas.Canvas(buffer, pagesize=letter)
-                                # y_position = 750
-                                # for field_name, field_value in fields.items():
-                                #     p.drawString(100, y_position, f"{field_name.replace('_', ' ').title()}: {field_value}")
-                                #     y_position -= 20
-
-                                # p.showPage()
-                                # p.save()
-                                
-                                # buffer.seek(0)
- 
+  
                                 if outstanding_lc is not None:
                                     # Generate PDF
                                     pdf_filename = f"{uuid4()}.pdf"
