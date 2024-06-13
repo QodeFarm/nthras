@@ -1289,7 +1289,6 @@ class FetchOutstandingLCView(APIView):
                                     p.drawString(100, 730, f"bill_date: {bill_date}")
                                     p.drawString(100, 710, f"ref_no: {ref_no}")
                                     p.drawString(100, 690, f"due_amount: {due_amount}")
-                                    p.drawString(100, 670, f"Bill Amount: {bill_amount}")
                                     p.drawString(100, 650, f"bill_amount: {bill_amount}")
                                     p.drawString(100, 630, f"outstanding_lc_running: {outstanding_lc_runnin}")
 
