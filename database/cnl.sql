@@ -520,7 +520,7 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
 /* Product Groups Table */
 -- Stores information about different groups of products.
 CREATE TABLE IF NOT EXISTS product_groups (
-    group_id CHAR(36) PRIMARY KEY,
+    product_group_id CHAR(36) PRIMARY KEY,
     group_name VARCHAR(255) NOT NULL ,
     description VARCHAR(512),
     picture VARCHAR(255),
@@ -721,7 +721,7 @@ CREATE TABLE IF NOT EXISTS products (
     status ENUM('Active', 'Inactive'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_group_id) REFERENCES product_groups(group_id),
+    FOREIGN KEY (product_group_id) REFERENCES product_groups(product_group_id),
     FOREIGN KEY (category_id) REFERENCES product_categories(category_id),
     FOREIGN KEY (type_id) REFERENCES product_types(type_id),
     FOREIGN KEY (unit_options_id) REFERENCES unit_options(unit_options_id),

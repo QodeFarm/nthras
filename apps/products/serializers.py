@@ -6,7 +6,7 @@ from apps.masters.serializers import ProductUniqueQuantityCodesSerializer,Produc
 class ModProductGroupsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductGroups
-        fields = ['group_id','group_name']
+        fields = ['product_group_id','group_name']
 
 class ProductGroupsSerializer(serializers.ModelSerializer):
     class Meta:

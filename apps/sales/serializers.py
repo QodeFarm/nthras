@@ -54,7 +54,7 @@ class SaleInvoiceItemsSerializer(serializers.ModelSerializer):
 class SalesPriceListSerializer(serializers.ModelSerializer):
     customer_category = ModCustomerCategoriesSerializers(source='customer_category_id', read_only=True)
     brand = ModProductBrandsSerializer(source='brand_id', read_only=True)
-    group = ModProductGroupsSerializer(source='group_id', read_only=True)
+    group = ModProductGroupsSerializer(source='product_group_id', read_only=True)
     class Meta:
         model = SalesPriceList
         fields = '__all__'

@@ -73,7 +73,7 @@
 #     customer_category_name = filters.CharFilter(field_name='customer_category_id__name',lookup_expr='icontains')
 #     brand_id = filters.CharFilter(method=filter_uuid)
 #     brand_name = filters.CharFilter(field_name='brand_id__name',lookup_expr='icontains')
-#     # group_id = filters.NumberFilter(field_name='group_id__id')
+#     # product_group_id = filters.NumberFilter(field_name='group_id__id')
 
 #     class Meta:
 #         model = SalesPriceList
