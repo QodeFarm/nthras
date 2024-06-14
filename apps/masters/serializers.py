@@ -4,13 +4,18 @@ from .models import *
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 class UploadedFileSerializer(serializers.ModelSerializer):
     file_name = serializers.SerializerMethodField()
+    file_size = serializers.SerializerMethodField()
+
 
     class Meta:
         model = UploadedFile
-        fields = ('id', 'file_name', 'uploaded_at')
+        fields = ('id', 'file_name','file_size', 'uploaded_at')
 
     def get_file_name(self, obj):
         return obj.file.name.split('/')[-1]
+    
+    def get_file_size(self, obj):
+        return obj.file.size  #size in bytes
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 
 

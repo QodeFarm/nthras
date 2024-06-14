@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import *
@@ -14,13 +15,10 @@ import os
 import json
 
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
-# myapp/views.py
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework import status
-from .models import UploadedFile
-from .serializers import UploadedFileSerializer
+from rest_framework.generics import ListAPIView, DestroyAPIView
+
 
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -35,8 +33,36 @@ class FileUploadView(APIView):
             uploaded_files.append(uploaded_file)
 
         serializer = UploadedFileSerializer(uploaded_files, many=True)
-        file_names = [file['file_name'] for file in serializer.data]
-        return Response(file_names, status=status.HTTP_201_CREATED)
+        return Response({'count':len(files), 'msg':'Files Updated Successfully', 'data':[serializer.data]}, status=status.HTTP_201_CREATED)
+
+
+class CancelUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        files = request.FILES.getlist('files')
+        for file in files:
+            file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file.name)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+# class UploadedFileListView(ListAPIView):
+#     queryset = UploadedFile.objects.all()
+#     serializer_class = UploadedFileSerializer
+
+
+# class UploadedFileDeleteView(DestroyAPIView):
+#     queryset = UploadedFile.objects.all()
+#     serializer_class = UploadedFileSerializer
+
+#     def delete(self, request, *args, **kwargs):
+#         instance = self.get_object()
+#         file_path = instance.file.path
+#         self.perform_destroy(instance)
+#         if os.path.exists(file_path):
+#             os.remove(file_path)
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 

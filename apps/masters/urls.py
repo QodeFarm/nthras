@@ -42,5 +42,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('generate_order_number/<str:order_type_prefix>/', generate_order_number_view, name='generate_order_number'),
     path('upload/', FileUploadView.as_view(), name='file-upload'),
+    path('cancel-upload/', CancelUploadView.as_view(), name='cancel-upload'),
+    # path('files/', UploadedFileListView.as_view(), name='file-list'),
+    # path('files/<int:pk>/', UploadedFileDeleteView.as_view(), name='file-delete'),
 
 ]
