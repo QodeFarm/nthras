@@ -34,14 +34,9 @@ router.register(r'orders_salesman', OrdersSalesmanView)
 router.register(r'payment_link_type', PaymentLinkTypesView)
 router.register(r'order_status', OrderStatusesView)
 router.register(r'order_types', OrderTypesView)
-router.register(r'files_list', UploadedFileListViewSet)
-
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include(router.urls)),
     path('generate_order_number/<str:order_type_prefix>/', generate_order_number_view, name='generate_order_number'),
-    path('upload/', FileUploadView.as_view(), name='file-upload'),
-    path('cancel-upload/', CancelUploadView.as_view(), name='cancel-upload'),
+    path('upload/', FileUploadView.as_view(), name='file-upload')
 ]

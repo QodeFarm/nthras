@@ -6,9 +6,11 @@
     <script>
         function cancelUpload() {
             const formData = new FormData(document.getElementById('uploadForm'));
-            fetch('http://127.0.0.1:8000/api/v1/masters/cancel-upload/', {
+            formData.append('flag', 'cancel_files');
+            fetch('http://127.0.0.1:8000/api/v1/masters/upload/', {
                 method: 'POST',
                 body: formData,
+                
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}'
                 }
@@ -26,8 +28,8 @@
 </head>
 <body>
     <form id="uploadForm" action="http://127.0.0.1:8000/api/v1/masters/upload/" method="post" enctype="multipart/form-data">
-        <input type="file" name="files" multiple>
-        <button type="submit">Upload</button>
+        <input type="file" name="files" multiple><br><br>
+        <button type="submit">Upload</button> <br> <br>
         <button type="button" onclick="cancelUpload()">Cancel</button>
     </form>
 </body>

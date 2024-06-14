@@ -12,3 +12,4 @@ apps/sales/__pycache__/
 apps/users/__pycache__/
 apps/vendor/__pycache__/
 config/__pycache__/
+/media

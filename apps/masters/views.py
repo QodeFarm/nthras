@@ -18,47 +18,38 @@ import json
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 
-
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
     def post(self, request, *args, **kwargs):
+        flag = request.data.get('flag')
         files = request.FILES.getlist('files')
-        uploaded_files = []
-
-        for file in files:
-            uploaded_file = UploadedFile(file=file)
-            uploaded_file.save()
-            uploaded_files.append(uploaded_file)
-
-        serializer = UploadedFileSerializer(uploaded_files, many=True)
-        return Response({'count':len(files), 'msg':'Files Updated Successfully', 'data':[serializer.data]}, status=status.HTTP_201_CREATED)
-
-
-class CancelUploadView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-    def post(self, request, *args, **kwargs):
-        files = request.FILES.getlist('files')
-        for file in files:
-            file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file.name)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-
-
-class UploadedFileListViewSet(viewsets.ModelViewSet):
-    queryset = UploadedFile.objects.all()
-    serializer_class = GetUploadedFileListSerializer
-
-    def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        return update_instance(self, request, *args, **kwargs)
-
+        if flag == "cancel_files":
+                    if len(files) != 0:
+                        print(files)
+                        for file in files:
+                            file_path = os.path.join(settings.MEDIA_ROOT, file.name)
+                            if os.path.exists(file_path):
+                                os.remove(file_path)
+                        return Response({'count':len(files), 'msg':'Uploaded Files deleted', 'data':[]}, status=status.HTTP_200_OK)     
+                    else:
+                        return Response({'count':len(files), 'msg':'No Files uploaded', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
+        else:
+            uploaded_files = []
+            for file in files:
+                file_uuid = uuid.uuid4().hex[:6]
+                file_name, file_extension = os.path.splitext(file.name)
+                unique_file_name = f"{file_name}_{file_uuid}{file_extension}"
+                file_path = os.path.join(settings.MEDIA_ROOT, unique_file_name)
+                with open(file_path, 'wb+') as destination:
+                    for chunk in file.chunks():
+                        destination.write(chunk)
+                uploaded_files.append({
+                    'attachment_name': file.name,
+                    'file_size': file.size,
+                    'uploaded_at': file_path
+                })
+            return Response({'count': len(files), 'msg': 'Files Uploaded Successfully', 'data': uploaded_files}, status=status.HTTP_201_CREATED)
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
-
-
 # Create your views here.
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
