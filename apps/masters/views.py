@@ -17,12 +17,10 @@ import json
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.generics import ListAPIView, DestroyAPIView
 
 
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
-
     def post(self, request, *args, **kwargs):
         files = request.FILES.getlist('files')
         uploaded_files = []
@@ -38,7 +36,6 @@ class FileUploadView(APIView):
 
 class CancelUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
-
     def post(self, request, *args, **kwargs):
         files = request.FILES.getlist('files')
         for file in files:
@@ -47,22 +44,17 @@ class CancelUploadView(APIView):
                 os.remove(file_path)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-# class UploadedFileListView(ListAPIView):
-#     queryset = UploadedFile.objects.all()
-#     serializer_class = UploadedFileSerializer
 
 
-# class UploadedFileDeleteView(DestroyAPIView):
-#     queryset = UploadedFile.objects.all()
-#     serializer_class = UploadedFileSerializer
+class UploadedFileListViewSet(viewsets.ModelViewSet):
+    queryset = UploadedFile.objects.all()
+    serializer_class = GetUploadedFileListSerializer
 
-#     def delete(self, request, *args, **kwargs):
-#         instance = self.get_object()
-#         file_path = instance.file.path
-#         self.perform_destroy(instance)
-#         if os.path.exists(file_path):
-#             os.remove(file_path)
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
 
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 

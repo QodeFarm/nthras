@@ -16,6 +16,12 @@ class UploadedFileSerializer(serializers.ModelSerializer):
     
     def get_file_size(self, obj):
         return obj.file.size  #size in bytes
+    
+
+class GetUploadedFileListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadedFile
+        fields = '__all__'
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 
 
