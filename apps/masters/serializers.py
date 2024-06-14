@@ -1,6 +1,18 @@
 from rest_framework import serializers
 from .models import *
 
+#+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
+class UploadedFileSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UploadedFile
+        fields = ('id', 'file_name', 'uploaded_at')
+
+    def get_file_name(self, obj):
+        return obj.file.name.split('/')[-1]
+#+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 #Create serializers
 class ModCountrySerializer(serializers.ModelSerializer):

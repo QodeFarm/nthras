@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from .models import *
 from .serializers import *
 from config.utils_methods import *
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend # type: ignore
 from rest_framework.filters import OrderingFilter
 from .filters import *
 from django.utils import timezone
@@ -13,6 +13,32 @@ from rest_framework import status
 import os
 import json
 
+#+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
+# myapp/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
+from .models import UploadedFile
+from .serializers import UploadedFileSerializer
+
+class FileUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        files = request.FILES.getlist('files')
+        uploaded_files = []
+
+        for file in files:
+            uploaded_file = UploadedFile(file=file)
+            uploaded_file.save()
+            uploaded_files.append(uploaded_file)
+
+        serializer = UploadedFileSerializer(uploaded_files, many=True)
+        file_names = [file['file_name'] for file in serializer.data]
+        return Response(file_names, status=status.HTTP_201_CREATED)
+
+#+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 # Create your views here.

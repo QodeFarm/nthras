@@ -412,3 +412,34 @@ class OrderTypes(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+def profile_picture(instance, filename):
+    '''Uploading Profile Picture'''
+    # Get the file extension
+    file_extension = os.path.splitext(filename)[-1]
+    # Generate a unique identifier
+    unique_id = uuid.uuid4().hex[:6]
+    # Construct the filename
+    original_filename = os.path.splitext(filename)[0]  # Get the filename without extension
+    return f"{original_filename}_{unique_id}{file_extension}"
+
+class UploadedFile(models.Model):
+    file = models.FileField(upload_to=profile_picture)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "uploadedfile"
+
+    def __str__(self):
+        return self.file.name
+
+    @receiver(pre_delete, sender='users.User')
+    def delete_user_picture(sender, instance, **kwargs):
+        if instance.profile_picture_url and instance.profile_picture_url.name:
+            file_path = instance.profile_picture_url.path
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                picture_dir = os.path.dirname(file_path)
+                if not os.listdir(picture_dir):
+                    os.rmdir(picture_dir)
