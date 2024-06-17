@@ -30,25 +30,42 @@ class FileUploadView(APIView):
                             file_path = os.path.join(settings.MEDIA_ROOT, file.name)
                             if os.path.exists(file_path):
                                 os.remove(file_path)
-                        return Response({'count':len(files), 'msg':'Uploaded Files deleted', 'data':[]}, status=status.HTTP_200_OK)     
+                        return Response({'count':len(files), 'msg':'The upload file operation has been aborted', 'data':[]}, status=status.HTTP_200_OK)     
                     else:
                         return Response({'count':len(files), 'msg':'No Files uploaded', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
+        elif flag == "Remove_files":
+            file_names = request.data.getlist('file_names')
+            if len(file_names) != 0:
+                for file_name in file_names:
+                    file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    else:
+                        return Response({'count':0, 'msg':'Files Not Exist', 'data':[]}, status=status.HTTP_200_OK) #(status=status.HTTP_204_NO_CONTENT)
+                return Response({'count':len(file_names), 'msg':'Files deleted', 'data':[]}, status=status.HTTP_200_OK) #(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'count':len(files), 'msg':'No Files Selected', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
         else:
-            uploaded_files = []
-            for file in files:
-                file_uuid = uuid.uuid4().hex[:6]
-                file_name, file_extension = os.path.splitext(file.name)
-                unique_file_name = f"{file_name}_{file_uuid}{file_extension}"
-                file_path = os.path.join(settings.MEDIA_ROOT, unique_file_name)
-                with open(file_path, 'wb+') as destination:
-                    for chunk in file.chunks():
-                        destination.write(chunk)
-                uploaded_files.append({
-                    'attachment_name': file.name,
-                    'file_size': file.size,
-                    'uploaded_at': file_path
-                })
-            return Response({'count': len(files), 'msg': 'Files Uploaded Successfully', 'data': uploaded_files}, status=status.HTTP_201_CREATED)
+            if len(files) != 0:
+                uploaded_files = []
+                for file in files:
+                    file_uuid = uuid.uuid4().hex[:6]
+                    file_name, file_extension = os.path.splitext(file.name)
+                    unique_file_name = f"{file_name}_{file_uuid}{file_extension}"
+                    file_path = os.path.join(settings.MEDIA_ROOT, unique_file_name)
+                    with open(file_path, 'wb+') as destination:
+                        for chunk in file.chunks():
+                            destination.write(chunk)
+                    uploaded_files.append({
+                        'attachment_name': file.name,
+                        'file_size': file.size,
+                        'attachment_path': file_path
+                    })
+                return Response({'count': len(files), 'msg': 'Files Uploaded Successfully', 'data': uploaded_files}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'count':len(files), 'msg':'No Files uploaded', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
+
+
 #+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 # Create your views here.
 class CountryViewSet(viewsets.ModelViewSet):
