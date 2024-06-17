@@ -2,7 +2,6 @@ from rest_framework import serializers
 from apps.masters.serializers import ModStatusesSerializer, ModTaskPrioritiesSerializer
 from apps.users.serializers import ModUserSerializer
 from apps.tasks.models import Tasks,TaskComments,TaskAttachments,TaskHistory
-import os
 
 
 class ModTasksSerializer(serializers.ModelSerializer):
