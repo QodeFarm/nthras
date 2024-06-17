@@ -40,6 +40,8 @@ class PurchaseOrders(OrderNumberMixin):
     round_off = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     total_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
+    shipping_address = models.CharField(max_length=1024, null=True, default=None)
+    billing_address = models.CharField(max_length=1024, null=True, default=None)   
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 	
@@ -107,6 +109,8 @@ class PurchaseInvoiceOrders(OrderNumberMixin):
     round_off = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
     total_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
     order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
+    shipping_address = models.CharField(max_length=1024, null=True, default=None)
+    billing_address = models.CharField(max_length=1024, null=True, default=None)   
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -173,6 +177,8 @@ class PurchaseReturnOrders(OrderNumberMixin):
     round_off = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
     order_status_id = models.ForeignKey(OrderStatuses, on_delete=models.CASCADE, null=True, default=None, db_column = 'order_status_id')
+    shipping_address = models.CharField(max_length=1024, null=True, default=None)
+    billing_address = models.CharField(max_length=1024, null=True, default=None)    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
