@@ -38,7 +38,7 @@ class FileUploadView(APIView):
                 uploaded_files = []
                 for file in files:
                     file_uuid = uuid.uuid4().hex[:6]
-                    file_name, file_extension = os.path.splitext(file.name)
+                    file_name, file_extension = os.path.splitext(file.name.replace(' ', '_'))
                     unique_file_name = f"{file_name}_{file_uuid}{file_extension}"
                     file_path = os.path.join(settings.MEDIA_ROOT, unique_file_name)
                     with open(file_path, 'wb+') as destination:
@@ -47,7 +47,7 @@ class FileUploadView(APIView):
                     uploaded_files.append({
                         'attachment_name': file.name,
                         'file_size': file.size,
-                        'attachment_path': file_path.replace('\\', '/')
+                        'attachment_path': file_path.replace('\\', '/').replace(' ', '_')
                     })
                 return Response({'count': len(files), 'msg': 'Files Uploaded Successfully', 'data': uploaded_files}, status=status.HTTP_201_CREATED)
             else:
