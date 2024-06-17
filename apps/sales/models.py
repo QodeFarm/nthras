@@ -68,7 +68,8 @@ class SalesPriceList(models.Model): #required fields are updated
 
 class SaleOrderItems(models.Model):
     sale_order_item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sale_order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='sale_order_id')
+    # sale_order = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, db_column='sale_order_id',related_name='sale_order_items')
+    sale_order_id = models.ForeignKey(SaleOrder, on_delete=models.CASCADE, related_name='sale_order_items',db_column='sale_order_id')
     product_id = models.ForeignKey(Products, on_delete=models.CASCADE, db_column='product_id')
     quantity = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)
     unit_price = models.DecimalField(max_digits=18, decimal_places=2, null=True, default=None)

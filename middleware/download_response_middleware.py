@@ -136,7 +136,7 @@ class StripDownloadJsonMiddleware:
 
     def __call__(self, request):
         if request.method == 'GET' and ('download' in request.path_info or 'download' in request.get_full_path()):
-            print("\n<----Hello i'm Middleware------>'\n")
+            print("\n|----Hello i'm Download Middleware------|")
             # Store the original path
             original_path = request.path_info
             # Store the fill path including filtering options
@@ -368,15 +368,13 @@ class StripDownloadJsonMiddleware:
                     ws = wb.active
                     ws.title = f'{filter_name}'
 
-                    custom_filters = ['sales_by_customer','sales_by_product','sales_return_report','sales_order_status']
-
                     if filter_name not in custom_filters:
-                        print('------>Normal filter data is fetched\n\n')
+                        print('------>Normal filter data is fetched\n')
                         response = download_fields_excel_data(response,original_path)
                         return response
     
                     if new_data and filter_name in custom_filters: #if new_data:
-                        print('----- >Custom Filter data is fetched\n\n')
+                        print('------>Custom Filter data is fetched\n')
                         # Write the headers
                         header = new_data[0].keys()
                         writer.writerow(header)

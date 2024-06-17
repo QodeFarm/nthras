@@ -92,8 +92,117 @@ def count_sub_dicts(main_dict):
             count += 1
     return count
 
+def products_not_moving():
+    from apps.sales.models import SaleOrderItems
+    from apps.products.models import Products
+    from django.http import JsonResponse
+
+    #Identify not moving products
+    sale_order_product_ids = SaleOrderItems.objects.values_list('product_id',flat=True) #get all objs based on main table primarykey
+    fetch_not_in_sale_order = Products.objects.exclude(product_id__in=sale_order_product_ids)
+    # not_moving = fetch_not_in_sale_order.values_list('name',flat=True)
+    not_moving = list(fetch_not_in_sale_order.values('product_id','name'))
+
+    response_data = {
+        'count': 1,
+        'msg': None,
+        'data': not_moving if not_moving else None
+    }
+    return Response(response_data)
+
+def customers_not_purchasing(days=None):
+# def customers_not_ordering(days=None):
+    from django.utils import timezone
+    from datetime import timedelta
+    from apps.sales.models import SaleOrder
+    from apps.customer.models import Customer, CustomerAddresses
+
+    # Calculate the date as per given date
+    if days == None:
+        days = 30 # default
+
+    now = timezone.now()
+    thirty_days_ago = now - timedelta(days=int(days))
+
+    #Identify not ordering customers
+    customer_ids = SaleOrder.objects.filter(order_date__gte=thirty_days_ago).values_list('customer_id',flat=True)  #<class 'django.db.models.query.QuerySet'>
+    customer_not_in_sale_order = Customer.objects.exclude(customer_id__in=customer_ids)
+    # not_ordering = list(customer_not_in_sale_order.values('customer_id','name'))
+    data = {}
+    for v in customer_not_in_sale_order:
+        name = str(v).split('_')[0]
+        id = str(v).split('_')[1]
+        if id not in data:
+            data[id] = {
+                'name': name,
+                'id':id,
+                'email':None,
+                'phone':None,
+                'city':None,
+                'state':None,
+                'country':None,                
+            }
+        if id:
+            address = CustomerAddresses.objects.filter(customer_id=id).select_related('customer_id','state_id','city_id','country_id')
+            for val in address:
+                data[id]['email'] = val.email if val is not None else None
+                data[id]['phone'] = val.phone if val is not None else None
+                data[id]['city'] = val.city_id.city_name if val.city_id is not None else None
+                data[id]['state'] = val.state_id.state_name if val.state_id is not None else None
+                data[id]['country'] = val.country_id.country_name if val.country_id is not None else None
+
+    response_data = {
+        'count': count_sub_dicts(data),
+        'msg': None,
+        'data': data.values()#not_ordering if not_ordering else None
+    }
+    return Response(response_data)
+"""
+def customers_not_purchasing_(days=None):
+    from django.utils import timezone
+    from datetime import timedelta
+    from apps.sales.models import SaleOrder
+    from apps.customer.models import Customer
+    sale_orders = SaleOrder.objects.select_related('customer_id').all()
+    
+    if days == None:
+        days = 30 # default 
+    # Calculate the date 30 days ago
+    now = timezone.now()
+    thirty_days_ago = now - timedelta(days=int(days))
+    last_mnth = SaleOrder.objects.filter(order_date__gte=thirty_days_ago)
+
+
+    sales_summary = {}
+
+    # getting all customers list
+    customers = Customer.objects.all()
+    all_customers_list = []
+    for customer in customers:
+        all_customers_list.append(customer.name)
+
+
+    #Getting purchased customers list
+    last_mnth_purchased_customer_list = set()
+    for sale_order in last_mnth:
+        customer_info = str(sale_order.customer_id)  # Accessing the customer_id field directly, convert to str otherwise error will come
+        customer_name = customer_info.split('_')[0]
+        customer_id = customer_info.split('_')[1]
+        last_mnth_purchased_customer_list.add(str(customer_name))
+
+    not_purchased_customer_list = [item for item in all_customers_list if item not in list(last_mnth_purchased_customer_list)]
+    sales_summary['not_purchased_customers'] = not_purchased_customer_list
+
+    response_data = {
+            'count': len(not_purchased_customer_list),
+            'msg': None,
+            'data': sales_summary
+        }
+    return Response(response_data)"""
+
+
 def sale_by_customer():
-    from apps.sales.models import SaleInvoiceOrders, SaleOrder, SaleOrderItems
+    from apps.sales.models import  SaleOrder, SaleOrderItems
     sale_orders = SaleOrder.objects.select_related('customer_id').all()
 
     # Calculate summary of sales for each customer
@@ -148,6 +257,8 @@ def sale_by_customer():
 def sale_by_product(desc_param=None,p_id=None):
     from apps.sales.models import SaleOrderItems
     from apps.products.models import Products
+    from django.db.models import Subquery
+
     order_items = SaleOrderItems.objects.select_related('product_id').all()
 
     # Calculate summary of sales for each product
@@ -155,7 +266,7 @@ def sale_by_product(desc_param=None,p_id=None):
     for order_item in order_items:
         product_info = str(order_item.product_id)  # Accessing the customer_id field directly, convert to str otherwise error will come
         product_id = product_info.split('_')[0]
-        product_name = product_info.split('_')[1] 
+        product_name = product_info.split('_')[1]
 
         if product_id not in sales_summary:
             sales_summary[product_id] = {
@@ -230,7 +341,7 @@ def sale_return_report(): # take i/p
             sales_summary[sale_return_id_info] = {
                 'sale_order_return_id': str(sale_order_return),
                 'sale_id': sale_return_id_info,
-                'original_sale_order_info': None, #invoice_no
+                'original_sale_order_info': sale_order_return.against_bill, #invoice_no
                 'ref_no':sale_order_return.ref_no,
                 'ref_date':sale_order_return.ref_date,
                 'due_date':sale_order_return.due_date,
@@ -301,6 +412,14 @@ def list_all_objects(self, request, *args, **kwargs):
     queryset = self.filter_queryset(self.get_queryset())
     serializer = self.get_serializer(queryset, many=True)
 
+    product_not_moving = request.query_params.get('products_not_moving', 'false').lower() == 'true'
+    if product_not_moving: 
+        return products_not_moving()
+
+    customer_not_purchasing = request.query_params.get('customers_not_purchasing', 'false').lower() == 'true'
+    days = request.query_params.get('days', None)
+    if customer_not_purchasing:
+        return customers_not_purchasing(days)
 
     sales_by_customer = request.query_params.get('sales_by_customer', 'false').lower() == 'true'
     if sales_by_customer:
@@ -408,3 +527,9 @@ class OrderNumberMixin(models.Model):
         if not getattr(self, self.order_no_field):
             setattr(self, self.order_no_field, generate_order_number(self.order_no_prefix))
         super().save(*args, **kwargs)
+
+
+# Function to add a key-value pair to every OrderedDict in the list
+def add_key_value_to_all_ordereddicts(od_list, key, value):
+    for od in od_list:
+        od[key] = value

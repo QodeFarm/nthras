@@ -1,6 +1,16 @@
 #Specify required fields in all models
 
 
+custom_filters = [
+    'sales_by_customer',
+    'sales_by_product',
+    'sales_return_report',
+    'sales_order_status',
+    'customers_not_purchasing',
+    'products_not_moving',
+    ]
+
+
 all_model_fields = {
     'actions':['action_id','action_name','description','created_at','updated_at'],
     'branch_bank_details':['bank_detail_id','branch_id','bank_name','account_number','branch_name','ifsc_code','swift_code','address','created_at','updated_at'],
