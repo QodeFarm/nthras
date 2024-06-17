@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'apps.purchase',
     'apps.users',
     'apps.per_val',
-    'apps.alignbook'
+    'apps.alignbook',
+    'apps.tasks',
 ]
 
 MIDDLEWARE = [
@@ -276,8 +277,12 @@ DJOSER = {
     # },
 }
 
-BASE_URL = 'http://127.0.0.1:8000'
-MASTERS_BASE_URL = f'{BASE_URL}/api/v1/masters'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

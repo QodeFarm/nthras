@@ -33,8 +33,9 @@ router.register(r'payment_link_type', PaymentLinkTypesView)
 router.register(r'order_status', OrderStatusesView)
 router.register(r'order_types', OrderTypesView)
 
+router.register(r'task_priorities', TaskPrioritiesViewSet)
 urlpatterns = [
     path('', include(router.urls)),
-    path('generate_order_number/<str:order_type_prefix>/', generate_order_number_view, name='generate_order_number'),
     path('uploads/', FileUploadView.as_view(), name='file_uploads')
+    path('generate_order_no/', generate_order_number_view, name='generate_order_no'),
 ]
