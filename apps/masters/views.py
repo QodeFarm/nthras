@@ -488,3 +488,16 @@ def generate_order_number_view(request, order_type_prefix):
         return Response(response_data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+class TaskPrioritiesViewSet(viewsets.ModelViewSet):
+    queryset = TaskPriorities.objects.all()
+    serializer_class = TaskPrioritiesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)
