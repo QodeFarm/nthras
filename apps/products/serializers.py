@@ -163,3 +163,9 @@ class productsSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+
+class ProductSummarySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Products
+        fields = ['product_id', 'name', 'sales_description', 'barcode', 'mrp', 'sales_rate','discount', 'dis_amount']
