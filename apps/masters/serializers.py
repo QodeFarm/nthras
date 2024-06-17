@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 
-
 #Create serializers
 class ModCountrySerializer(serializers.ModelSerializer):
     class Meta:
