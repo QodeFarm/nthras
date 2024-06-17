@@ -1,4 +1,5 @@
 .env
+upload.html
 
 apps/alignbook/__pycache__/
 apps/company/__pycache__/

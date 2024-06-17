@@ -1,39 +1,27 @@
-from django.conf import settings
-from django.shortcuts import render
-from rest_framework import viewsets
-from .models import *
-from .serializers import *
-from config.utils_methods import *
 from django_filters.rest_framework import DjangoFilterBackend # type: ignore
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import OrderingFilter
-from .filters import *
-from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-import os
-import json
-
-#+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
 from rest_framework.views import APIView
-from rest_framework.parsers import MultiPartParser, FormParser
+from django.shortcuts import render
+from rest_framework import viewsets
+from config.utils_methods import *
+from django.utils import timezone
+from rest_framework import status
+from django.conf import settings
+from .serializers import *
+from .filters import *
+from .models import *
+import json
+import os
 
 class FileUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
     def post(self, request, *args, **kwargs):
         flag = request.data.get('flag')
         files = request.FILES.getlist('files')
-        if flag == "cancel_files":
-                    if len(files) != 0:
-                        print(files)
-                        for file in files:
-                            file_path = os.path.join(settings.MEDIA_ROOT, file.name)
-                            if os.path.exists(file_path):
-                                os.remove(file_path)
-                        return Response({'count':len(files), 'msg':'The upload file operation has been aborted', 'data':[]}, status=status.HTTP_200_OK)     
-                    else:
-                        return Response({'count':len(files), 'msg':'No Files uploaded', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
-        elif flag == "Remove_files":
+        if flag == "remove_file":
             file_names = request.data.getlist('file_names')
             if len(file_names) != 0:
                 for file_name in file_names:
@@ -41,10 +29,10 @@ class FileUploadView(APIView):
                     if os.path.exists(file_path):
                         os.remove(file_path)
                     else:
-                        return Response({'count':0, 'msg':'Files Not Exist', 'data':[]}, status=status.HTTP_200_OK) #(status=status.HTTP_204_NO_CONTENT)
-                return Response({'count':len(file_names), 'msg':'Files deleted', 'data':[]}, status=status.HTTP_200_OK) #(status=status.HTTP_204_NO_CONTENT)
+                        return Response({'count':0, 'msg':'Files Not Exist', 'data':[]}, status=status.HTTP_200_OK)
+                return Response({'count':len(file_names), 'msg':'Files Removed', 'data':[file_names]}, status=status.HTTP_200_OK) 
             else:
-                return Response({'count':len(files), 'msg':'No Files Selected', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
+                return Response({'count':len(files), 'msg':'No Files Selected', 'data':[]}, status=status.HTTP_400_BAD_REQUEST)  
         else:
             if len(files) != 0:
                 uploaded_files = []
@@ -59,15 +47,12 @@ class FileUploadView(APIView):
                     uploaded_files.append({
                         'attachment_name': file.name,
                         'file_size': file.size,
-                        'attachment_path': file_path
+                        'attachment_path': file_path.replace('\\', '/')
                     })
                 return Response({'count': len(files), 'msg': 'Files Uploaded Successfully', 'data': uploaded_files}, status=status.HTTP_201_CREATED)
             else:
                 return Response({'count':len(files), 'msg':'No Files uploaded', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
 
-
-#+++++++++++++++++++++++++++++++========================++++++++++++++++++++++++++++++++++++++++++++++++
-# Create your views here.
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer

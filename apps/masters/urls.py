@@ -1,7 +1,5 @@
-from django.contrib import admin
-#add your urls 
 from django.urls import path, include
-from rest_framework import routers, permissions
+from rest_framework import routers
 from .views  import *
 
 router = routers.DefaultRouter()
@@ -38,5 +36,5 @@ router.register(r'order_types', OrderTypesView)
 urlpatterns = [
     path('', include(router.urls)),
     path('generate_order_number/<str:order_type_prefix>/', generate_order_number_view, name='generate_order_number'),
-    path('upload/', FileUploadView.as_view(), name='file-upload')
+    path('uploads/', FileUploadView.as_view(), name='file_uploads')
 ]
