@@ -37,5 +37,5 @@ router.register(r'order_types', OrderTypesView)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('generate_order_no/', generate_order_number_view, name='generate_order_number'),
+    path('generate_order_no/', generate_order_number_view, name='generate_order_no'),
 ]
