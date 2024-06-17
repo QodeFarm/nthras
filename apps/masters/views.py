@@ -10,8 +10,7 @@ from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-import os
-import json
+from .models import generate_order_number
 
 
 
@@ -441,45 +440,26 @@ class OrderTypesView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
 
-
-SEQUENCE_FILE_PATH = 'order_sequences.json'
-
-
-def load_sequences():
-    if not os.path.exists(SEQUENCE_FILE_PATH):
-        return {}
-    with open(SEQUENCE_FILE_PATH, 'r') as file:
-        return json.load(file)
-
-def save_sequences(sequences):
-    with open(SEQUENCE_FILE_PATH, 'w') as file:
-        json.dump(sequences, file)
-
-def generate_order_number(order_type_prefix):
-    current_date = timezone.now()
-    date_str = current_date.strftime('%y%m')
-
-    sequences = load_sequences()
-
-    key = f"{order_type_prefix}-{date_str}"
-    sequence_number = sequences.get(key, 0)
-    sequence_number += 1
-    sequences[key] = sequence_number
-    save_sequences(sequences)
-
-    sequence_number_str = f"{sequence_number:05d}"
-    order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
-    return order_number
-
 @api_view(['GET'])
-def generate_order_number_view(request, order_type_prefix):
-    try:
-        valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP', 'PO', 'PO-INV', 'PR']
-        if order_type_prefix not in valid_prefixes:
-            return Response({"error": "Invalid prefix"}, status=status.HTTP_400_BAD_REQUEST)
+def generate_order_number_view(request):
+    """
+    API endpoint to generate an order number based on the given type.
 
+    Args:
+        request (HttpRequest): The request object containing the query parameter 'type'.
+
+    Returns:
+        Response: A JSON response containing the generated order number or an error message.
+    """
+    order_type_prefix = request.GET.get('type')
+    order_type_prefix = order_type_prefix.upper()
+    valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP', 'PO', 'PO-INV', 'PR']
+    
+    if order_type_prefix not in valid_prefixes:
+        return Response({"error": "Invalid prefix"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
         order_number = generate_order_number(order_type_prefix)
-        
         response_data = {
             'count': 1,
             'msg': None,
