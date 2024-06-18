@@ -6,6 +6,55 @@ from apps.products.serializers import ModProductGroupsSerializer, ModproductsSer
 from .models import *
 from django.conf import settings
 
+#================================================CHETAN STUFF====================================================
+# serializers.py
+from rest_framework import serializers
+from .models import SaleOrder, SaleOrderItems, OrderAttachments, OrderShipments
+ 
+class SaleOrderItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SaleOrderItems
+        fields = '__all__'
+ 
+class OrderAttachmentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderAttachments
+        fields = '__all__'
+ 
+class OrderShipmentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderShipments
+        fields = '__all__'
+ 
+class SaleOrderSerializer(serializers.ModelSerializer):
+    items = SaleOrderItemsSerializer(many=True)
+    attachments = OrderAttachmentsSerializer(many=True)
+    shipments = OrderShipmentsSerializer(many=True)
+ 
+    class Meta:
+        model = SaleOrder
+        fields = '__all__'
+ 
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        attachments_data = validated_data.pop('attachments')
+        shipments_data = validated_data.pop('shipments')
+ 
+        sale_order = SaleOrder.objects.create(**validated_data)
+ 
+        for item_data in items_data:
+            SaleOrderItems.objects.create(sale_order_id=sale_order, **item_data)
+ 
+        for attachment_data in attachments_data:
+            OrderAttachments.objects.create(order_id=sale_order.sale_order_id, **attachment_data)
+ 
+        for shipment_data in shipments_data:
+            OrderShipments.objects.create(order_id=sale_order.sale_order_id, **shipment_data)
+ 
+        return sale_order
+
+#================================================CHETAN STUFF====================================================
+
 #----------Modified Serializers--------------------------
 
 class ModSaleOrderSerializer(serializers.ModelSerializer):

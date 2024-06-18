@@ -18,7 +18,8 @@ router.register(r'order_attachements', OrderAttachmentsView)
 router.register(r'order_shipments', OrderShipmentsView)
 
 urlpatterns = [
-    path('',include(router.urls))
+    path('',include(router.urls)),
+    path('sales-order-operation/', SaleOrderCreateView.as_view(), name='sales-order-operation'),
 ]
 
 
