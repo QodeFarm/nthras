@@ -97,7 +97,7 @@ class CustomerAddressesSummarySerializer(serializers.ModelSerializer):
             return f"{obj.address}, {obj.city_id.city_name}, {obj.state_id.state_name}, {obj.country_id.country_name}, {obj.pin_code}, Phone: {obj.phone}"
         return None
 
-class CustomerSummarySerializer(serializers.ModelSerializer):
+class CustomerOptionSerializer(serializers.ModelSerializer):
     email = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
     customer_addresses = serializers.SerializerMethodField()
@@ -138,3 +138,11 @@ class CustomerSummarySerializer(serializers.ModelSerializer):
             })
         
         return customer_addresses
+    
+    def get_customer_summary(customers):
+        serializer = CustomerOptionSerializer(customers, many=True)
+        return {
+            "count": len(serializer.data),
+            "msg": "SUCCESS",
+            "data": serializer.data
+        }
