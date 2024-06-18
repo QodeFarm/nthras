@@ -118,16 +118,13 @@ class productsViewSet(viewsets.ModelViewSet):
         summary = request.query_params.get('summary', 'false').lower() == 'true'
         if summary:
             products = self.filter_queryset(self.get_queryset())
-            serializer = ProductSummarySerializer(products, many=True)
-            data = {
-                "count": len(serializer.data),
-                "msg": "SUCCESS",
-                "data": serializer.data
-            }
-            return Response(data, status=status.HTTP_200_OK)
+            data = ProductOptionsSerializer.get_product_summary(products)
+            result = Response(data, status=status.HTTP_200_OK)
         else:
-            return list_all_objects(self, request, *args, **kwargs)
-
+            result = list_all_objects(self, request, *args, **kwargs)
+        
+        return result
+        
     def create(self, request, *args, **kwargs):
         return create_instance(self, request, *args, **kwargs)
 
