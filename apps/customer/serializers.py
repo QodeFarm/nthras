@@ -78,3 +78,63 @@ class ModCustomerAddressesSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomerAddresses
         fields = ['customer_address_id','customer_id']
+
+class CustomerAddressesSummarySerializer(serializers.ModelSerializer):
+    billing_address = serializers.SerializerMethodField()
+    shipping_address = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomerAddresses
+        fields = ['billing_address', 'shipping_address']
+
+    def get_billing_address(self, obj):
+        if obj.address_type == 'Billing':
+            return f"{obj.address}, {obj.city_id.city_name}, {obj.state_id.state_name}, {obj.country_id.country_name}, {obj.pin_code}, Phone: {obj.phone}"
+        return None
+
+    def get_shipping_address(self, obj):
+        if obj.address_type == 'Shipping':
+            return f"{obj.address}, {obj.city_id.city_name}, {obj.state_id.state_name}, {obj.country_id.country_name}, {obj.pin_code}, Phone: {obj.phone}"
+        return None
+
+class CustomerSummarySerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
+    customer_addresses = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Customer
+        fields = ['customer_id', 'name', 'email', 'phone', 'customer_addresses']
+
+    def get_email(self, obj):
+        customer_address = CustomerAddresses.objects.filter(customer_id=obj.customer_id).first()
+        if customer_address:
+            return customer_address.email
+        return None
+
+    def get_phone(self, obj):
+        customer_address = CustomerAddresses.objects.filter(customer_id=obj.customer_id).first()
+        if customer_address:
+            return customer_address.phone
+        return None
+
+    def get_customer_addresses(self, obj):
+        addresses = CustomerAddresses.objects.filter(customer_id=obj.customer_id)
+        billing_address = None
+        shipping_address = None
+        
+        for address in addresses:
+            if address.address_type == 'Billing':
+                billing_address = address
+            elif address.address_type == 'Shipping':
+                shipping_address = address
+        
+        # Prepare the addresses in the desired format
+        customer_addresses = []
+        if billing_address and shipping_address:
+            customer_addresses.append({
+                "billing_address": f"{billing_address.address}, {billing_address.city_id.city_name}, {billing_address.state_id.state_name}, {billing_address.country_id.country_name}, {billing_address.pin_code}, Phone: {billing_address.phone}",
+                "shipping_address": f"{shipping_address.address}, {shipping_address.city_id.city_name}, {shipping_address.state_id.state_name}, {shipping_address.country_id.country_name}, {shipping_address.pin_code}, Phone: {shipping_address.phone}"
+            })
+        
+        return customer_addresses

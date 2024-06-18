@@ -33,7 +33,18 @@ class CustomerViews(viewsets.ModelViewSet):
     ordering_fields = ['name', 'created_at', 'updated_at']
 
     def list(self, request, *args, **kwargs):
-        return list_all_objects(self, request, *args, **kwargs)
+        summary = request.query_params.get('summary', 'false').lower() == 'true'
+        if summary:
+            customers = self.filter_queryset(self.get_queryset())
+            serializer = CustomerSummarySerializer(customers, many=True)
+            data = {
+                "count": len(serializer.data),
+                "msg": "SUCCESS",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return list_all_objects(self, request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         return create_instance(self, request, *args, **kwargs)
