@@ -1,7 +1,7 @@
 import copy
 from .serializers import RoleSerializer, ActionsSerializer, ModulesSerializer, ModuleSectionsSerializer, GetUserDataSerializer, SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserPasswordResetSerializer, UserTimeRestrictionsSerializer, UserAllowedWeekdaysSerializer, RolePermissionsSerializer, UserRoleSerializer
 from .models import Roles, Actions, Modules, RolePermissions, ModuleSections, User, UserTimeRestrictions, UserAllowedWeekdays, UserRoles
-from config.utils_methods import list_all_objects, create_instance, update_instance
+from config.utils_methods import list_all_objects, create_instance, update_instance, remove_fields
 from rest_framework.decorators import permission_classes
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,7 +14,6 @@ from rest_framework.views import APIView
 from .renderers import UserRenderer
 from rest_framework import viewsets
 from rest_framework import status
-from django.core import serializers
 import json
 
 
@@ -150,11 +149,13 @@ def get_tokens_for_user(user):
         profile_picture_url = user.profile_picture_url.url 
             
     roles_id = UserRoles.objects.filter(user_id=user.user_id).values_list('role_id', flat=True)
-    role_permissions = RolePermissions.objects.filter(role_id__in=roles_id)
-    role_permissions_json = RolePermissionsSerializer(role_permissions, many=True)
+    role_permissions_id = RolePermissions.objects.filter(role_id__in=roles_id)
+    role_permissions_json = RolePermissionsSerializer(role_permissions_id, many=True)
     Final_data = json.dumps(role_permissions_json.data, default=str).replace("\\", "")
     role_permissions = json.loads(Final_data)
-
+    role_permissions = role_permissions[0]
+    remove_fields(role_permissions)
+    
     return {
         'username': user.username,
         'first_name' : user.first_name,
@@ -165,8 +166,9 @@ def get_tokens_for_user(user):
 
         'refresh_token': str(refresh),
         'access_token': str(refresh.access_token),
-        'USER_ID' : str(user.user_id),
+        'user_id' : str(user.user_id),
         'role_permissions' : role_permissions
+        #'type' : type(role_permissions)
     }
 
 #login View
