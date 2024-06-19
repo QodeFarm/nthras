@@ -167,3 +167,14 @@ class OrderNumberMixin(models.Model):
         if not getattr(self, self.order_no_field):
             setattr(self, self.order_no_field, generate_order_number(self.order_no_prefix))
         super().save(*args, **kwargs)
+#======================================================================================================
+#It removes fields from role_permissions for sending Proper data to frontend team after successfully login
+def remove_fields(obj):
+    if isinstance(obj, dict):
+        obj.pop('created_at', None)
+        obj.pop('updated_at', None)
+        for value in obj.values():
+            remove_fields(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            remove_fields(item)
