@@ -185,12 +185,17 @@ def add_key_value_to_all_ordereddicts(od_list, key, value):
         od[key] = value
 
 def create_multi_instance(data_set,serializer_name):
+    data_list = []
     for item_data in data_set:
         serializer = serializer_name(data=item_data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            data = serializer.data
+            data_list.append(data)
+    return data_list
 
 def update_multi_instance(data_set,pk,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
+    data_list = []
     for data in data_set:
         # main model PK Field name
         main_model_pk_field_name = main_model_name._meta.pk.name
@@ -209,8 +214,11 @@ def update_multi_instance(data_set,pk,main_model_name,current_model_name,seriali
         serializer = serializer_name(instance, data=data, partial=False)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        data = serializer.data
+        data_list.append(data)
+    return data_list
 
-def delete_multi_instance(del_value,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
+def delete_multi_instance(del_value,main_model_name,current_model_name,main_model_field_name=None):
     # main model PK Field name
     main_model_pk_field_name = main_model_name._meta.pk.name
 
@@ -223,6 +231,6 @@ def delete_multi_instance(del_value,main_model_name,current_model_name,serialize
     deleted_count, _ = current_model_name.objects.filter(**filter_kwargs).delete()
 
     if deleted_count > 0:
-        print(f'***Data Deleted Successfully***')
+        return Response(status=status.HTTP_204_NO_CONTENT)
     else:
         return Response({f'***error: {current_model_name} not found or already deleted.***'})            

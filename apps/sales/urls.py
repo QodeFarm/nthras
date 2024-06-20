@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 
-router.register(r'sale_order', SaleOrderView)
+router.register(r'sale_order_get', SaleOrderView)
 router.register(r'sales_price_list', SalesPriceListView)
 router.register(r'sale_order_items', SaleOrderItemsView)
 router.register(r'sale_invoice_order',SaleInvoiceOrdersView)
@@ -19,6 +19,6 @@ router.register(r'order_shipments', OrderShipmentsView)
 
 urlpatterns = [
     path('',include(router.urls)),
-    path('sales-order-operation/', SaleOrderOneView.as_view(), name='sales-order-operation-list-create'),
-    path('sales-order-operation/<str:pk>/', SaleOrderOneView.as_view(), name='sales-order-operation-detail-update-delete'),
+    path('sale_order/', SaleOrderOneView.as_view(), name='sales-order-list-create'),
+    path('sale_order/<str:pk>/', SaleOrderOneView.as_view(), name='sales-order-detail-update-delete'),
 ]
