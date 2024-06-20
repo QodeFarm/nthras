@@ -178,3 +178,51 @@ def remove_fields(obj):
     elif isinstance(obj, list):
         for item in obj:
             remove_fields(item)
+
+##---------- ONE API - MULTIPLE API CALLS (CRUD OPERATIONS) ---------------
+def add_key_value_to_all_ordereddicts(od_list, key, value):
+    for od in od_list:
+        od[key] = value
+
+def create_multi_instance(data_set,serializer_name):
+    for item_data in data_set:
+        serializer = serializer_name(data=item_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+def update_multi_instance(data_set,pk,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
+    for data in data_set:
+        # main model PK Field name
+        main_model_pk_field_name = main_model_name._meta.pk.name
+        # current model PK Field name
+        current_model_field_name = current_model_name._meta.pk.name
+        # Get the value of current model's PK field
+
+        val = data.get(f'{current_model_field_name}')
+        # Arrange arguments to filter
+        if main_model_field_name is not None: # use external value if provided
+            filter_kwargs = {main_model_field_name: pk, current_model_field_name:val}
+        else:
+            filter_kwargs = {main_model_pk_field_name: pk, current_model_field_name:val}
+            
+        instance = current_model_name.objects.filter(**filter_kwargs).first()
+        serializer = serializer_name(instance, data=data, partial=False)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+def delete_multi_instance(del_value,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
+    # main model PK Field name
+    main_model_pk_field_name = main_model_name._meta.pk.name
+
+    # Arrange arguments to filter
+    if main_model_field_name is not None: # use external value if provided
+        filter_kwargs = {main_model_field_name: del_value}
+    else:
+        filter_kwargs = {main_model_pk_field_name: del_value}
+        
+    deleted_count, _ = current_model_name.objects.filter(**filter_kwargs).delete()
+
+    if deleted_count > 0:
+        print(f'***Data Deleted Successfully***')
+    else:
+        return Response({f'***error: {current_model_name} not found or already deleted.***'})            
