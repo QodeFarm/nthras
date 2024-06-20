@@ -159,4 +159,4 @@ class VendorAddress(models.Model):
         db_table = vendoraddresses
 
     def __str__(self):
-        return f'{self.vendor_address_id}_{self.attachment_name}'
+        return f'{self.vendor_address_id}_{self.address}'

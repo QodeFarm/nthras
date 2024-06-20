@@ -15,5 +15,7 @@ router.register(r'purchase_price_list', PurchasePriceListViewSet)
 
 
 urlpatterns = [
-    path('', include(router.urls)),  
+    path('', include(router.urls)),
+    path('purchase-order/', purchaseOrdersCreateView.as_view(), name='purchase-order-list-create'),
+    path('purchase-order/<str:pk>/', purchaseOrdersCreateView.as_view(), name='purchase-order-detail-update-delete'),
 ]
