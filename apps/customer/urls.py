@@ -12,5 +12,6 @@ router.register(r'customers_attachments', CustomerAttachmentsViews)
 
 urlpatterns = [
     path('', include(router.urls)),
-    
+    path('customer-order/', TestCustomerCreateViews.as_view(), name='customer-order-create'),
+    path('customer-order/<str:pk>/', TestCustomerCreateViews.as_view(), name='customer-order-details'),    
 ]
