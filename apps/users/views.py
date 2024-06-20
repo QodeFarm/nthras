@@ -253,3 +253,18 @@ class CustomUserActivationViewSet(DjoserUserViewSet):
                 'data':[e.detail],
             }
             return Response(error_response_data, status=status.HTTP_400_BAD_REQUEST)
+
+#=====================================================================================================
+# views.py
+from django.http import FileResponse, Http404
+from django.conf import settings
+import os
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def serve_protected_media(request, path):
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'))
+    else:
+        raise Http404("File not found")
