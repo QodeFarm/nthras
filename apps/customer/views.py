@@ -1,9 +1,10 @@
+from django.http import Http404
 from django.shortcuts import render
 from rest_framework import viewsets, generics, mixins as mi
 from apps.customer.filters import LedgerAccountsFilters, CustomerFilters, CustomerAddressesFilters, CustomerAttachmentsFilters
 from .models import *
 from .serializers import *
-from config.utils_methods import list_all_objects, create_instance, update_instance
+from config.utils_methods import add_key_value_to_all_ordereddicts, create_multi_instance, delete_multi_instance, list_all_objects,create_instance,update_instance, update_multi_instance,build_response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
@@ -85,153 +86,120 @@ class CustomerAttachmentsViews(viewsets.ModelViewSet):
     
 #==========================================================================
 
-
-def add_key_value_to_all_ordereddicts(od_list, key, value):
-    for od in od_list:
-        od[key] = value
- 
-def create_multi_instance(data_set,serializer_name):
-    for item_data in data_set:
-        serializer = serializer_name(data=item_data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
- 
-def update_multi_instance(data_set,pk,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
-    for data in data_set:
-        # main model PK Field name
-        main_model_pk_field_name = main_model_name._meta.pk.name
-        # current model PK Field name
-        current_model_field_name = current_model_name._meta.pk.name
-        # Get the value of current model's PK field
- 
-        val = data.get(f'{current_model_field_name}')
-        # Arrange arguments to filter
-        if main_model_field_name is not None:
-            filter_kwargs = {main_model_field_name: pk, current_model_field_name:val}
-        else:
-            filter_kwargs = {main_model_pk_field_name: pk, current_model_field_name:val}
- 
-        instance = current_model_name.objects.filter(**filter_kwargs).first()
-        serializer = serializer_name(instance, data=data, partial=False)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
- 
-def delete_multi_instance(del_value,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
-    # main model PK Field name
-    main_model_pk_field_name = main_model_name._meta.pk.name
- 
-    # Arrange arguments to filter
-    if main_model_field_name is not None: # use external value if provided
-        filter_kwargs = {main_model_field_name: del_value}
-    else:
-        filter_kwargs = {main_model_pk_field_name: del_value}
- 
-    deleted_count, _ = current_model_name.objects.filter(**filter_kwargs).delete()
- 
-    if deleted_count > 0:
-        print(f'***Data Deleted Successfully***')
-    else:
-        return Response({f'***error: {current_model_name} not found or already deleted.***'})    
-
-class TestCustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateModelMixin,mi.RetrieveModelMixin,mi.UpdateModelMixin,mi.DestroyModelMixin):
+class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateModelMixin,mi.RetrieveModelMixin,mi.UpdateModelMixin,mi.DestroyModelMixin):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     
     def get(self, request, *args, **kwargs):
-        result = None
         if 'pk' in kwargs:
-            result = self.retrieve(request, *args, **kwargs)
-        else:
-            result = list_all_objects(self, request, *args, **kwargs)
-        return result
-    
-    # Handling POST requests for creating
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+        
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-    
+        return self.create(request, *args, **kwargs)   
+
     def create(self, request, *args, **kwargs):
         given_data = request.data
-        print(given_data)
 
         customer_data = given_data.pop('customer_data')
-        customer_attachments_data = given_data.pop('customer_attachments')
-        customer_addresses_data = given_data.pop('customer_addresses')
+        customer_attachments = given_data.pop('customer_attachments')
+        customer_addresses = given_data.pop('customer_addresses')
         
         serializer = self.get_serializer(data=customer_data)
         if serializer.is_valid(raise_exception=True):
-            self.perform_create(serializer)
-            print('***Customers-Data-successful***')
+            serializer.save()
+            customer_data = serializer.data
     
-            customer_id = serializer.data.get('customer_id', None)
-            print(customer_id)
-            add_key_value_to_all_ordereddicts(customer_attachments_data,'customer_id',customer_id)
-            create_multi_instance(customer_attachments_data,CustomerAttachmentsSerializers)
-            print('***Customer-Attachments-successful***')
+            customer_id = serializer.data.get('customer_id', None) 
+            add_key_value_to_all_ordereddicts(customer_attachments,'customer_id',customer_id)
+            attachments_data = create_multi_instance(customer_attachments,CustomerAttachmentsSerializers)
 
-            add_key_value_to_all_ordereddicts(customer_addresses_data,'customer_id',customer_id)
-            create_multi_instance(customer_addresses_data,CustomerAddressesSerializers)
-            print('***Customer-Addresses-successful***')
+            add_key_value_to_all_ordereddicts(customer_addresses,'customer_id',customer_id) 
+            addresses_data = create_multi_instance(customer_addresses,CustomerAddressesSerializers)
 
-            return Response({customer_id})
-        
+            if customer_data and attachments_data and addresses_data:  
+                custom_data = [
+                    {"customer_data": customer_data},
+                    {"customer_attachments": attachments_data},
+                    {"customer_addresses": addresses_data}
+                ]
+                return build_response(1, "Record created successfully", custom_data, status.HTTP_201_CREATED)
+            else:
+                return build_response(0, "Record creation failed", [], status.HTTP_400_BAD_REQUEST)   
+
     def retrieve(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-
-        # Query CustomerAttachments model using the pk
-        items_related_data = CustomerAttachments.objects.filter(customer_id=pk)
-        items_related_serializer = CustomerAttachmentsSerializers(items_related_data, many=True)
-
-        # get customer_id value from Customers Instance 
-        customer_id = serializer.data.get('customer_id')
-
-        # Query CustomerAddresses model using the order_id
-        attachments_related_data = CustomerAddresses.objects.filter(customer_id=str(customer_id))
-        attachments_related_serializer = CustomerAddressesSerializers(attachments_related_data, many=True)
-
-        # Customizing the response data
-        custom_data = {
-            "customers": serializer.data,
-            "customer_attachments": items_related_serializer.data,
-            "customer_addresses":attachments_related_serializer.data,
-        }
-        return Response(custom_data)
+        try:
+            pk = kwargs.get('pk')  # Access the pk from kwargs
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+ 
+            # Query VendorAttachment model using the pk
+            attachments_related_data = CustomerAttachments.objects.filter(customer_id=pk)  
+            attachments_serializer = CustomerAttachmentsSerializers(attachments_related_data, many=True)
+ 
+            # Query VendorAddress model using the pk
+            addresses_related_data = CustomerAddresses.objects.filter(customer_id=pk)  
+            addresses_serializer = CustomerAddressesSerializers(addresses_related_data, many=True)
+ 
+            # Customizing the response data
+            custom_data = [
+                {"customer_data": serializer.data},
+                {"customer_attachments": attachments_serializer.data},
+                {"customer_addresses":addresses_serializer.data}
+            ]
+            return build_response(1, "Success", custom_data, status.HTTP_200_OK)
+ 
+        except Http404:
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
     
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
-        
+ 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data['customers'], partial=partial)
+        serializer = self.get_serializer(instance, data=request.data['customer_data'], partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        print('***Customers updated ***')
-
+        customer_data = serializer.data
+ 
+        # Update vendor_attachments
         customer_attachments_data = request.data.pop('customer_attachments')
-        pk = request.data['customers'].get('customer_id')
-        update_multi_instance(customer_attachments_data,pk,Customer,CustomerAttachments,CustomerAttachmentsSerializers)
-        print('***CustomerAttachements updated ***')
-
+        pk = request.data['customer_data'].get('customer_id')
+        attachments_data = update_multi_instance(customer_attachments_data,pk,Customer,CustomerAttachments,CustomerAttachmentsSerializers)
+ 
+        # Update vendor_addresses
         customer_addresses_data = request.data.pop('customer_addresses')
-        pk = request.data['customers'].get('customer_id')
-        update_multi_instance(customer_addresses_data,pk,Customer,CustomerAddresses,CustomerAddressesSerializers,main_model_field_name='customer_id')
-        print('***CustomerAddresses updated ***')
-
-        return Response({'***data updated successfully***'})
-    
+        pk = request.data['customer_data'].get('customer_id')
+        addresses_data = update_multi_instance(customer_addresses_data,pk,Customer,CustomerAddresses,CustomerAddressesSerializers)
+ 
+        if customer_data and attachments_data and addresses_data :  
+            custom_data = {
+                "customer_data": customer_data,
+                "customer_attachments": attachments_data,
+                "customer_addresses":addresses_data
+            }
+            return Response({
+                'count': 1,
+                'message': 'Record updated successfully',
+                'data': custom_data
+            },status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'count': 0,
+                'message': 'Record updation failed',
+                'errors': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+           
+           
     def delete(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
-
         try:
             instance = Customer.objects.get(pk=pk)
-            del_value = instance.customer_id  # Fetch value from main model
-            delete_multi_instance(del_value,Customer,CustomerAttachments,CustomerAttachmentsSerializers,main_model_field_name='customer_id')
-            delete_multi_instance(del_value,Customer,CustomerAddresses,CustomerAddressesSerializers,main_model_field_name='customer_id')
             instance.delete()
-
-            return Response({'***Data Deleted Successfully***'}, status=status.HTTP_204_NO_CONTENT)
-
+            # If Main model exists
+            return build_response(1, "Record deleted successfully", [], status.HTTP_204_NO_CONTENT)
+           
         except Customer.DoesNotExist:
-            return Response({'error': 'Instance not found.'}, status=status.HTTP_404_NOT_FOUND)
+            # IF main model is not Found
+            return build_response(0, "Record deletion failed", [], status.HTTP_404_NOT_FOUND) 
