@@ -93,7 +93,7 @@ class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateMode
     def get(self, request, *args, **kwargs):
         if 'pk' in kwargs:
             return self.retrieve(request, *args, **kwargs)
-        return self.list(request, *args, **kwargs)
+        return list_all_objects(self, request, *args, **kwargs)
         
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)   
@@ -133,11 +133,11 @@ class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateMode
             instance = self.get_object()
             serializer = self.get_serializer(instance)
  
-            # Query VendorAttachment model using the pk
+            # Query CustomerAttachment model using the pk
             attachments_related_data = CustomerAttachments.objects.filter(customer_id=pk)  
             attachments_serializer = CustomerAttachmentsSerializers(attachments_related_data, many=True)
  
-            # Query VendorAddress model using the pk
+            # Query CustomerAddress model using the pk
             addresses_related_data = CustomerAddresses.objects.filter(customer_id=pk)  
             addresses_serializer = CustomerAddressesSerializers(addresses_related_data, many=True)
  
@@ -163,12 +163,12 @@ class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateMode
         self.perform_update(serializer)
         customer_data = serializer.data
  
-        # Update vendor_attachments
+        # Update customer_attachments
         customer_attachments_data = request.data.pop('customer_attachments')
         pk = request.data['customer_data'].get('customer_id')
         attachments_data = update_multi_instance(customer_attachments_data,pk,Customer,CustomerAttachments,CustomerAttachmentsSerializers)
  
-        # Update vendor_addresses
+        # Update customer_addresses
         customer_addresses_data = request.data.pop('customer_addresses')
         pk = request.data['customer_data'].get('customer_id')
         addresses_data = update_multi_instance(customer_addresses_data,pk,Customer,CustomerAddresses,CustomerAddressesSerializers)
