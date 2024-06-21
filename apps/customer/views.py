@@ -36,15 +36,13 @@ class CustomerViews(viewsets.ModelViewSet):
         summary = request.query_params.get('summary', 'false').lower() == 'true'
         if summary:
             customers = self.filter_queryset(self.get_queryset())
-            serializer = CustomerSummarySerializer(customers, many=True)
-            data = {
-                "count": len(serializer.data),
-                "msg": "SUCCESS",
-                "data": serializer.data
-            }
-            return Response(data, status=status.HTTP_200_OK)
+            data = CustomerOptionSerializer.get_customer_summary(customers)
+            
+            Result = Response(data, status=status.HTTP_200_OK)
         else:
-            return list_all_objects(self, request, *args, **kwargs)
+            Result = list_all_objects(self, request, *args, **kwargs)
+        
+        return Result
 
     def create(self, request, *args, **kwargs):
         return create_instance(self, request, *args, **kwargs)
