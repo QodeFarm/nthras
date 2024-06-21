@@ -195,7 +195,6 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
             add_key_value_to_all_ordereddicts(sale_order_items_data,'sale_order_id',sale_order_id) #in sale_order_id replace sale_order_id from new instance
             items_data = create_multi_instance(sale_order_items_data,SaleOrderItemsSerializer)
 
-
             # Fetching the 'order_type_id' by 'order_type'
             order_type_val = order_attachments_data[0].get('order_type')
             order_type = OrderTypes.objects.get(name=order_type_val)
@@ -236,7 +235,6 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
             # Query SaleOrderItems model using the pk
             items_related_data = SaleOrderItems.objects.filter(sale_order_id=pk)  # 'sale_order_id' is the FK field
             items_related_serializer = SaleOrderItemsSerializer(items_related_data, many=True)
-
 
             # Query OrderAttachments model using the order_id
             attachments_related_data = OrderAttachments.objects.filter(order_id=str(pk))
@@ -283,7 +281,6 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
         order_shipments_data = request.data.pop('order_shipments')
         pk = request.data['sale_order'].get('sale_order_id')  # Fetch value from main model
         shipments_data = update_multi_instance(order_shipments_data,pk,SaleOrder,OrderShipments,OrderShipmentsSerializer,main_model_field_name='order_id')
-
 
         if saleorder_data and items_data and attachments_data and shipments_data:  
             custom_data = {

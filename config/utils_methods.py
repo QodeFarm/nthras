@@ -85,6 +85,13 @@ def filter_uuid(queryset, name, value):
     return queryset.filter(Q(**{name: value}))
 #======================================================================
 
+def build_response(count, msg, data, status):
+    return Response({
+        'count':count,
+        'message': msg,
+        'data': data,
+    },status=status) 
+
 def list_all_objects(self, request, *args, **kwargs):
     queryset = self.filter_queryset(self.get_queryset())
     serializer = self.get_serializer(queryset, many=True)
@@ -101,17 +108,10 @@ def create_instance(self, request, *args, **kwargs):
     
     if serializer.is_valid():
         serializer.save()
-        return Response({
-            'status': True,
-            'message': 'Record created successfully',
-            'data': serializer.data
-        })
+        data = serializer.data
+        return build_response(1, "Record created successfully", data, status.HTTP_201_CREATED)
     else:
-        return Response({
-            'status': False,
-            'message': 'Form validation failed',
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return build_response(0, "Form validation failed", [], status.HTTP_400_BAD_REQUEST)
 
 def update_instance(self, request, *args, **kwargs):
     partial = kwargs.pop('partial', False)
@@ -119,11 +119,8 @@ def update_instance(self, request, *args, **kwargs):
     serializer = self.get_serializer(instance, data=request.data, partial=partial)
     serializer.is_valid(raise_exception=True)
     self.perform_update(serializer)
-    return Response({
-        'status': True,
-        'message': 'Update successful',
-        'data': serializer.data,
-    })
+    data = serializer.data
+    return build_response(1, "Record updated successfully", data, status.HTTP_200_OK)
 
 def perform_update(self, serializer):
     serializer.save()  # Add any custom logic for updating if needed
@@ -233,16 +230,4 @@ def delete_multi_instance(del_value,main_model_name,current_model_name,main_mode
     else:
         filter_kwargs = {main_model_pk_field_name: del_value}
         
-    deleted_count, _ = current_model_name.objects.filter(**filter_kwargs).delete()
-
-    if deleted_count > 0:
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-def build_response(count, msg, data, status):
-    return Response({
-        'count':count,
-        'message': msg,
-        'data': data,
-        },status=status)           
+    current_model_name.objects.filter(**filter_kwargs).delete()          
