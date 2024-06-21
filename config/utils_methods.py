@@ -180,10 +180,12 @@ def remove_fields(obj):
             remove_fields(item)
 
 ##---------- ONE API - MULTIPLE API CALLS (CRUD OPERATIONS) ---------------
-def add_key_value_to_all_ordereddicts(od_list, key, value):
-    for od in od_list:
-        od[key] = value
+# This function helps to add newly created primarykey from main table to all other models's data
+def add_key_value_to_all_ordereddicts(list_of_ordered_dict, key, value):
+    for ordered_dict in list_of_ordered_dict:
+        ordered_dict[key] = value
 
+# If the data in post method (request) have mutiple instances to be created, so this function helps to create them.
 def create_multi_instance(data_set,serializer_name):
     data_list = []
     for item_data in data_set:
@@ -194,6 +196,7 @@ def create_multi_instance(data_set,serializer_name):
             data_list.append(data)
     return data_list
 
+# If multiple instances to be updated on same model, at a single time this function helps to update all instances.
 def update_multi_instance(data_set,pk,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
     data_list = []
     for data in data_set:
@@ -218,6 +221,8 @@ def update_multi_instance(data_set,pk,main_model_name,current_model_name,seriali
         data_list.append(data)
     return data_list
 
+# If delete is requested on main model's instance, so that all the related data in remaing models should be deleted
+# So this function helps to delete all the data i remaing models
 def delete_multi_instance(del_value,main_model_name,current_model_name,main_model_field_name=None):
     # main model PK Field name
     main_model_pk_field_name = main_model_name._meta.pk.name

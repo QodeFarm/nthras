@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
+from django.http import  Http404
 from rest_framework import viewsets, generics, mixins as mi
 from rest_framework.response import Response
 from rest_framework import status
@@ -188,16 +189,16 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
         if serializer.is_valid(raise_exception=True):
             # self.perform_create(serializer)
             serializer.save()
-            data_1 = serializer.data
+            saleorder_data = serializer.data
     
             # create data in 'saleorder_items' model
             sale_order_id = serializer.data.get('sale_order_id', None) # from Saleorder instance id is fetched
             add_key_value_to_all_ordereddicts(sale_order_items_data,'sale_order_id',sale_order_id) #in sale_order_id replace sale_order_id from new instance
-            data_2 = create_multi_instance(sale_order_items_data,SaleOrderItemsSerializer)
+            items_data = create_multi_instance(sale_order_items_data,SaleOrderItemsSerializer)
 
             # create data in 'order_attachments' model
             add_key_value_to_all_ordereddicts(order_attachments_data,'order_id',sale_order_id) #in order_id replace sale_order_id from new instance
-            data_3 = create_multi_instance(order_attachments_data,OrderAttachmentsSerializer)
+            attachments_data = create_multi_instance(order_attachments_data,OrderAttachmentsSerializer)
 
             # create data in 'order_shipments' model
             provided_val = order_shipments_data.get('order_type_id')
@@ -213,14 +214,14 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
             serializer = OrderShipmentsSerializer(data=order_shipments_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                data_4 = serializer.data   
+                shipments_data = serializer.data   
 
-            if data_1 and data_2 and data_3 and data_4:  
+            if saleorder_data and items_data and attachments_data and shipments_data:  
                 custom_data = {
-                    "sale_order": data_1,
-                    "sale_order_items": data_2,
-                    "order_attachments":data_3,
-                    "order_shipments": data_4
+                    "sale_order": saleorder_data,
+                    "sale_order_items": items_data,
+                    "order_attachments":attachments_data,
+                    "order_shipments": shipments_data
                 }
                 return Response({
                     'status': True,
@@ -235,33 +236,38 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
                 }, status=status.HTTP_400_BAD_REQUEST)       
 
     def retrieve(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')  # Access the pk from kwargs
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        try:
+            pk = kwargs.get('pk')  # Access the pk from kwargs
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
 
-        # Query SaleOrderItems model using the pk
-        items_related_data = SaleOrderItems.objects.filter(sale_order_id=pk)  # 'sale_order_id' is the FK field
-        items_related_serializer = SaleOrderItemsSerializer(items_related_data, many=True)
+            # Query SaleOrderItems model using the pk
+            items_related_data = SaleOrderItems.objects.filter(sale_order_id=pk)  # 'sale_order_id' is the FK field
+            items_related_serializer = SaleOrderItemsSerializer(items_related_data, many=True)
 
-        # get sale_order_id value from SaleOrder Instance 
-        order_id = serializer.data.get('sale_order_id')
 
-        # Query OrderAttachments model using the order_id
-        attachments_related_data = OrderAttachments.objects.filter(order_id=str(pk))
-        attachments_related_serializer = OrderAttachmentsSerializer(attachments_related_data, many=True)
+            # Query OrderAttachments model using the order_id
+            attachments_related_data = OrderAttachments.objects.filter(order_id=str(pk))
+            attachments_related_serializer = OrderAttachmentsSerializer(attachments_related_data, many=True)
 
-        # Query OrderShipments model using the order_id
-        shipments_related_data = OrderShipments.objects.filter(order_id=str(order_id))
-        shipments_related_serializer = OrderShipmentsSerializer(shipments_related_data, many=True)
+            # Query OrderShipments model using the order_id
+            shipments_related_data = OrderShipments.objects.filter(order_id=str(pk))
+            shipments_related_serializer = OrderShipmentsSerializer(shipments_related_data, many=True)
 
-        # Customizing the response data
-        custom_data = {
-            "sale_order": serializer.data,
-            "sale_order_items": items_related_serializer.data,
-            "order_attachments":attachments_related_serializer.data,
-            "order_shipments": shipments_related_serializer.data,
-        }
-        return Response(custom_data)
+            # Customizing the response data
+            custom_data = {"count": 1,
+                        "msg":None,
+                        "data":[
+                {"sale_order": serializer.data},
+                {"sale_order_items": items_related_serializer.data},
+                {"order_attachments":attachments_related_serializer.data},
+                {"order_shipments": shipments_related_serializer.data},
+                        ]}
+
+            return Response(custom_data)
+        except Http404:
+            return Response({'msg':'Record Does Not Exist'},status=status.HTTP_404_NOT_FOUND)
+
         
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -272,30 +278,30 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
         serializer = self.get_serializer(instance, data=request.data['sale_order'], partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        data_1 = serializer.data
+        saleorder_data = serializer.data
 
         # Update sale_order_items 
         sale_order_items_data = request.data.pop('sale_order_items')
         pk = request.data['sale_order'].get('sale_order_id')
-        data_2 = update_multi_instance(sale_order_items_data,pk,SaleOrder,SaleOrderItems,SaleOrderItemsSerializer)
+        items_data = update_multi_instance(sale_order_items_data,pk,SaleOrder,SaleOrderItems,SaleOrderItemsSerializer)
 
         # Update sale_order_attachments
         order_attachments_data = request.data.pop('order_attachments')
         pk = request.data['sale_order'].get('sale_order_id')
-        data_3 = update_multi_instance(order_attachments_data,pk,SaleOrder,OrderAttachments,OrderAttachmentsSerializer,main_model_field_name='order_id')
+        attachments_data = update_multi_instance(order_attachments_data,pk,SaleOrder,OrderAttachments,OrderAttachmentsSerializer,main_model_field_name='order_id')
 
         # Update order_shipments
         order_shipments_data = request.data.pop('order_shipments')
         pk = request.data['sale_order'].get('sale_order_id')  # Fetch value from main model
-        data_4 = update_multi_instance(order_shipments_data,pk,SaleOrder,OrderShipments,OrderShipmentsSerializer,main_model_field_name='order_id')
+        shipments_data = update_multi_instance(order_shipments_data,pk,SaleOrder,OrderShipments,OrderShipmentsSerializer,main_model_field_name='order_id')
 
 
-        if data_1 and data_2 and data_3 and data_4:  
+        if saleorder_data and items_data and attachments_data and shipments_data:  
             custom_data = {
-                "sale_order": data_1,
-                "sale_order_items": data_2,
-                "order_attachments":data_3,
-                "order_shipments": data_4
+                "sale_order": saleorder_data,
+                "sale_order_items": items_data,
+                "order_attachments":attachments_data,
+                "order_shipments": shipments_data
             }
             return Response({
                 'status': True,
