@@ -4,7 +4,7 @@ from rest_framework import viewsets, generics, mixins as mi
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
-from config.utils_methods import add_key_value_to_all_ordereddicts, create_multi_instance, delete_multi_instance, list_all_objects,create_instance,update_instance, update_multi_instance
+from config.utils_methods import add_key_value_to_all_ordereddicts, create_multi_instance, delete_multi_instance, list_all_objects,create_instance,update_instance, update_multi_instance,build_response
 from apps.masters.models import OrderTypes
 # from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework.filters import OrderingFilter
@@ -170,8 +170,7 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
     def get(self, request, *args, **kwargs):
             if 'pk' in kwargs:
                 return self.retrieve(request, *args, **kwargs)  # Retrieve a single instance
-            return list_all_objects(self, request, *args, **kwargs)
-    
+            return list_all_objects(self, request, *args, **kwargs) 
     # Handling POST requests for creating
     def post(self, request, *args, **kwargs):   #To avoid the error this method should be written [error : "detail": "Method \"POST\" not allowed."]
         return self.create(request, *args, **kwargs)
@@ -196,20 +195,21 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
             add_key_value_to_all_ordereddicts(sale_order_items_data,'sale_order_id',sale_order_id) #in sale_order_id replace sale_order_id from new instance
             items_data = create_multi_instance(sale_order_items_data,SaleOrderItemsSerializer)
 
-            # create data in 'order_attachments' model
-            add_key_value_to_all_ordereddicts(order_attachments_data,'order_id',sale_order_id) #in order_id replace sale_order_id from new instance
+
+            # Fetching the 'order_type_id' by 'order_type'
+            order_type_val = order_attachments_data[0].get('order_type')
+            order_type = OrderTypes.objects.get(name=order_type_val)
+            order_type_id = order_type.order_type_id
+
+            # Updated user choice with associated ID in 'name_id_dictionary'
+            add_key_value_to_all_ordereddicts(order_attachments_data,'order_type_id',order_type_id)
+            #in order_id replace sale_order_id from new instance
+            add_key_value_to_all_ordereddicts(order_attachments_data,'order_id',sale_order_id) 
             attachments_data = create_multi_instance(order_attachments_data,OrderAttachmentsSerializer)
 
             # create data in 'order_shipments' model
-            provided_val = order_shipments_data.get('order_type_id')
-            get_id = OrderTypes.objects.all()
-            name_id_dictionary = {}
-            for obj in get_id:
-                name = obj.name
-                id = obj.order_type_id
-                name_id_dictionary[name] = id
             order_shipments_data['order_id'] = sale_order_id
-            order_shipments_data['order_type_id'] = name_id_dictionary.get(provided_val)
+            order_shipments_data['order_type_id'] = order_type_id
 
             serializer = OrderShipmentsSerializer(data=order_shipments_data)
             if serializer.is_valid(raise_exception=True):
@@ -217,23 +217,15 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
                 shipments_data = serializer.data   
 
             if saleorder_data and items_data and attachments_data and shipments_data:  
-                custom_data = {
-                    "sale_order": saleorder_data,
-                    "sale_order_items": items_data,
-                    "order_attachments":attachments_data,
-                    "order_shipments": shipments_data
-                }
-                return Response({
-                    'status': True,
-                    'message': 'Record created successfully',
-                    'data': custom_data
-                },status=status.HTTP_201_CREATED)
+                custom_data = [
+                    {"sale_order": saleorder_data},
+                    {"sale_order_items": items_data},
+                    {"order_attachments":attachments_data},
+                    {"order_shipments": shipments_data}
+                ]
+                return build_response(1, "Record created successfully", custom_data, status.HTTP_201_CREATED)
             else:
-                return Response({
-                    'status': False,
-                    'message': 'Form validation failed',
-                    'errors': serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)       
+                return build_response(0, "Record creation failed", [], status.HTTP_400_BAD_REQUEST)   
 
     def retrieve(self, request, *args, **kwargs):
         try:
@@ -255,19 +247,16 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
             shipments_related_serializer = OrderShipmentsSerializer(shipments_related_data, many=True)
 
             # Customizing the response data
-            custom_data = {"count": 1,
-                        "msg":None,
-                        "data":[
+            custom_data = [
                 {"sale_order": serializer.data},
                 {"sale_order_items": items_related_serializer.data},
                 {"order_attachments":attachments_related_serializer.data},
-                {"order_shipments": shipments_related_serializer.data},
-                        ]}
+                {"order_shipments": shipments_related_serializer.data}
+            ]
+            return build_response(1, "Success", custom_data, status.HTTP_200_OK)
 
-            return Response(custom_data)
         except Http404:
-            return Response({'msg':'Record Does Not Exist'},status=status.HTTP_404_NOT_FOUND)
-
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
         
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -304,14 +293,14 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
                 "order_shipments": shipments_data
             }
             return Response({
-                'status': True,
-                'message': 'Update successful',
+                'count': 1,
+                'message': 'Record updated successfully',
                 'data': custom_data
             },status=status.HTTP_200_OK)
         else:
             return Response({
-                'status': False,
-                'message': 'Form validation failed',
+                'count': 0,
+                'message': 'Record updation failed',
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
     
@@ -324,7 +313,9 @@ class SaleOrderOneView(generics.GenericAPIView,mi.ListModelMixin,mi.CreateModelM
             delete_multi_instance(pk,SaleOrder,OrderShipments,main_model_field_name='order_id')
             instance.delete()
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
+            # If Main model exists
+            return build_response(1, "Record deleted successfully", [], status.HTTP_204_NO_CONTENT)
+            
         except SaleOrder.DoesNotExist:
-            return Response({'error': 'Instance not found.'}, status=status.HTTP_404_NOT_FOUND)
+            # IF main model is not Found
+            return build_response(0, "Record deletion failed", [], status.HTTP_404_NOT_FOUND)

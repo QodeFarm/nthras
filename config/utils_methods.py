@@ -238,4 +238,11 @@ def delete_multi_instance(del_value,main_model_name,current_model_name,main_mode
     if deleted_count > 0:
         return Response(status=status.HTTP_204_NO_CONTENT)
     else:
-        return Response({f'***error: {current_model_name} not found or already deleted.***'})            
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+def build_response(count, msg, data, status):
+    return Response({
+        'count':count,
+        'message': msg,
+        'data': data,
+        },status=status)           
