@@ -93,11 +93,10 @@ class VendorOneView(generics.GenericAPIView,mi.ListModelMixin, mi.CreateModelMix
     def get(self, request, *args, **kwargs):
             if 'pk' in kwargs:
                 return self.retrieve(request, *args, **kwargs)  # Retrieve a single instance
-            return self.list(request, *args, **kwargs)  # List all instances   
-  
+            return list_all_objects(self, request, *args, **kwargs) 
     # Handling POST requests for creating
-    def post(self, request, *args, **kwargs):   #To avoid the error this method should be written "detail": "Method \"POST\" not allowed."
-        return self.create(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):   #To avoid the error this method should be written [error : "detail": "Method \"POST\" not allowed."]
+        return self.create(request, *args, **kwargs) 
 		
     def create(self, request, *args, **kwargs):
         given_data = request.data
@@ -112,7 +111,7 @@ class VendorOneView(generics.GenericAPIView,mi.ListModelMixin, mi.CreateModelMix
             # self.perform_create(serializer)
             serializer.save()
             vendors_data = serializer.data
-		
+
             # create data in 'vendor_attachments' model
             vendor_id = serializer.data.get('vendor_id', None)  
             add_key_value_to_all_ordereddicts(vendor_attachments_data,'vendor_id',vendor_id)
@@ -156,8 +155,7 @@ class VendorOneView(generics.GenericAPIView,mi.ListModelMixin, mi.CreateModelMix
 
         except Http404:
             return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
-
-    
+ 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
     
@@ -196,7 +194,6 @@ class VendorOneView(generics.GenericAPIView,mi.ListModelMixin, mi.CreateModelMix
                 'message': 'Record updation failed',
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
-			
 			
     def delete(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
