@@ -9,6 +9,8 @@ import base64
 import os
 import json
 from django.utils import timezone
+from django.db import models
+from django.core.cache import cache
 
 # -------------- File Path Handler (for Vendor model only)----------------------
 def custom_upload_to(instance, filename):
@@ -128,44 +130,51 @@ def perform_update(self, serializer):
 
 #==================================================
 #Patterns
-SEQUENCE_FILE_PATH = 'order_sequences.json'
-
-def load_sequences():
-    if not os.path.exists(SEQUENCE_FILE_PATH):
-        return {}
-    with open(SEQUENCE_FILE_PATH, 'r') as file:
-        return json.load(file)
-
-def save_sequences(sequences):
-    with open(SEQUENCE_FILE_PATH, 'w') as file:
-        json.dump(sequences, file)
 
 def generate_order_number(order_type_prefix):
+    """
+    Generate an order number based on the given prefix and the current date.
+
+    Args:
+        order_type_prefix (str): The prefix for the order type.
+
+    Returns:
+        str: The generated order number.
+    """
     current_date = timezone.now()
     date_str = current_date.strftime('%y%m')
-    
-    sequences = load_sequences()
-    
+
     key = f"{order_type_prefix}-{date_str}"
-    
-    sequence_number = sequences.get(key, 0)
+    sequence_number = cache.get(key, 0)
     sequence_number += 1
-    sequences[key] = sequence_number
-    save_sequences(sequences)
-    
+    cache.set(key, sequence_number, timeout=None)
+
     sequence_number_str = f"{sequence_number:05d}"
-    
     order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
     return order_number
 
 class OrderNumberMixin(models.Model):
     order_no_prefix = ''
-    order_no_field = 'order_no'
+    order_no_field = ''
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
+        """
+        Override the save method to generate and set the order number if it is not already set.
+        """
         if not getattr(self, self.order_no_field):
             setattr(self, self.order_no_field, generate_order_number(self.order_no_prefix))
         super().save(*args, **kwargs)
+#======================================================================================================
+#It removes fields from role_permissions for sending Proper data to frontend team after successfully login
+def remove_fields(obj):
+    if isinstance(obj, dict):
+        obj.pop('created_at', None)
+        obj.pop('updated_at', None)
+        for value in obj.values():
+            remove_fields(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            remove_fields(item)

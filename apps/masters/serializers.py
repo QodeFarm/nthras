@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
 
-
 #Create serializers
 class ModCountrySerializer(serializers.ModelSerializer):
     class Meta:
@@ -275,4 +274,14 @@ class ModOrderTypesSerializer(serializers.ModelSerializer):
 class OrderTypesSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderTypes
+        fields = '__all__'
+
+class ModTaskPrioritiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskPriorities
+        fields = ['priority_id','priority_name']
+
+class TaskPrioritiesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskPriorities
         fields = '__all__'
