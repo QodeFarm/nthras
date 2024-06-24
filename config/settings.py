@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'djoser',
     # 'django_safe_settings',
     'drf_yasg',
+    'django_filters',
     
     #modules
     'apps.vendor',
@@ -72,7 +73,8 @@ INSTALLED_APPS = [
     'apps.purchase',
     'apps.users',
     'apps.per_val',
-    'apps.alignbook'
+    'apps.alignbook',
+    'apps.tasks',
 ]
 
 MIDDLEWARE = [
@@ -276,14 +278,19 @@ DJOSER = {
     # },
 }
 
-BASE_URL = 'http://127.0.0.1:8000'
-MASTERS_BASE_URL = f'{BASE_URL}/api/v1/masters'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     'http://localhost:4200',
     'http://localhost:8080',
+    'http://127.0.0.1:5500',
 ]
 
 # from django_safe_settings.patch import patch_all  # type: ignore

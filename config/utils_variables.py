@@ -60,6 +60,12 @@ purchasereturnorders = 'purchase_return_orders'
 purchasereturnitems = 'purchase_return_items'
 purchasepricelisttable = 'purchase_price_list'
 
+#tasks db_tables
+taskstable = 'tasks'
+taskcommentstable ='task_comments'
+taskattachmentstable ='task_attachments'
+taskhistorytable='task_history'
+
 #Master db_tables
 countrytable = 'country'
 statetable = 'state'
@@ -88,6 +94,7 @@ saletypes = 'sale_types'
 paymentlinktable = 'payment_link_types'
 orderstatusestable = 'order_statuses'
 ordertypestable = 'order_types'
+taskprioritiestable ='task_priorities'
 
 #Authentication db_tables
 userstable = 'users'

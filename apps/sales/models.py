@@ -43,6 +43,8 @@ class SaleOrder(OrderNumberMixin): #required fields are updated
     vehicle_name = models.CharField(max_length=255, null=True, default=None)
     total_boxes = models.IntegerField(null=True, default=None)
     order_status_id  = models.ForeignKey('masters.OrderStatuses', on_delete=models.CASCADE, null=True, default=None, db_column='order_status_id')
+    shipping_address = models.CharField(max_length=1024, null=True, default=None)
+    billing_address = models.CharField(max_length=1024, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -59,7 +61,7 @@ class SalesPriceList(models.Model): #required fields are updated
     brand_id = models.ForeignKey(ProductBrands, on_delete=models.CASCADE, null=True, default=None, db_column='brand_id')
     effective_From = models.DateField()
     # effective_date = models.DateField(null=True, default=None)
-    # group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column='group_id')
+    # product_group_id = models.ForeignKey(ProductGroups, on_delete=models.CASCADE, null=True, default=None, db_column='product_group_id')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -126,6 +128,8 @@ class SaleInvoiceOrders(OrderNumberMixin):
     vehicle_name = models.CharField(max_length=255, null=True, default=None)
     total_boxes = models.IntegerField(null=True, default=None)
     order_status_id = models.ForeignKey('masters.OrderStatuses', on_delete=models.CASCADE, db_column='order_status_id', null=True, default=None)
+    shipping_address = models.CharField(max_length=1024, null=True, default=None)
+    billing_address = models.CharField(max_length=1024, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -219,6 +223,8 @@ class SaleReturnOrders(OrderNumberMixin):
     vehicle_name = models.CharField(max_length=255, null=True, default=None)
     total_boxes = models.IntegerField(null=True, default=None)
     order_status_id = models.ForeignKey('masters.OrderStatuses', on_delete=models.CASCADE, db_column='order_status_id', null=True, default=None)
+    shipping_address = models.CharField(max_length=1024, null=True, default=None)
+    billing_address = models.CharField(max_length=1024, null=True, default=None)   
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

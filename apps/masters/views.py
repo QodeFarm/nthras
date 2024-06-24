@@ -1,21 +1,58 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-from .models import *
-from .serializers import *
-from config.utils_methods import *
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend # type: ignore
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import OrderingFilter
-from .filters import *
-from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .models import generate_order_number
+from rest_framework.views import APIView
+from django.shortcuts import render
+from rest_framework import viewsets
+from config.utils_methods import *
 from rest_framework import status
-import os
+from django.conf import settings
+from .serializers import *
+from .filters import *
+from .models import *
 import json
+import os
 
+class FileUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    def post(self, request, *args, **kwargs):
+        flag = request.data.get('flag')
+        files = request.FILES.getlist('files')
+        if flag == "remove_file":
+            file_names = request.data.getlist('file_names')
+            if len(file_names) != 0:
+                for file_name in file_names:
+                    file_path = os.path.join(settings.MEDIA_ROOT, file_name)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    else:
+                        return Response({'count':0, 'msg':'Files Not Exist', 'data':[]}, status=status.HTTP_200_OK)
+                return Response({'count':len(file_names), 'msg':'Files Removed', 'data':[file_names]}, status=status.HTTP_200_OK) 
+            else:
+                return Response({'count':len(files), 'msg':'No Files Selected', 'data':[]}, status=status.HTTP_400_BAD_REQUEST)  
+        else:
+            if len(files) != 0:
+                uploaded_files = []
+                for file in files:
+                    file_uuid = uuid.uuid4().hex[:6]
+                    file_name, file_extension = os.path.splitext(file.name.replace(' ', '_'))
+                    unique_file_name = f"{file_name}_{file_uuid}{file_extension}"
+                    file_path = os.path.join(settings.MEDIA_ROOT, unique_file_name)
+                    with open(file_path, 'wb+') as destination:
+                        for chunk in file.chunks():
+                            destination.write(chunk)
+                    uploaded_files.append({
+                        'attachment_name': file.name,
+                        'file_size': file.size,
+                        'attachment_path': file_path.replace('\\', '/').replace(' ', '_')
+                    })
+                return Response({'count': len(files), 'msg': 'Files Uploaded Successfully', 'data': uploaded_files}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'count':len(files), 'msg':'No Files uploaded', 'data':[]}, status=status.HTTP_400_BAD_REQUEST) 
 
-
-# Create your views here.
 class CountryViewSet(viewsets.ModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
@@ -441,45 +478,30 @@ class OrderTypesView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
 
-
-SEQUENCE_FILE_PATH = 'order_sequences.json'
-
-
-def load_sequences():
-    if not os.path.exists(SEQUENCE_FILE_PATH):
-        return {}
-    with open(SEQUENCE_FILE_PATH, 'r') as file:
-        return json.load(file)
-
-def save_sequences(sequences):
-    with open(SEQUENCE_FILE_PATH, 'w') as file:
-        json.dump(sequences, file)
-
-def generate_order_number(order_type_prefix):
-    current_date = timezone.now()
-    date_str = current_date.strftime('%y%m')
-
-    sequences = load_sequences()
-
-    key = f"{order_type_prefix}-{date_str}"
-    sequence_number = sequences.get(key, 0)
-    sequence_number += 1
-    sequences[key] = sequence_number
-    save_sequences(sequences)
-
-    sequence_number_str = f"{sequence_number:05d}"
-    order_number = f"{order_type_prefix}-{date_str}-{sequence_number_str}"
-    return order_number
-
 @api_view(['GET'])
-def generate_order_number_view(request, order_type_prefix):
-    try:
-        valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP', 'PO', 'PO-INV', 'PR']
-        if order_type_prefix not in valid_prefixes:
-            return Response({"error": "Invalid prefix"}, status=status.HTTP_400_BAD_REQUEST)
+def generate_order_number_view(request):
+    """
+    API endpoint to generate an order number based on the given type.
 
+    Args:
+        request (HttpRequest): The request object containing the query parameter 'type'.
+
+    Returns:
+        Response: A JSON response containing the generated order number or an error message.
+    """
+    order_type_prefix = request.GET.get('type')
+    
+    if not order_type_prefix:
+        return Response({"error": "Please pass the type param"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    order_type_prefix = order_type_prefix.upper()
+    valid_prefixes = ['SO', 'SO-INV', 'SR', 'SHIP', 'PO', 'PO-INV', 'PR']
+    
+    if order_type_prefix not in valid_prefixes:
+        return Response({"error": "Invalid prefix"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
         order_number = generate_order_number(order_type_prefix)
-        
         response_data = {
             'count': 1,
             'msg': None,
@@ -488,3 +510,16 @@ def generate_order_number_view(request, order_type_prefix):
         return Response(response_data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+class TaskPrioritiesViewSet(viewsets.ModelViewSet):
+    queryset = TaskPriorities.objects.all()
+    serializer_class = TaskPrioritiesSerializer
+
+    def list(self, request, *args, **kwargs):
+        return list_all_objects(self, request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return create_instance(self, request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return update_instance(self, request, *args, **kwargs)

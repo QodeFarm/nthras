@@ -520,7 +520,7 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
 /* Product Groups Table */
 -- Stores information about different groups of products.
 CREATE TABLE IF NOT EXISTS product_groups (
-    group_id CHAR(36) PRIMARY KEY,
+    product_group_id CHAR(36) PRIMARY KEY,
     group_name VARCHAR(255) NOT NULL ,
     description VARCHAR(512),
     picture VARCHAR(255),
@@ -721,7 +721,7 @@ CREATE TABLE IF NOT EXISTS products (
     status ENUM('Active', 'Inactive'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_group_id) REFERENCES product_groups(group_id),
+    FOREIGN KEY (product_group_id) REFERENCES product_groups(product_group_id),
     FOREIGN KEY (category_id) REFERENCES product_categories(category_id),
     FOREIGN KEY (type_id) REFERENCES product_types(type_id),
     FOREIGN KEY (unit_options_id) REFERENCES unit_options(unit_options_id),
@@ -993,6 +993,8 @@ CREATE TABLE IF NOT EXISTS sale_orders(
     vehicle_name VARCHAR(255),
     total_boxes INT,
 	order_status_id CHAR(36),
+	shipping_address VARCHAR(1024),
+	billing_address VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -1058,6 +1060,8 @@ CREATE TABLE IF NOT EXISTS sale_invoice_orders(
     vehicle_name VARCHAR(255),
     total_boxes INT,
 	order_status_id CHAR(36),
+	shipping_address VARCHAR(1024),
+	billing_address VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -1125,6 +1129,8 @@ CREATE TABLE IF NOT EXISTS sale_return_orders(
     vehicle_name VARCHAR(255),
     total_boxes INT,
 	order_status_id CHAR(36),
+	shipping_address VARCHAR(1024),
+	billing_address VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -1261,6 +1267,8 @@ CREATE TABLE IF NOT EXISTS purchase_orders (
     round_off DECIMAL(18, 2),
     total_amount DECIMAL(18, 2),
 	order_status_id CHAR(36),
+	shipping_address VARCHAR(1024),
+	billing_address VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -1326,6 +1334,8 @@ CREATE TABLE IF NOT EXISTS purchase_invoice_orders (
     round_off DECIMAL(18, 2),
     total_amount DECIMAL(18, 2),
 	order_status_id CHAR(36),
+	shipping_address VARCHAR(1024),
+	billing_address VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -1389,6 +1399,8 @@ CREATE TABLE IF NOT EXISTS purchase_return_orders (
     round_off DECIMAL(18, 2),
     total_amount DECIMAL(18, 2),
 	order_status_id CHAR(36),
+	shipping_address VARCHAR(1024),
+	billing_address VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (gst_type_id) REFERENCES gst_types(gst_type_id),
@@ -1422,7 +1434,7 @@ CREATE TABLE IF NOT EXISTS purchase_return_items (
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
-	 /* Sales Price List Table */
+/* Sales Price List Table */
 -- Stores information about sales price lists.
 CREATE TABLE IF NOT EXISTS sales_price_list (
     sales_price_list_id CHAR(36) PRIMARY KEY,
@@ -1436,7 +1448,7 @@ CREATE TABLE IF NOT EXISTS sales_price_list (
     FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
 );
 
- /* Purchase Price List Table */
+/* Purchase Price List Table */
 -- Stores information about purchase price lists.
 CREATE TABLE IF NOT EXISTS purchase_price_list (
     purchase_price_list_id CHAR(36) PRIMARY KEY,
@@ -1448,4 +1460,71 @@ CREATE TABLE IF NOT EXISTS purchase_price_list (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_category_id) REFERENCES customer_categories(customer_category_id),
     FOREIGN KEY (brand_id) REFERENCES product_brands(brand_id)
+);
+
+/* Task Priorities Table */
+-- Stores possible priorities for tasks.
+CREATE TABLE IF NOT EXISTS task_priorities (
+    priority_id CHAR(36) PRIMARY KEY,
+    priority_name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Tasks Table */
+-- Stores tasks assigned to users with their status, priority, and other details.
+CREATE TABLE IF NOT EXISTS tasks (
+    task_id CHAR(36) PRIMARY KEY,
+    user_id CHAR(36) NOT NULL,
+    status_id CHAR(36) NOT NULL,
+    priority_id CHAR(36) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (status_id) REFERENCES statuses(status_id),
+    FOREIGN KEY (priority_id) REFERENCES task_priorities(priority_id)
+);
+
+/* Task Comments Table */
+-- Stores comments on tasks by users.
+CREATE TABLE IF NOT EXISTS task_comments (
+    comment_id CHAR(36) PRIMARY KEY,
+    task_id CHAR(36) NOT NULL,
+    user_id CHAR(36) NOT NULL,
+    comment_text varchar(1024) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+/* Task Attachments Table */
+-- Stores file attachments related to tasks.
+CREATE TABLE IF NOT EXISTS task_attachments (
+    attachment_id CHAR(36) PRIMARY KEY,
+    task_id CHAR(36) NOT NULL,
+    attachment_name VARCHAR(255) NOT NULL,
+    attachment_path VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
+);
+
+/* Task History Table */
+-- Stores the history of status changes for tasks.
+CREATE TABLE IF NOT EXISTS task_history (
+    history_id CHAR(36) PRIMARY KEY,
+    task_id CHAR(36) NOT NULL,
+    status_id CHAR(36) NOT NULL,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id),
+    FOREIGN KEY (status_id) REFERENCES statuses(status_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
