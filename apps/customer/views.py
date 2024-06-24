@@ -84,16 +84,15 @@ class CustomerAttachmentsViews(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
-#==========================================================================
+#==========================================================================      
 
 class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateModelMixin,mi.RetrieveModelMixin,mi.UpdateModelMixin,mi.DestroyModelMixin):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    
+
     def get(self, request, *args, **kwargs):
-        if 'pk' in kwargs:
-            return self.retrieve(request, *args, **kwargs)
-        return list_all_objects(self, request, *args, **kwargs)
+        response = self.retrieve(request, *args, **kwargs) if 'pk' in kwargs else list_all_objects(self, request, *args, **kwargs)
+        return response
         
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)   
@@ -179,27 +178,16 @@ class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateMode
                 "customer_attachments": attachments_data,
                 "customer_addresses":addresses_data
             }
-            return Response({
-                'count': 1,
-                'message': 'Record updated successfully',
-                'data': custom_data
-            },status=status.HTTP_200_OK)
+            return build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
         else:
-            return Response({
-                'count': 0,
-                'message': 'Record updation failed',
-                'errors': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-           
+            return build_response(0, "Record updation failed", serializer.errors, status.HTTP_400_BAD_REQUEST)           
            
     def delete(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         try:
             instance = Customer.objects.get(pk=pk)
             instance.delete()
-            # If Main model exists
             return build_response(1, "Record deleted successfully", [], status.HTTP_204_NO_CONTENT)
            
         except Customer.DoesNotExist:
-            # IF main model is not Found
             return build_response(0, "Record deletion failed", [], status.HTTP_404_NOT_FOUND) 
