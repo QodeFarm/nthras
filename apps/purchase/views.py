@@ -112,9 +112,8 @@ class purchaseOrdersCreateView(generics.GenericAPIView, mi.ListModelMixin, mi.Cr
     serializer_class = PurchaseOrdersSerializer
  
     def get(self, request, *args, **kwargs):
-        if 'pk' in kwargs:
-            return self.retrieve(request, *args, **kwargs)  # Retrieve a single instance
-        return list_all_objects(self, request, *args, **kwargs)
+        result = self.retrieve(request, *args, **kwargs) if 'pk' in kwargs else list_all_objects(self, request, *args, **kwargs)
+        return result
  
     # Handling POST requests for creating
     def post(self, request, *args, **kwargs):  # To avoid the error this method should be written
@@ -152,9 +151,6 @@ class purchaseOrdersCreateView(generics.GenericAPIView, mi.ListModelMixin, mi.Cr
             order_shipments_data['order_id'] = purchase_order_id
             order_shipments_data['order_type_id'] = order_type_id
 
-            
-            
-        
             serializer = OrderShipmentsSerializer(data=order_shipments_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
@@ -173,15 +169,12 @@ class purchaseOrdersCreateView(generics.GenericAPIView, mi.ListModelMixin, mi.Cr
  
     def retrieve(self, request, *args, **kwargs):
         try:
-
             pk = kwargs.get('pk')  # Access the pk from kwargs
             instance = self.get_object()
             serializer = self.get_serializer(instance)
-    
             # Query PurchaseOrderItems model using the pk
             items_related_data = PurchaseorderItems.objects.filter(purchase_order_id=pk)  # 'purchase_order_id' is the FK field
             items_related_serializer = PurchaseorderItemsSerializer(items_related_data, many=True)
-    
             # Get order_id value from PurchaseOrder instance
             order_id = serializer.data.get('purchase_order_id')
     
@@ -236,17 +229,9 @@ class purchaseOrdersCreateView(generics.GenericAPIView, mi.ListModelMixin, mi.Cr
                 "order_attachments": orderattachments_data,
                 "order_shipments": ordershipments_data
             }
-            return Response({
-                'count': 1,
-                'message': 'Record updated successfully',
-                'data': custom_data
-            },status=status.HTTP_200_OK)
+            return build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
         else:
-            return Response({
-                'count': 0,
-                'message': 'Record updation failed',
-                'errors': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return build_response(0, "Record updation failed", [], status.HTTP_400_BAD_REQUEST)
  
     def delete(self, request, *args, **kwargs):
         pk = kwargs.get('pk')    # Here 'pk'  is the primarykey of queried object
