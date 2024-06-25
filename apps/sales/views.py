@@ -1,18 +1,19 @@
-from django.forms import ValidationError
-from django.shortcuts import render,get_object_or_404
-from django.http import  Http404
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.serializers import ValidationError
-from .serializers import *
-from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
-from apps.masters.models import OrderTypes
 import logging
 from django.db import transaction
+from django.forms import ValidationError
+from django.http import  Http404
+from django.shortcuts import render,get_object_or_404
+from rest_framework import viewsets, status
+from rest_framework.serializers import ValidationError
+from rest_framework.views import APIView
+from .serializers import *
+from apps.masters.models import OrderTypes
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
 
+# Set up basic configuration for logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Get an instance of a logger
+# Create a logger object
 logger = logging.getLogger(__name__)
 
 class SaleOrderView(viewsets.ModelViewSet):
