@@ -1280,7 +1280,7 @@ class FetchOutstandingLCView(APIView):
                                  table_data = [
                                     ["Index No.","Date", "Voucher", "Debit", "Credit", "Balance"]
                                 ]
-                                 for idx, record in enumerate(data_2, start=1):
+                                 for idx, record in enumerate(data_2[:25], start=1):
                                     outstanding_lc = record.get("outstanding_lc", 0)
                                     debit = outstanding_lc if outstanding_lc > 0 else 0
                                     credit = -outstanding_lc if outstanding_lc < 0 else 0
