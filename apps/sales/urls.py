@@ -19,6 +19,6 @@ router.register(r'order_shipments', OrderShipmentsView)
 
 urlpatterns = [
     path('',include(router.urls)),
-    path('sale_order/', SaleOrderOneView.as_view(), name='sales-order-list-create'),
-    path('sale_order/<str:pk>/', SaleOrderOneView.as_view(), name='sales-order-detail-update-delete'),
+    path('sale_order/', SaleOrderViewSet.as_view(), name='sales-order-list-create'),
+    path('sale_order/<str:pk>/', SaleOrderViewSet.as_view(), name='sales-order-detail-update-delete'),
 ]
