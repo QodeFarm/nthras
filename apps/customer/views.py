@@ -285,13 +285,10 @@ class CustomerCreateViews(APIView):
             # Update vendor_attachments
             customer_attachments_data = request.data.pop('customer_attachments')
             attachments_data = update_multi_instance_new(pk, customer_attachments_data, CustomerAttachments, CustomerAttachmentsSerializers, filter_field_1='customer_id')
-            print(attachments_data)
-            print('\ncustomer_attachments - updated')
- 
+             
             # Update vendor_addresses
             customer_addresses_data = request.data.pop('customer_addresses')
             addresses_data = update_multi_instance_new(pk, customer_addresses_data, CustomerAddresses, CustomerAddressesSerializers, filter_field_1='customer_id')
-            print('\ncustomer_addresses - updated')
  
         if customer_data and attachments_data and addresses_data :  
             custom_data = {
