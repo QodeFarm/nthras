@@ -1,16 +1,25 @@
+import logging
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
 from config.utils_methods import *
 from config.utils_variables import *
-from rest_framework import generics
-from config.utils_methods import add_key_value_to_all_ordereddicts, create_multi_instance, delete_multi_instance, list_all_objects, create_instance, update_instance, update_multi_instance, build_response
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids, update_multi_instance_new
 from apps.sales.serializers import OrderAttachmentsSerializer,OrderShipmentsSerializer
 from apps.sales.models import OrderAttachments,OrderShipments
-from rest_framework import viewsets, generics, mixins as mi
+from rest_framework import viewsets
 from apps.masters.models import OrderTypes
+from rest_framework.views import APIView
+from django.db import transaction
+from rest_framework.serializers import ValidationError
+
+# Set up basic configuration for logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Create a logger object
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 class PurchaseOrdersViewSet(viewsets.ModelViewSet):
@@ -105,147 +114,267 @@ class PurchasePriceListViewSet(viewsets.ModelViewSet):
         return update_instance(self, request, *args, **kwargs)
     
 
-##---------- ONE API - MULTIPLE API CALLS (CRUD OPERATIONS) ---------------
-
-class purchaseOrdersCreateView(generics.GenericAPIView, mi.ListModelMixin, mi.CreateModelMixin, mi.RetrieveModelMixin, mi.UpdateModelMixin, mi.DestroyModelMixin):
-    queryset = PurchaseOrders.objects.all()
-    serializer_class = PurchaseOrdersSerializer
- 
-    def get(self, request, *args, **kwargs):
-        result = self.retrieve(request, *args, **kwargs) if 'pk' in kwargs else list_all_objects(self, request, *args, **kwargs)
-        return result
- 
-    # Handling POST requests for creating
-    def post(self, request, *args, **kwargs):  # To avoid the error this method should be written
-        return self.create(request, *args, **kwargs)
- 
-    def create(self, request, *args, **kwargs):
-        given_data = request.data
-        purchase_order_data = given_data.pop('purchase_order_data')
-        purchase_order_items_data = given_data.pop('purchase_order_items')
-        order_attachments_data = given_data.pop('order_attachments')
-        order_shipments_data = given_data.pop('order_shipments')
-        # Create data in 'purchaseorder' model
-        serializer = self.get_serializer(data=purchase_order_data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            purchaseorder_data = serializer.data
- 
-            # Create data in 'purchaseorder_items' model
-            purchase_order_id = serializer.data.get('purchase_order_id', None)  # from PurchaseOrder instance id is fetched
-            add_key_value_to_all_ordereddicts(purchase_order_items_data, 'purchase_order_id', purchase_order_id) #in purchase_order_id replace purchase_order_id from new instance
-            purchaseorder_items_data = create_multi_instance(purchase_order_items_data, PurchaseorderItemsSerializer)
- 
-            # Fetching the 'order_type_id' by 'order_type'
-            order_type_val = order_attachments_data[0].get('order_type')
-            order_type = OrderTypes.objects.get(name=order_type_val)
-            order_type_id = order_type.order_type_id
-
-            # Updated user choice with associated ID in 'name_id_dictionary'
-            add_key_value_to_all_ordereddicts(order_attachments_data,'order_type_id',order_type_id)
-            #in order_id replace purchase_order_id from new instance
-            add_key_value_to_all_ordereddicts(order_attachments_data,'order_id',purchase_order_id) 
-            orderattachments_data = create_multi_instance(order_attachments_data,OrderAttachmentsSerializer)
- 
-            # create data in 'order_shipments' model
-            order_shipments_data['order_id'] = purchase_order_id
-            order_shipments_data['order_type_id'] = order_type_id
-
-            serializer = OrderShipmentsSerializer(data=order_shipments_data)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                ordershipments_data = serializer.data
- 
-            if purchaseorder_data and purchaseorder_items_data and  orderattachments_data and ordershipments_data:  
-                custom_data = [
-                    {"purchase_order": purchaseorder_data},
-                    {"purchase_order_items": purchaseorder_items_data},
-                    { "order_attachments": orderattachments_data},
-                    {"order_shipments": ordershipments_data}
-                    ]
-                return build_response(1, "Record created successfully", custom_data, status.HTTP_201_CREATED)
-            else:
-                return build_response(0, "Record creation failed", [], status.HTTP_400_BAD_REQUEST)   
- 
-    def retrieve(self, request, *args, **kwargs):
+class PurchaseOrderViewSet(APIView):
+    """
+    API ViewSet for handling purchase order creation and related data.
+    """
+    def get_object(self, pk):
         try:
-            pk = kwargs.get('pk')  # Access the pk from kwargs
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
-            # Query PurchaseOrderItems model using the pk
-            items_related_data = PurchaseorderItems.objects.filter(purchase_order_id=pk)  # 'purchase_order_id' is the FK field
-            items_related_serializer = PurchaseorderItemsSerializer(items_related_data, many=True)
-            # Get order_id value from PurchaseOrder instance
-            order_id = serializer.data.get('purchase_order_id')
-    
-            # Query OrderAttachments model using the order_id
-            attachments_related_data = OrderAttachments.objects.filter(order_id=str(pk))
-            attachments_related_serializer = OrderAttachmentsSerializer(attachments_related_data, many=True)
-    
-            # Query OrderShipments model using the order_id
-            shipments_related_data = OrderShipments.objects.filter(order_id=str(order_id))
-            shipments_related_serializer = OrderShipmentsSerializer(shipments_related_data, many=True)
-    
+            return PurchaseOrders.objects.get(pk=pk)
+        except PurchaseOrders.DoesNotExist:
+            logger.warning(f"PurchaseOrders with ID {pk} does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, *args, **kwargs):
+        if 'pk' in kwargs:
+            return self.retrieve(request, *args, **kwargs)
+        try:
+            instance = PurchaseOrders.objects.all()
+        except PurchaseOrders.DoesNotExist:
+            logger.error("Purchase order does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = PurchaseOrdersSerializer(instance, many=True)
+            logger.info("Purchase order data retrieved successfully.")
+            return build_response(instance.count(), "Success", serializer.data, status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieves a purchase order and its related data (items, attachments, and shipments).
+        """
+        try:
+            pk = kwargs.get('pk')
+            if not pk:
+                logger.error("Primary key not provided in request.")
+                return build_response(0, "Primary key not provided", [], status.HTTP_400_BAD_REQUEST)
+
+            # Retrieve the PurchaseOrders instance
+            purchase_order = get_object_or_404(PurchaseOrders, pk=pk)
+            purchase_order_serializer = PurchaseOrdersSerializer(purchase_order)
+
+            # Retrieve related data
+            items_data = self.get_related_data(PurchaseorderItems, PurchaseorderItemsSerializer, 'purchase_order_id', pk)
+            attachments_data = self.get_related_data(OrderAttachments, OrderAttachmentsSerializer, 'order_id', pk)
+            shipments_data = self.get_related_data(OrderShipments, OrderShipmentsSerializer, 'order_id', pk)
+
             # Customizing the response data
-            custom_data = [
-                {"purchase_order": serializer.data},
-                {"purchase_order_items": items_related_serializer.data},
-                {"order_attachments": attachments_related_serializer.data},
-                {"order_shipments": shipments_related_serializer.data}
-            ]
+            custom_data = {
+                "purchase_order": purchase_order_serializer.data,
+                "purchase_order_items": items_data,
+                "order_attachments": attachments_data,
+                "order_shipments": shipments_data
+            }
+            logger.info("Purchase order and related data retrieved successfully.")
             return build_response(1, "Success", custom_data, status.HTTP_200_OK)
 
         except Http404:
+            logger.error("Purchase order with pk %s does not exist.", pk)
             return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
- 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
- 
-    def update(self, request, *args, **kwargs):
+        except Exception as e:
+            logger.exception("An error occurred while retrieving purchase order with pk %s: %s", pk, str(e))
+            return build_response(0, "An error occurred", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get_related_data(self, model, serializer_class, filter_field, filter_value):
+        """
+        Retrieves related data for a given model, serializer, and filter field.
+        """
+        try:
+            related_data = model.objects.filter(**{filter_field: filter_value})
+            serializer = serializer_class(related_data, many=True)
+            logger.debug("Retrieved related data for model %s with filter %s=%s.", model.__name__, filter_field, filter_value)
+            return serializer.data
+        except Exception as e:
+            logger.exception("Error retrieving related data for model %s with filter %s=%s: %s", model.__name__, filter_field, filter_value, str(e))
+            return []
+      
+    @transaction.atomic
+    def delete(self, request, pk, *args, **kwargs):
+        """
+        Handles the deletion of a purchase order and its related attachments and shipments.
+        """
+        try:
+            # Get the PurchaseOrders instance
+            instance = PurchaseOrders.objects.get(pk=pk)
+
+            # Delete related OrderAttachments and OrderShipments
+            if not delete_multi_instance(pk, PurchaseOrders, OrderAttachments, main_model_field_name='order_id'):
+                return build_response(0, "Error deleting related order attachments", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if not delete_multi_instance(pk, PurchaseOrders, OrderShipments, main_model_field_name='order_id'):
+                return build_response(0, "Error deleting related order shipments", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Delete the main PurchaseOrders instance
+            instance.delete()
+
+            logger.info(f"PurchaseOrders with ID {pk} deleted successfully.")
+            return build_response(1, "Record deleted successfully", [], status.HTTP_204_NO_CONTENT)
+        except PurchaseOrders.DoesNotExist:
+            logger.warning(f"PurchaseOrders with ID {pk} does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error deleting PurchaseOrders with ID {pk}: {str(e)}")
+            return build_response(0, "Record deletion failed due to an error", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # Handling POST requests for creating
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Handles the creation of purchase order, purchase order items, order attachments, and order shipments.
+        Purchase order and purchase order items are mandatory. Order attachments and order shipments are optional.
+        """
+        given_data = request.data
+
+        # Extracting data from the request
+        purchase_order_data = given_data.pop('purchase_order', None)
+        purchase_order_items_data = given_data.pop('purchase_order_items', None)
+        order_attachments_data = given_data.pop('order_attachments', None)
+        order_shipments_data = given_data.pop('order_shipments', None)
+
+        # Ensure mandatory data is present
+        if not purchase_order_data or not purchase_order_items_data:
+            logger.error("Purchase order and purchase order items are mandatory but not provided.")
+            return build_response(0, "Purchase order and purchase order items are mandatory", [], status.HTTP_400_BAD_REQUEST)
+
+        response_data = {}
+        errors = []
+
+        try:
+            # Create purchase order
+            purchaseorder_data = self.create_purchase_order(purchase_order_data)
+            if not purchaseorder_data:
+                logger.error("Purchase order creation failed.")
+                return build_response(0, "Purchase order creation failed", [], status.HTTP_400_BAD_REQUEST)
+
+            purchase_order_id = purchaseorder_data.get('purchase_order_id')
+            self.add_purchase_order_id_to_items(purchase_order_items_data, purchase_order_id)
+
+            # Create purchase order items
+            items_data, items_errors = create_multi_instance(purchase_order_items_data, PurchaseorderItemsSerializer)
+            if not items_data:
+                logger.error("Purchase order items creation failed.")
+                return build_response(0, "Purchase order items creation failed", [], status.HTTP_400_BAD_REQUEST, items_errors)
+
+            response_data = [
+                {"purchase_order": purchaseorder_data},
+                {"purchase_order_items": items_data}
+            ]
+            errors.extend(items_errors)
+
+            order_type_id = None
+
+            # Check if optional data exists and fetch order_type_id if necessary
+            if order_attachments_data or order_shipments_data:
+                order_type_id = self.get_order_type_id_from_purchase_order(purchase_order_data)
+                logger.debug("Order type ID retrieved: %s", order_type_id)
+
+            if order_attachments_data:
+                self.update_attachments_data(order_attachments_data, purchase_order_id, order_type_id)
+                attachments_data, attachments_errors = create_multi_instance(order_attachments_data, OrderAttachmentsSerializer)
+                response_data.append({"order_attachments": attachments_data})
+                errors.extend(attachments_errors)
+
+            if order_shipments_data:
+                shipments_data, shipment_errors = self.create_order_shipments(order_shipments_data, purchase_order_id, order_type_id)
+                response_data.append({"order_shipments": shipments_data})
+                errors.extend(shipment_errors)
+
+            if errors:
+                logger.warning("Record created with some errors: %s", errors)
+                return build_response(1, "Record created with errors", response_data, status.HTTP_201_CREATED, errors)
+
+            logger.info("Record created successfully.")
+            return build_response(1, "Record created successfully", response_data, status.HTTP_201_CREATED)
+
+        except Exception as e:
+            logger.error("Error creating purchase order: %s", str(e))
+            return build_response(0, "Record creation failed due to an error", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def create_purchase_order(self, purchase_order_data):
+        """
+        Creates a purchase order in the database.
+        """
+        serializer = PurchaseOrdersSerializer(data=purchase_order_data)
+        try:
+            serializer.is_valid(raise_exception=True)  # Validate purchase order data
+            serializer.save()  # Save valid purchase order to the database
+            logger.debug("Purchase order created with data: %s", serializer.data)
+            return serializer.data
+        except ValidationError as e:
+            logger.error("Validation error on purchase order: %s", str(e))  # Log validation error
+            return None
+
+    def add_purchase_order_id_to_items(self, purchase_order_items_data, purchase_order_id):
+        """
+        Adds the purchase_order_id to each item in the purchase_order_items_data list.
+        """
+        update_ordereddicts_with_ids(purchase_order_items_data, 'purchase_order_id', purchase_order_id)
+
+    def get_order_type_id_from_purchase_order(self, purchase_order_data):
+        """
+        Fetches the order_type_id from the purchase_order_data.
+        """
+        order_type_val = purchase_order_data.get('order_type')
+        order_type = get_object_or_none(OrderTypes, name=order_type_val)
+        return order_type.order_type_id if order_type else None
+
+    def update_attachments_data(self, order_attachments_data, purchase_order_id, order_type_id):
+        """
+        Updates order_attachments_data with order_type_id and purchase_order_id.
+        """
+        update_ordereddicts_with_ids(order_attachments_data, 'order_type_id', order_type_id)
+        update_ordereddicts_with_ids(order_attachments_data, 'order_id', purchase_order_id)
+
+    def create_order_shipments(self, order_shipments_data, purchase_order_id, order_type_id):
+        """
+        Creates an order shipment in the database.
+        """
+        order_shipments_data['order_id'] = purchase_order_id
+        order_shipments_data['order_type_id'] = order_type_id
+        serializer = OrderShipmentsSerializer(data=order_shipments_data)
+        try:
+            serializer.is_valid(raise_exception=True)  # Validate order shipments data
+            serializer.save()  # Save valid order shipments to the database
+            logger.debug("Order shipment created with data: %s", serializer.data)
+            return serializer.data, []
+        except ValidationError as e:
+            logger.error("Validation error on order shipments: %s", str(e))  # Log validation error
+            return None, [str(e)]
+        
+    def put(self, request, pk, *args, **kwargs):
+        purchaseorder_data = items_data = attachments_data = shipments_data = response_data = None
+
         partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data['purchase_order'], partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        purchaseorder_data = serializer.data
-        # Update purchase_order_items
-        purchase_order_items_data = request.data.pop('purchase_order_items')
-        pk = request.data['purchase_order'].get('purchase_order_id')
-        purchaseorder_items_data = update_multi_instance(purchase_order_items_data, pk, PurchaseOrders, PurchaseorderItems, PurchaseorderItemsSerializer)
- 
-        # Update purchase_order_attachments
-        order_attachments_data = request.data.pop('order_attachments')
-        pk = request.data['purchase_order'].get('purchase_order_id')
-        orderattachments_data = update_multi_instance(order_attachments_data, pk, PurchaseOrders, OrderAttachments, OrderAttachmentsSerializer, main_model_field_name='order_id')
-        # Update order_shipments
-        order_shipments_data = request.data.pop('order_shipments')
-        pk = request.data['purchase_order'].get('purchase_order_id')  # Fetch value from main model
-        ordershipments_data = update_multi_instance(order_shipments_data, pk, PurchaseOrders, OrderShipments, OrderShipmentsSerializer, main_model_field_name='order_id')
- 
-        if purchaseorder_data and purchaseorder_items_data and orderattachments_data and ordershipments_data:  
+        instance = self.get_object(pk)
+        serializer = PurchaseOrdersSerializer(instance, data=request.data['purchase_order'], partial=partial)
+        if serializer.is_valid(raise_exception=False):
+            serializer.save()
+            purchaseorder_data = serializer.data
+
+             # Update purchase_order_items 
+            purchase_order_items_data = request.data.pop('purchase_order_items')
+            items_data = update_multi_instance_new(pk, purchase_order_items_data, PurchaseorderItems, PurchaseorderItemsSerializer, filter_field_1='purchase_order_id')
+
+            # # Update purchase_order_attachments
+            order_attachments_data = request.data.pop('order_attachments')
+            order_id = order_attachments_data[0].get('order_id')
+            attachments_data = update_multi_instance_new(order_id, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
+
+            # # # Update order_shipments
+            order_shipments_data = request.data.pop('order_shipments')
+            shipments_data = update_multi_instance_new(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
+
+        if purchaseorder_data and items_data and attachments_data and shipments_data:
             custom_data = {
                 "purchase_order": purchaseorder_data,
-                "purchase_order_items": purchaseorder_items_data,
-                "order_attachments": orderattachments_data,
-                "order_shipments": ordershipments_data
+                "purchase_order_items": items_data,
+                "order_attachments":attachments_data,
+                "order_shipments": shipments_data
             }
-            return build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
+            response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
         else:
-            return build_response(0, "Record updation failed", [], status.HTTP_400_BAD_REQUEST)
- 
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')    # Here 'pk'  is the primarykey of queried object
- 
-        try:
-            instance = PurchaseOrders.objects.get(pk=pk)
-            delete_multi_instance(pk, PurchaseOrders, OrderAttachments, main_model_field_name='order_id')
-            delete_multi_instance(pk, PurchaseOrders, OrderShipments, main_model_field_name='order_id')
-            instance.delete()
- 
-            # If Main model exists
-            return build_response(1, "Record deleted successfully", [], status.HTTP_204_NO_CONTENT)
-            
-        except PurchaseOrders.DoesNotExist:
-            # IF main model is not Found
-            return build_response(0, "Record deletion failed", [], status.HTTP_404_NOT_FOUND)
- 
+            logger.error("Error in PurchaseOrderViewSet")
+            response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
+        
+        return response_data
