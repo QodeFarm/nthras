@@ -1,10 +1,11 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets, generics, mixins as mi
+from apps import customer
 from apps.customer.filters import LedgerAccountsFilters, CustomerFilters, CustomerAddressesFilters, CustomerAttachmentsFilters
 from .models import *
 from .serializers import *
-from config.utils_methods import create_multi_instance, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
+from config.utils_methods import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 import logging
@@ -91,7 +92,7 @@ class CustomerAttachmentsViews(viewsets.ModelViewSet):
         return update_instance(self, request, *args, **kwargs)
     
 #==========================================================================   
-logger = logging.getLogger(__name__)   
+logger = logging.getLogger(__name__)  
 
 class CustomerCreateViews(APIView):
     
@@ -270,3 +271,38 @@ class CustomerCreateViews(APIView):
         except Exception as e:
             logger.error(f"Error deleting Customer with ID {pk}: {str(e)}")
             return build_response(0, "Record deletion failed due to an error", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def put(self, request, pk, *args, **kwargs):
+        customer_data = attachments_data = addresses_data =  response_data = None
+ 
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object(pk)
+        serializer = CustomerSerializer(instance, data=request.data['customer_data'], partial=partial)
+        if serializer.is_valid(raise_exception=False):
+            serializer.save()
+            customer_data = serializer.data
+ 
+            # Update vendor_attachments
+            customer_attachments_data = request.data.pop('customer_attachments')
+            attachments_data = update_multi_instance_new(pk, customer_attachments_data, CustomerAttachments, CustomerAttachmentsSerializers, filter_field_1='customer_id')
+            print(attachments_data)
+            print('\ncustomer_attachments - updated')
+ 
+            # Update vendor_addresses
+            customer_addresses_data = request.data.pop('customer_addresses')
+            addresses_data = update_multi_instance_new(pk, customer_addresses_data, CustomerAddresses, CustomerAddressesSerializers, filter_field_1='customer_id')
+            print('\ncustomer_addresses - updated')
+ 
+        if customer_data and attachments_data and addresses_data :  
+            custom_data = {
+                "customer_data": customer_data,
+                "customer_attachments": attachments_data,
+                "customer_addresses":addresses_data
+            }
+            response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
+        else:
+            logger.error("Error in VendorViewSet")
+            response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
+       
+        return response_data
+ 
