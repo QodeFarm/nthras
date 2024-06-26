@@ -104,7 +104,7 @@ class SaleReturnItemsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OrderAttachmentsSerializer(serializers.ModelSerializer):
-    order_type = ModOrderTypesSerializer(source='order_type_id', read_only=True)
+    # order_type = ModOrderTypesSerializer(source='order_type_id', read_only=True)
 
     class Meta:
         model = OrderAttachments
