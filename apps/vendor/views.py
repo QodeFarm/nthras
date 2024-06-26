@@ -1,20 +1,20 @@
+import logging
+from django.db import transaction
 from django.forms import ValidationError
 from django.shortcuts import render,get_object_or_404
 from django.http import  Http404
 from rest_framework import viewsets,status
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from .models import Vendor, VendorCategory, VendorPaymentTerms, VendorAgent, VendorAttachment, VendorAddress
 from .serializers import VendorSerializer, VendorCategorySerializer, VendorPaymentTermsSerializer, VendorAgentSerializer, VendorAttachmentSerializer, VendorAddressSerializer
-from config.utils_methods import list_all_objects,create_instance,update_instance
-#from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
-import logging
-from django.db import transaction
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
+
+# Set up basic configuration for logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
 
 # Create your views here.
 
@@ -96,14 +96,29 @@ class VendorAddressView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
 
-#===========ONE API - MULTIPLE API CALLS (CRUD OPERATIONS)===========
 class VendorViewSet(APIView):
     """
     API ViewSet for handling vendor creation and related data.
     """
-    def get(self, request, *args, **kwargs):
-        result = self.retrieve(request, *args, **kwargs) if 'pk' in kwargs else list_all_objects(self, request, *args, **kwargs)
-        return result
+    def get_object(self, pk):
+        try:
+            return Vendor.objects.get(pk=pk)
+        except Vendor.DoesNotExist:
+            logger.warning(f"Vendor with ID {pk} does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        
+    def get(self, request,  *args, **kwargs):
+        if 'pk' in kwargs:
+            return self.retrieve(self, request, *args, **kwargs)
+        try:
+            instance = Vendor.objects.all()
+        except Vendor.DoesNotExist:
+            logger.error("Vendor does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = VendorSerializer(instance, many=True)
+            logger.info("Vendor data retrieved successfully.")
+            return build_response(instance.count(), "Success", serializer.data, status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         """
