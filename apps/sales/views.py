@@ -8,7 +8,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 from .serializers import *
 from apps.masters.models import OrderTypes
-from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_multi_instance, update_ordereddicts_with_ids
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -375,3 +375,42 @@ class SaleOrderViewSet(APIView):
         except ValidationError as e:
             logger.error("Validation error on order shipments: %s", str(e))  # Log validation error
             return None, [str(e)]
+
+    def put(self, request, pk, *args, **kwargs):
+        saleorder_data = items_data = attachments_data = shipments_data = response_data = None
+
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object(pk)
+        serializer = SaleOrderSerializer(instance, data=request.data['sale_order'], partial=partial)
+        if serializer.is_valid(raise_exception=False):
+            serializer.save()
+            saleorder_data = serializer.data
+
+            # Update sale_order_items 
+            sale_order_items_data = request.data.pop('sale_order_items')
+            items_data = update_multi_instance(pk, sale_order_items_data, SaleOrderItems, SaleOrderItemsSerializer, filter_field_1='sale_order_id')
+            print('\nsale_order_items - updated')
+
+            # # Update sale_order_attachments
+            order_attachments_data = request.data.pop('order_attachments')
+            order_id = order_attachments_data[0].get('order_id')
+            attachments_data = update_multi_instance(order_id, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
+            print('\nsale_order_attachments - updated')
+
+            # Update order_shipments
+            order_shipments_data = request.data.pop('order_shipments')
+            shipments_data = update_multi_instance(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
+
+        if saleorder_data and items_data and attachments_data and shipments_data:
+            custom_data = {
+                "sale_order": saleorder_data,
+                "sale_order_items": items_data,
+                "order_attachments":attachments_data,
+                "order_shipments": shipments_data
+            }
+            response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
+        else:
+            logger.error("Error in SaleOrderOneView")
+            response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
+        
+        return response_data
