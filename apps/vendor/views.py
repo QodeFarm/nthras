@@ -295,12 +295,10 @@ class VendorViewSet(APIView):
             # Update vendor_attachments
             vendor_attachments_data = request.data.pop('vendor_attachments')
             attachments_data = update_multi_instance_new(pk, vendor_attachments_data, VendorAttachment, VendorAttachmentSerializer, filter_field_1='vendor_id')
-            print('\nvendor_attachments - updated')
 
             # Update vendor_addresses
             vendor_addresses_data = request.data.pop('vendor_addresses')
             addresses_data = update_multi_instance_new(pk, vendor_addresses_data, VendorAddress, VendorAddressSerializer, filter_field_1='vendor_id')
-            print('\nvendor_addresses - updated')
 
         if vendors_data and attachments_data and addresses_data :  
             custom_data = {
