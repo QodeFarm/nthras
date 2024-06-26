@@ -3,7 +3,7 @@ from .views import VendorsView, VendorCategoryView, VendorPaymentTermsView, Vend
 from rest_framework.routers import DefaultRouter
 
 #add your urls 
-#test commit
+
 router = DefaultRouter()
 router.register(r'vendor_get', VendorsView)
 router.register(r'vendor_category', VendorCategoryView)
