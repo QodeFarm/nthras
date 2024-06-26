@@ -274,7 +274,7 @@ def delete_multi_instance(del_value, main_model_class, related_model_class, main
         return False
     return True
 
-def update_multi_instance_new(pk, update_data, related_model_class, serializer_name, filter_field_1=None,filter_field_2=None):
+def update_multi_instance_new(pk, update_data, related_model_class, serializer_name, filter_field_1=None):
     """
     Update instances from a related model based on a field value from the main model.
 
@@ -282,25 +282,33 @@ def update_multi_instance_new(pk, update_data, related_model_class, serializer_n
     :param related_model_class: The related model class from which to delete instances.
     :param main_model_field: The field name in the related model that references the main model.
     """
+
+    '''
+    Below block of code will get the previously created instances. From that list each instance primary key will be fetched.
+    '''
+    try:
+        filter_kwargs = {filter_field_1:pk}
+        pks_list  = list(related_model_class.objects.filter(**filter_kwargs).values_list('pk', flat=True))
+        print('previous list = ',pks_list)
+    except Exception as e:
+        print(f'Error : {e}')
+
     try:
         data_list = []
-        
+        i = 0
         for data in update_data:
-            # common to both IF and Else
-            field_val_2  = data.get(str(filter_field_2))
-
-            filter_kwargs = {filter_field_1: pk, filter_field_2: field_val_2 }
-            print('filter_kwargs= ',filter_kwargs)
             try:
-                print('related_model_class>>',related_model_class)
-                instance = related_model_class.objects.filter(**filter_kwargs).first()
-                print('instance = ',instance)
+                instance = related_model_class.objects.filter(pk=pks_list[i]).first()
+                print('i am here --->>',pks_list[i])
+                print(type(instance))
+                i = i+1
             except related_model_class.DoesNotExist:
                 logger.warning(f"{related_model_class} with ID {pk} does not exist.")
-            serializer = serializer_name(instance, data=data, partial=False)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            data_list.append(serializer.data)
+            else:
+                serializer = serializer_name(instance, data=data, partial=False)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                data_list.append(serializer.data)
         return data_list
     except Exception as e:
         logger.error(f"Error updating instances from {related_model_class.__name__}: {str(e)}")

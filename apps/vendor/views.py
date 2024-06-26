@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from .models import Vendor, VendorCategory, VendorPaymentTerms, VendorAgent, VendorAttachment, VendorAddress
 from .serializers import VendorSerializer, VendorCategorySerializer, VendorPaymentTermsSerializer, VendorAgentSerializer, VendorAttachmentSerializer, VendorAddressSerializer
-from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids, update_multi_instance_new
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -280,3 +280,38 @@ class VendorViewSet(APIView):
         Adds the vendor_id to each addresses in the vendor_addresses_data list.
         """
         update_ordereddicts_with_ids(vendor_addresses_data, 'vendor_id', vendor_id)
+        
+
+    def put(self, request, pk, *args, **kwargs):
+        vendors_data = attachments_data = addresses_data =  response_data = None
+
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object(pk)
+        serializer = VendorSerializer(instance, data=request.data['vendor_data'], partial=partial)
+        if serializer.is_valid(raise_exception=False):
+            serializer.save()
+            vendors_data = serializer.data
+
+            # Update vendor_attachments
+            vendor_attachments_data = request.data.pop('vendor_attachments')
+            attachments_data = update_multi_instance_new(pk, vendor_attachments_data, VendorAttachment, VendorAttachmentSerializer, filter_field_1='vendor_id')
+            print(attachments_data)
+            print('\nvendor_attachments - updated')
+
+            # Update vendor_addresses
+            vendor_addresses_data = request.data.pop('vendor_addresses')
+            addresses_data = update_multi_instance_new(pk, vendor_addresses_data, VendorAddress, VendorAddressSerializer, filter_field_1='vendor_id')
+            print('\nvendor_addresses - updated')
+
+        if vendors_data and attachments_data and addresses_data :  
+            custom_data = {
+                "vendor_data": vendors_data,
+                "vendor_attachments": attachments_data,
+                "vendor_addresses":addresses_data
+            }
+            response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
+        else:
+            logger.error("Error in VendorViewSet")
+            response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
+        
+        return response_data
