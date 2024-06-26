@@ -1,12 +1,18 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets, generics, mixins as mi
 from apps.customer.filters import LedgerAccountsFilters, CustomerFilters, CustomerAddressesFilters, CustomerAttachmentsFilters
 from .models import *
 from .serializers import *
-from config.utils_methods import add_key_value_to_all_ordereddicts, create_multi_instance, delete_multi_instance, list_all_objects,create_instance,update_instance, update_multi_instance,build_response
+from config.utils_methods import create_multi_instance, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
+import logging
+from django.db import transaction
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.serializers import ValidationError
 
 # Create your views here.
 
@@ -84,110 +90,183 @@ class CustomerAttachmentsViews(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return update_instance(self, request, *args, **kwargs)
     
-#==========================================================================      
+#==========================================================================   
+logger = logging.getLogger(__name__)   
 
-class CustomerCreateViews(generics.CreateAPIView,mi.ListModelMixin,mi.CreateModelMixin,mi.RetrieveModelMixin,mi.UpdateModelMixin,mi.DestroyModelMixin):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
-
-    def get(self, request, *args, **kwargs):
-        response = self.retrieve(request, *args, **kwargs) if 'pk' in kwargs else list_all_objects(self, request, *args, **kwargs)
-        return response
-        
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)   
-
-    def create(self, request, *args, **kwargs):
-        given_data = request.data
-
-        customer_data = given_data.pop('customer_data')
-        customer_attachments = given_data.pop('customer_attachments')
-        customer_addresses = given_data.pop('customer_addresses')
-        
-        serializer = self.get_serializer(data=customer_data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            customer_data = serializer.data
+class CustomerCreateViews(APIView):
     
-            customer_id = serializer.data.get('customer_id', None) 
-            add_key_value_to_all_ordereddicts(customer_attachments,'customer_id',customer_id)
-            attachments_data = create_multi_instance(customer_attachments,CustomerAttachmentsSerializers)
-
-            add_key_value_to_all_ordereddicts(customer_addresses,'customer_id',customer_id) 
-            addresses_data = create_multi_instance(customer_addresses,CustomerAddressesSerializers)
-
-            if customer_data and attachments_data and addresses_data:  
-                custom_data = [
-                    {"customer_data": customer_data},
-                    {"customer_attachments": attachments_data},
-                    {"customer_addresses": addresses_data}
-                ]
-                return build_response(1, "Record created successfully", custom_data, status.HTTP_201_CREATED)
-            else:
-                return build_response(0, "Record creation failed", [], status.HTTP_400_BAD_REQUEST)   
-
+    def get_object(self, pk):
+        try:
+            return Customer.objects.get(pk=pk)
+        except Customer.DoesNotExist:
+            logger.warning(f"Customer with ID {pk} does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        
+    def get(self, request,  *args, **kwargs):
+        if 'pk' in kwargs:
+            return self.retrieve(self, request, *args, **kwargs)
+        try:
+            instance = Customer.objects.all()
+        except Customer.DoesNotExist:
+            logger.error("Customer does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = CustomerSerializer(instance, many=True)
+            logger.info("Customer data retrieved successfully.")
+            return build_response(instance.count(), "Success", serializer.data, status.HTTP_200_OK)
+            
     def retrieve(self, request, *args, **kwargs):
         try:
-            pk = kwargs.get('pk')  # Access the pk from kwargs
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
- 
-            # Query CustomerAttachment model using the pk
-            attachments_related_data = CustomerAttachments.objects.filter(customer_id=pk)  
-            attachments_serializer = CustomerAttachmentsSerializers(attachments_related_data, many=True)
- 
-            # Query CustomerAddress model using the pk
-            addresses_related_data = CustomerAddresses.objects.filter(customer_id=pk)  
-            addresses_serializer = CustomerAddressesSerializers(addresses_related_data, many=True)
- 
+            pk = kwargs.get('pk')
+            if not pk:
+                logger.error("Primary key not provided in request.")
+                return build_response(0, "Primary key not provided", [], status.HTTP_400_BAD_REQUEST)
+
+            # Retrieve the SaleOrder instance
+            customer = get_object_or_404(Customer, pk=pk)
+            customer_serializer = CustomerSerializer(customer)
+
+            # Retrieve related data            
+            attachments_data = self.get_related_data(CustomerAttachments, CustomerAttachmentsSerializers, 'customer_id', pk)
+            addresses_data = self.get_related_data(CustomerAddresses, CustomerAddressesSerializers, 'customer_id', pk)
+
             # Customizing the response data
-            custom_data = [
-                {"customer_data": serializer.data},
-                {"customer_attachments": attachments_serializer.data},
-                {"customer_addresses":addresses_serializer.data}
-            ]
-            return build_response(1, "Success", custom_data, status.HTTP_200_OK)
- 
-        except Http404:
-            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
-    
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
- 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data['customer_data'], partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        customer_data = serializer.data
- 
-        # Update customer_attachments
-        customer_attachments_data = request.data.pop('customer_attachments')
-        pk = request.data['customer_data'].get('customer_id')
-        attachments_data = update_multi_instance(customer_attachments_data,pk,Customer,CustomerAttachments,CustomerAttachmentsSerializers)
- 
-        # Update customer_addresses
-        customer_addresses_data = request.data.pop('customer_addresses')
-        pk = request.data['customer_data'].get('customer_id')
-        addresses_data = update_multi_instance(customer_addresses_data,pk,Customer,CustomerAddresses,CustomerAddressesSerializers)
- 
-        if customer_data and attachments_data and addresses_data :  
             custom_data = {
-                "customer_data": customer_data,
+                "customer_data": customer_serializer.data,
                 "customer_attachments": attachments_data,
-                "customer_addresses":addresses_data
+                "customer_addresses": addresses_data
             }
-            return build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
-        else:
-            return build_response(0, "Record updation failed", serializer.errors, status.HTTP_400_BAD_REQUEST)           
-           
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
+            logger.info("Sale order and related data retrieved successfully.")
+            return build_response(1, "Success", custom_data, status.HTTP_200_OK)
+
+        except Http404:
+            logger.error("Sale order with pk %s does not exist.", pk)
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.exception("An error occurred while retrieving sale order with pk %s: %s", pk, str(e))
+            return build_response(0, "An error occurred", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get_related_data(self, model, serializer_class, filter_field, filter_value):
+        """
+        Retrieves related data for a given model, serializer, and filter field.
+        """
         try:
+            related_data = model.objects.filter(**{filter_field: filter_value})
+            serializer = serializer_class(related_data, many=True)
+            logger.debug("Retrieved related data for model %s with filter %s=%s.", model.__name__, filter_field, filter_value)
+            return serializer.data
+        except Exception as e:
+            logger.exception("Error retrieving related data for model %s with filter %s=%s: %s", model.__name__, filter_field, filter_value, str(e))
+            return []
+
+    # Handling POST requests for creating
+    def post(self, request, *args, **kwargs):   #To avoid the error this method should be written [error : "detail": "Method \"POST\" not allowed."]
+        return self.create(request, *args, **kwargs)
+   
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+
+        given_data = request.data
+ 
+        # Extracting data from the request
+        customer_data = given_data.pop('customer_data', None)
+        customer_attachments_data = given_data.pop('customer_attachments', None)
+        customer_addresses_data = given_data.pop('customer_addresses', None)
+ 
+        # Ensure mandatory customer data is present
+        if not customer_data or not customer_attachments_data or not customer_addresses_data:
+            logger.error("Customer data , Customer attachments_data and Customer Addresses are mandatory but not provided.")
+            return build_response(0, "Customer data , Customer attachments data and Customer Addresses data  are mandatory", [], status.HTTP_400_BAD_REQUEST)
+ 
+        response_data = {}
+        errors = []
+ 
+        try:
+            # Create customer
+            customer_data = self.create_customer(customer_data)
+            if not customer_data:
+                logger.error("customer creation failed.")
+                return build_response(0, "customer creation failed", [], status.HTTP_400_BAD_REQUEST)
+ 
+            customer_id = customer_data.get('customer_id')
+            self.add_customer_id_to_attachments(customer_attachments_data, customer_id)
+ 
+            # Create customer Attachment
+            attachments_data, attachments_errors = create_multi_instance(customer_attachments_data, CustomerAttachmentsSerializers)
+            if not attachments_data:
+                logger.error("customer Attachment creation failed.")
+                return build_response(0, "customer Attachment creation failed", [], status.HTTP_400_BAD_REQUEST, attachments_errors)
+ 
+            self.add_customer_id_to_addresses(customer_addresses_data, customer_id)
+ 
+            # Create customer Address
+            addresses_data, addresses_errors = create_multi_instance(customer_addresses_data, CustomerAddressesSerializers)
+            if not addresses_data:
+                logger.error("customer Address creation failed.")
+                return build_response(0, "customer Address creation failed", [], status.HTTP_400_BAD_REQUEST, addresses_errors)
+ 
+            response_data = [
+                {"customer_data": customer_data},
+                {"customer_attachments": attachments_data},
+                {"customer_addresses":addresses_data}
+            ]
+            error = attachments_errors + addresses_errors
+            errors.extend(error)
+ 
+            if errors:
+                logger.warning("Record created with some errors: %s", errors)
+                return build_response(1, "Record created with errors", response_data, status.HTTP_201_CREATED, errors)
+ 
+            logger.info("Record created successfully.")
+            return build_response(1, "Record created successfully", response_data, status.HTTP_201_CREATED)
+ 
+        except Exception as e:
+            logger.error("Error creating customer: %s", str(e))
+            return build_response(0, "Record creation failed due to an error", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def create_customer(self, customer_data):
+        """
+        Creates a customer in the database.
+        """
+        serializer = CustomerSerializer(data=customer_data)
+        try:
+            serializer.is_valid(raise_exception=True)  # Validate sale order data
+            serializer.save()  # Save valid sale order to the database
+            logger.debug("customer created with data: %s", serializer.data)
+            return serializer.data
+        except ValidationError as e:
+            logger.error("Validation error on customer: %s", str(e))  # Log validation error
+            return None
+       
+    def add_customer_id_to_attachments(self, customer_attachments_data, customer_id):
+        """
+        Adds the customer_id to each attachments in the customer_attachments_data list.
+        """
+        update_ordereddicts_with_ids(customer_attachments_data, 'customer_id', customer_id)
+ 
+    def add_customer_id_to_addresses(self, customer_addresses_data, customer_id):
+        """
+        Adds the customer_id to each addresses in the customer_addresses_data list.
+        """
+        update_ordereddicts_with_ids(customer_addresses_data, 'customer_id', customer_id)
+
+    @transaction.atomic
+    def delete(self, request, pk, *args, **kwargs):
+        """
+        Handles the deletion of a sale order and its related attachments and shipments.
+        """
+        try:
+            # Get the SaleOrder instance
             instance = Customer.objects.get(pk=pk)
+ 
+            # Delete the main SaleOrder instance
             instance.delete()
+ 
+            logger.info(f"Customer with ID {pk} deleted successfully.")
             return build_response(1, "Record deleted successfully", [], status.HTTP_204_NO_CONTENT)
-           
         except Customer.DoesNotExist:
-            return build_response(0, "Record deletion failed", [], status.HTTP_404_NOT_FOUND) 
+            logger.warning(f"Customer with ID {pk} does not exist.")
+            return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error deleting Customer with ID {pk}: {str(e)}")
+            return build_response(0, "Record deletion failed due to an error", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
