@@ -289,9 +289,8 @@ def update_multi_instance_new(pk, update_data, related_model_class, serializer_n
     try:
         filter_kwargs = {filter_field_1:pk}
         pks_list  = list(related_model_class.objects.filter(**filter_kwargs).values_list('pk', flat=True))
-        print('previous list = ',pks_list)
     except Exception as e:
-        print(f'Error : {e}')
+        logger.error(f"Error fetching instances from {related_model_class.__name__}: {str(e)}")
 
     try:
         data_list = []
@@ -299,8 +298,6 @@ def update_multi_instance_new(pk, update_data, related_model_class, serializer_n
         for data in update_data:
             try:
                 instance = related_model_class.objects.filter(pk=pks_list[i]).first()
-                print('i am here --->>',pks_list[i])
-                print(type(instance))
                 i = i+1
             except related_model_class.DoesNotExist:
                 logger.warning(f"{related_model_class} with ID {pk} does not exist.")

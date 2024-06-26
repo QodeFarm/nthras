@@ -295,7 +295,6 @@ class VendorViewSet(APIView):
             # Update vendor_attachments
             vendor_attachments_data = request.data.pop('vendor_attachments')
             attachments_data = update_multi_instance_new(pk, vendor_attachments_data, VendorAttachment, VendorAttachmentSerializer, filter_field_1='vendor_id')
-            print(attachments_data)
             print('\nvendor_attachments - updated')
 
             # Update vendor_addresses
