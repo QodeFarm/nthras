@@ -177,31 +177,7 @@ def remove_fields(obj):
         for item in obj:
             remove_fields(item)
 
-#====================================== SaleOrder-Requirements ===============================================
-# If multiple instances to be updated on same model, at a single time this function helps to update all instances.
-def update_multi_instance(data_set,pk,main_model_name,current_model_name,serializer_name,main_model_field_name=None):
-    data_list = []
-    for data in data_set:
-        # main model PK Field name
-        main_model_pk_field_name = main_model_name._meta.pk.name
-        # current model PK Field name
-        current_model_field_name = current_model_name._meta.pk.name
-        # Get the value of current model's PK field
-
-        val = data.get(f'{current_model_field_name}')
-        # Arrange arguments to filter
-        if main_model_field_name is not None: # use external value if provided
-            filter_kwargs = {main_model_field_name: pk, current_model_field_name:val}
-        else:
-            filter_kwargs = {main_model_pk_field_name: pk, current_model_field_name:val}
-            
-        instance = current_model_name.objects.filter(**filter_kwargs).first()
-        serializer = serializer_name(instance, data=data, partial=False)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        data = serializer.data
-        data_list.append(data)
-    return data_list
+#====================================== API- Bulk Data CURD Operation-Requirements ===============================================
 
 def create_multi_instance(data_set, serializer_class):
     """
@@ -274,7 +250,7 @@ def delete_multi_instance(del_value, main_model_class, related_model_class, main
         return False
     return True
 
-def update_multi_instance_new(pk, update_data, related_model_class, serializer_name, filter_field_1=None):
+def update_multi_instance(pk, update_data, related_model_class, serializer_name, filter_field_1=None):
     """
     Update instances from a related model based on a field value from the main model.
 
@@ -291,22 +267,24 @@ def update_multi_instance_new(pk, update_data, related_model_class, serializer_n
         pks_list  = list(related_model_class.objects.filter(**filter_kwargs).values_list('pk', flat=True))
     except Exception as e:
         logger.error(f"Error fetching instances from {related_model_class.__name__}: {str(e)}")
+        return None
 
-    try:
-        data_list = []
-        i = 0
-        for data in update_data:
+    data_list = []
+    errors = []
+    i = 0
+    for data in update_data:
+        try:
+            instance = related_model_class.objects.filter(pk=pks_list[i]).first()
+        except related_model_class.DoesNotExist:
+            logger.warning(f"{related_model_class} with ID {pk} does not exist.")
+        else:
+            serializer = serializer_name(instance, data=data, partial=False)
             try:
-                instance = related_model_class.objects.filter(pk=pks_list[i]).first()
-                i = i+1
-            except related_model_class.DoesNotExist:
-                logger.warning(f"{related_model_class} with ID {pk} does not exist.")
-            else:
-                serializer = serializer_name(instance, data=data, partial=False)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-                data_list.append(serializer.data)
-        return data_list
-    except Exception as e:
-        logger.error(f"Error updating instances from {related_model_class.__name__}: {str(e)}")
-        return None
+                i = i+1
+            except Exception as e:
+                logger.error("Validation error: %s", str(e))  # Log validation errors
+                errors.append(str(e))  # Collect validation errors
+            data_list.append(serializer.data)
+    return data_list, errors

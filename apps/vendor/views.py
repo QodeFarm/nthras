@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from .models import Vendor, VendorCategory, VendorPaymentTerms, VendorAgent, VendorAttachment, VendorAddress
 from .serializers import VendorSerializer, VendorCategorySerializer, VendorPaymentTermsSerializer, VendorAgentSerializer, VendorAttachmentSerializer, VendorAddressSerializer
-from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids, update_multi_instance_new
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids, update_multi_instance
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -284,23 +284,35 @@ class VendorViewSet(APIView):
 
     def put(self, request, pk, *args, **kwargs):
         vendors_data = attachments_data = addresses_data =  response_data = None
+        errors = []
 
         partial = kwargs.pop('partial', False)
         instance = self.get_object(pk)
         serializer = VendorSerializer(instance, data=request.data['vendor_data'], partial=partial)
-        if serializer.is_valid(raise_exception=False):
-            serializer.save()
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+        except Exception as e:
+            logger.error("Validation error: %s", str(e))  # Log validation errors
+            errors.append(str(e))  # Collect validation errors
+        else:
             vendors_data = serializer.data
 
             # Update vendor_attachments
             vendor_attachments_data = request.data.pop('vendor_attachments')
-            attachments_data = update_multi_instance_new(pk, vendor_attachments_data, VendorAttachment, VendorAttachmentSerializer, filter_field_1='vendor_id')
+            attachments_data, attachments_errors= update_multi_instance(pk, vendor_attachments_data, VendorAttachment, VendorAttachmentSerializer, filter_field_1='vendor_id')
+            errors.extend(attachments_errors)
 
             # Update vendor_addresses
             vendor_addresses_data = request.data.pop('vendor_addresses')
-            addresses_data = update_multi_instance_new(pk, vendor_addresses_data, VendorAddress, VendorAddressSerializer, filter_field_1='vendor_id')
+            addresses_data, addresses_errors= update_multi_instance(pk, vendor_addresses_data, VendorAddress, VendorAddressSerializer, filter_field_1='vendor_id')
+            errors.extend(addresses_errors)
+            if errors:
+                logger.warning("Record created with some errors: %s", errors)
+                return build_response(1, "Record created with errors", response_data, status.HTTP_201_CREATED, errors)
 
-        if vendors_data and attachments_data and addresses_data :  
+        #  Here 'or' operator is used becaused data can be either empty list or filled with data. so that all the model data can be represented on output
+        if vendors_data or attachments_data or addresses_data :  
             custom_data = {
                 "vendor_data": vendors_data,
                 "vendor_attachments": attachments_data,
