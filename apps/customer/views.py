@@ -92,6 +92,10 @@ class CustomerAttachmentsViews(viewsets.ModelViewSet):
         return update_instance(self, request, *args, **kwargs)
     
 #==========================================================================   
+# Set up basic configuration for logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Create a logger object
 logger = logging.getLogger(__name__)  
 
 class CustomerCreateViews(APIView):
