@@ -123,7 +123,7 @@ class CustomerCreateViews(APIView):
                 logger.error("Primary key not provided in request.")
                 return build_response(0, "Primary key not provided", [], status.HTTP_400_BAD_REQUEST)
 
-            # Retrieve the SaleOrder instance
+            # Retrieve the customer instance
             customer = get_object_or_404(Customer, pk=pk)
             customer_serializer = CustomerSerializer(customer)
 
@@ -161,7 +161,7 @@ class CustomerCreateViews(APIView):
             return []
 
     # Handling POST requests for creating
-    def post(self, request, *args, **kwargs):   #To avoid the error this method should be written [error : "detail": "Method \"POST\" not allowed."]
+    def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
    
     @transaction.atomic
@@ -231,12 +231,12 @@ class CustomerCreateViews(APIView):
         """
         serializer = CustomerSerializer(data=customer_data)
         try:
-            serializer.is_valid(raise_exception=True)  # Validate sale order data
-            serializer.save()  # Save valid sale order to the database
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             logger.debug("customer created with data: %s", serializer.data)
             return serializer.data
         except ValidationError as e:
-            logger.error("Validation error on customer: %s", str(e))  # Log validation error
+            logger.error("Validation error on customer: %s", str(e))
             return None
        
     def add_customer_id_to_attachments(self, customer_attachments_data, customer_id):
@@ -254,13 +254,10 @@ class CustomerCreateViews(APIView):
     @transaction.atomic
     def delete(self, request, pk, *args, **kwargs):
         """
-        Handles the deletion of a sale order and its related attachments and shipments.
+        Handles the deletion of a customer and its related attachments and addresses.
         """
         try:
-            # Get the SaleOrder instance
             instance = Customer.objects.get(pk=pk)
- 
-            # Delete the main SaleOrder instance
             instance.delete()
  
             logger.info(f"Customer with ID {pk} deleted successfully.")
@@ -274,23 +271,35 @@ class CustomerCreateViews(APIView):
     
     def put(self, request, pk, *args, **kwargs):
         customer_data = attachments_data = addresses_data =  response_data = None
+        errors = []
  
         partial = kwargs.pop('partial', False)
         instance = self.get_object(pk)
         serializer = CustomerSerializer(instance, data=request.data['customer_data'], partial=partial)
-        if serializer.is_valid(raise_exception=False):
-            serializer.save()
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+        except Exception as e:
+            logger.error("Validation error: %s", str(e))  # Log validation errors
+            errors.append(str(e))  # Collect validation errors
+        else:
             customer_data = serializer.data
  
-            # Update vendor_attachments
+            # Update customer_attachments
             customer_attachments_data = request.data.pop('customer_attachments')
-            attachments_data = update_multi_instance_new(pk, customer_attachments_data, CustomerAttachments, CustomerAttachmentsSerializers, filter_field_1='customer_id')
-             
-            # Update vendor_addresses
+            attachments_data, attachments_error = update_multi_instance(pk, customer_attachments_data, CustomerAttachments, CustomerAttachmentsSerializers, filter_field_1='customer_id')
+            errors.extend(attachments_error)
+            
+            # Update customer_addresses
             customer_addresses_data = request.data.pop('customer_addresses')
-            addresses_data = update_multi_instance_new(pk, customer_addresses_data, CustomerAddresses, CustomerAddressesSerializers, filter_field_1='customer_id')
- 
-        if customer_data and attachments_data and addresses_data :  
+            addresses_data, addresses_error = update_multi_instance(pk, customer_addresses_data, CustomerAddresses, CustomerAddressesSerializers, filter_field_1='customer_id')
+            errors.extend(addresses_error)
+            
+            if errors:
+                logger.warning("Record created with some errors: %s", errors)
+                return build_response(1, "Record created with errors", response_data, status.HTTP_201_CREATED, errors)
+            
+        if customer_data or attachments_data or addresses_data :  
             custom_data = {
                 "customer_data": customer_data,
                 "customer_attachments": attachments_data,
@@ -298,7 +307,7 @@ class CustomerCreateViews(APIView):
             }
             response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
         else:
-            logger.error("Error in VendorViewSet")
+            logger.error("Error in customerViewSet")
             response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
        
         return response_data
