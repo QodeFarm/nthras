@@ -378,30 +378,41 @@ class SaleOrderViewSet(APIView):
 
     def put(self, request, pk, *args, **kwargs):
         saleorder_data = items_data = attachments_data = shipments_data = response_data = None
+        errors = []
 
         partial = kwargs.pop('partial', False)
         instance = self.get_object(pk)
         serializer = SaleOrderSerializer(instance, data=request.data['sale_order'], partial=partial)
-        if serializer.is_valid(raise_exception=False):
-            serializer.save()
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+        except Exception as e:
+            logger.error("Validation error: %s", str(e))  # Log validation errors
+            errors.append(str(e))  # Collect validation errors
+        else:
             saleorder_data = serializer.data
 
             # Update sale_order_items 
             sale_order_items_data = request.data.pop('sale_order_items')
-            items_data = update_multi_instance(pk, sale_order_items_data, SaleOrderItems, SaleOrderItemsSerializer, filter_field_1='sale_order_id')
-            print('\nsale_order_items - updated')
+            items_data, item_errors = update_multi_instance(pk, sale_order_items_data, SaleOrderItems, SaleOrderItemsSerializer, filter_field_1='sale_order_id')
+            errors.extend(item_errors)
 
             # # Update sale_order_attachments
             order_attachments_data = request.data.pop('order_attachments')
-            order_id = order_attachments_data[0].get('order_id')
-            attachments_data = update_multi_instance(order_id, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
-            print('\nsale_order_attachments - updated')
+            attachments_data, attachments_errors = update_multi_instance(pk, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
+            errors.extend(attachments_errors)
 
             # Update order_shipments
             order_shipments_data = request.data.pop('order_shipments')
-            shipments_data = update_multi_instance(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
+            shipments_data, shipments_errors = update_multi_instance(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
+            errors.extend(shipments_errors)
 
-        if saleorder_data and items_data and attachments_data and shipments_data:
+            if errors:
+                logger.warning("Record created with some errors: %s", errors)
+                return build_response(1, "Record created with errors", response_data, status.HTTP_201_CREATED, errors)
+
+        #  Here 'or' operator is used becaused data can be either empty list or filled with data. so that all the model data can be represented on output
+        if saleorder_data or items_data or attachments_data or shipments_data:
             custom_data = {
                 "sale_order": saleorder_data,
                 "sale_order_items": items_data,
@@ -411,6 +422,6 @@ class SaleOrderViewSet(APIView):
             response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
         else:
             logger.error("Error in SaleOrderOneView")
-            response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
+            response_data = build_response(0, "Record updation failed", [errors], status.HTTP_400_BAD_REQUEST)
         
         return response_data

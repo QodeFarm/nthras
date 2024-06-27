@@ -269,21 +269,22 @@ def update_multi_instance(pk, update_data, related_model_class, serializer_name,
         logger.error(f"Error fetching instances from {related_model_class.__name__}: {str(e)}")
         return None
 
-    try:
-        data_list = []
-        i = 0
-        for data in update_data:
+    data_list = []
+    errors = []
+    i = 0
+    for data in update_data:
+        try:
+            instance = related_model_class.objects.filter(pk=pks_list[i]).first()
+        except related_model_class.DoesNotExist:
+            logger.warning(f"{related_model_class} with ID {pk} does not exist.")
+        else:
+            serializer = serializer_name(instance, data=data, partial=False)
             try:
-                instance = related_model_class.objects.filter(pk=pks_list[i]).first()
-                i = i+1
-            except related_model_class.DoesNotExist:
-                logger.warning(f"{related_model_class} with ID {pk} does not exist.")
-            else:
-                serializer = serializer_name(instance, data=data, partial=False)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-                data_list.append(serializer.data)
-        return data_list
-    except Exception as e:
-        logger.error(f"Error updating instances from {related_model_class.__name__}: {str(e)}")
-        return None
+                i = i+1
+            except Exception as e:
+                logger.error("Validation error: %s", str(e))  # Log validation errors
+                errors.append(str(e))  # Collect validation errors
+            data_list.append(serializer.data)
+    return data_list, errors
