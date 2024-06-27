@@ -6,7 +6,7 @@ from .models import *
 from .serializers import *
 from config.utils_methods import *
 from config.utils_variables import *
-from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids, update_multi_instance_new
+from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_ordereddicts_with_ids, update_multi_instance
 from apps.sales.serializers import OrderAttachmentsSerializer,OrderShipmentsSerializer
 from apps.sales.models import OrderAttachments,OrderShipments
 from rest_framework import viewsets
@@ -352,20 +352,68 @@ class PurchaseOrderViewSet(APIView):
             serializer.save()
             purchaseorder_data = serializer.data
 
-             # Update purchase_order_items 
+            #Update purchase_order_items 
             purchase_order_items_data = request.data.pop('purchase_order_items')
-            items_data = update_multi_instance_new(pk, purchase_order_items_data, PurchaseorderItems, PurchaseorderItemsSerializer, filter_field_1='purchase_order_id')
+            items_data = update_multi_instance(pk, purchase_order_items_data, PurchaseorderItems, PurchaseorderItemsSerializer, filter_field_1='purchase_order_id')
 
-            # # Update purchase_order_attachments
+            #Update purchase_order_attachments
             order_attachments_data = request.data.pop('order_attachments')
             order_id = order_attachments_data[0].get('order_id')
-            attachments_data = update_multi_instance_new(order_id, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
+            attachments_data = update_multi_instance(order_id, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
 
-            # # # Update order_shipments
+            #Update order_shipments
             order_shipments_data = request.data.pop('order_shipments')
-            shipments_data = update_multi_instance_new(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
+            shipments_data = update_multi_instance(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
 
         if purchaseorder_data and items_data and attachments_data and shipments_data:
+            custom_data = {
+                "purchase_order": purchaseorder_data,
+                "purchase_order_items": items_data,
+                "order_attachments":attachments_data,
+                "order_shipments": shipments_data
+            }
+            response_data = build_response(1, "Record updated successfully", custom_data, status.HTTP_200_OK)
+        else:
+            logger.error("Error in PurchaseOrderViewSet")
+            response_data = build_response(0, "Record updation failed", [serializer.errors], status.HTTP_400_BAD_REQUEST)
+        
+        return response_data
+    
+    def put(self, request, pk, *args, **kwargs):
+        purchaseorder_data = items_data = attachments_data = shipments_data = response_data = None
+        errors = []
+
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object(pk)
+        serializer = PurchaseOrdersSerializer(instance, data=request.data['purchase_order'], partial=partial)
+        try:
+            if serializer.is_valid(raise_exception=False):
+                serializer.save()
+
+        except Exception as e:
+            logger.error("Validation error: %s", str(e))  # Log validation errors
+            errors.append(str(e))  # Collect validation errors
+
+        else:
+            purchaseorder_data = serializer.data
+            # Update purchase_order_items 
+            purchase_order_items_data = request.data.pop('purchase_order_items')
+            items_data, item_errors = update_multi_instance(pk, purchase_order_items_data, PurchaseorderItems, PurchaseorderItemsSerializer, filter_field_1='purchase_order_id')
+            errors.extend(item_errors)
+            # Update purchase_order_attachments
+            order_attachments_data = request.data.pop('order_attachments')
+            attachments_data, attachments_errors = update_multi_instance(pk, order_attachments_data, OrderAttachments, OrderAttachmentsSerializer, filter_field_1='order_id')
+            errors.extend(attachments_errors)
+            #  Update order_shipments
+            order_shipments_data = request.data.pop('order_shipments')
+            shipments_data, shipments_errors = update_multi_instance(pk, order_shipments_data, OrderShipments, OrderShipmentsSerializer, filter_field_1='order_id')
+            errors.extend(shipments_errors)
+            if errors:
+                logger.warning("Record created with some errors: %s", errors)
+                return build_response(1, "Record created with errors", response_data, status.HTTP_201_CREATED, errors)
+            
+        #  Here 'or' operator is used becaused data can be either empty list or filled with data. so that all the model data can be represented on output
+        if purchaseorder_data or items_data or attachments_data or shipments_data:
             custom_data = {
                 "purchase_order": purchaseorder_data,
                 "purchase_order_items": items_data,
