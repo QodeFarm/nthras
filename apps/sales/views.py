@@ -5,10 +5,11 @@ from django.http import  Http404
 from django.shortcuts import render,get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.serializers import ValidationError
+from uuid import UUID
 from rest_framework.views import APIView
 from .serializers import *
 from apps.masters.models import OrderTypes
-from config.utils_methods import create_multi_instance, delete_multi_instance, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_multi_instance, update_ordereddicts_with_ids
+from config.utils_methods import delete_multi_instance, generic_data_creation, get_object_or_none, list_all_objects, create_instance, update_instance, build_response, update_multi_instance, validate_multiple_data, validate_payload_data
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -160,6 +161,11 @@ class SaleOrderViewSet(APIView):
 
     def get(self, request,  *args, **kwargs):
         if 'pk' in kwargs:
+            try:
+                UUID(kwargs['pk'], version=4)
+            except ValueError:
+                logger.info('Invalid UUID provided')
+                return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
             return self.retrieve(self, request, *args, **kwargs)
         try:
             instance = SaleOrder.objects.all()
@@ -250,8 +256,108 @@ class SaleOrderViewSet(APIView):
     # Handling POST requests for creating
     def post(self, request, *args, **kwargs):   #To avoid the error this method should be written [error : "detail": "Method \"POST\" not allowed."]
         return self.create(request, *args, **kwargs)
+    
+    def create(self, request, *args, **kwargs):
+        # Extracting data from the request
+        given_data = request.data
 
-    @transaction.atomic
+        #---------------------- D A T A   V A L I D A T I O N ----------------------------------#
+        """
+        All the data in request will be validated here. it will handle the following errors:
+        - Invalid data types
+        - Invalid foreign keys
+        - nulls in required fields
+        """
+
+        # Vlidated SaleOrder Data
+        sale_order_data = given_data.pop('sale_order', None) # parent_data
+        if sale_order_data:
+            order_error = validate_payload_data(self, sale_order_data , SaleOrderSerializer)
+
+            # validate the order_type in 'sale_order' data
+            order_type = sale_order_data.get('order_type',None) # 'order_type' is additonal Field and not defined in model
+            if order_type is None and len(order_error) > 0:
+                order_error[0]['order_type'] = ["Specify type of order"]
+            elif order_type is None:
+                order_error.append([{'order_type':"This field is required"}])
+            else:
+                order_type = get_object_or_none(OrderTypes, name=order_type)
+                if order_type is None and len(order_error) > 0:
+                    order_error[0]['order_type'] = ["Invalid order type"]
+                elif order_type is None:
+                    order_error.append([{'order_type':"Invalid order type"}])
+                
+        # Vlidated SaleOrderItems Data
+        sale_order_items_data = given_data.pop('sale_order_items', None)
+        if sale_order_items_data:
+            item_error = validate_multiple_data(self, sale_order_items_data,SaleOrderItemsSerializer,['sale_order_id'])
+
+        # Vlidated OrderAttchments Data
+        order_attachments_data = given_data.pop('order_attachments', None)
+        if order_attachments_data:
+            attachment_error = validate_multiple_data(self, order_attachments_data ,OrderAttachmentsSerializer,['order_id','order_type_id'])
+
+        # Vlidated OrderShipments Data
+        order_shipments_data = given_data.pop('order_shipments', None)
+        if order_shipments_data:
+            shipments_error = validate_multiple_data(self, [order_shipments_data] , OrderShipmentsSerializer,['order_id','order_type_id'])
+
+        # Ensure mandatory data is present
+        if not sale_order_data or not sale_order_items_data:
+            logger.error("Sale order and sale order items are mandatory but not provided.")
+            return build_response(0, "Sale order and sale order items are mandatory", [], status.HTTP_400_BAD_REQUEST)
+
+        if order_error or item_error or attachment_error or shipments_error:
+            errors = {
+                "sale_order":order_error,
+                "sale_order_items":item_error,
+                "order_attachments":attachment_error,
+                "order_shipments":shipments_error,
+                }
+            
+            return build_response(0, "ValidationError :",errors, status.HTTP_400_BAD_REQUEST)
+        
+        #---------------------- D A T A   C R E A T I O N ----------------------------#
+        """
+        After the data is validated, this validated data is created as new instances.
+        """
+            
+        # Hence the data is validated , further it can be created.
+
+        # Create SaleOrder Data
+        new_sale_order_data = generic_data_creation(self, [sale_order_data], SaleOrderSerializer)
+        sale_order_id = new_sale_order_data[0].get("sale_order_id",None) #Fetch sale_order_id from mew instance
+        logger.info('SaleOrder - created*')
+
+        # Create SaleOrderItems Data
+        update_fields = {'sale_order_id':sale_order_id}
+        items_data = generic_data_creation(self, sale_order_items_data, SaleOrderItemsSerializer, update_fields)
+        logger.info('SaleOrderItems - created*')
+
+        # Get order_type_id from OrderTypes model
+        order_type_val = sale_order_data.get('order_type')
+        order_type = get_object_or_none(OrderTypes, name=order_type_val)
+        type_id = order_type.order_type_id
+
+        # Create OrderAttchments Data
+        update_fields = {'order_id':sale_order_id, 'order_type_id':type_id}
+        order_attachments = generic_data_creation(self, order_attachments_data, OrderAttachmentsSerializer, update_fields)
+        logger.info('OrderAttchments - created*')
+
+        # create OrderShipments Data
+        order_shipments = generic_data_creation(self, [order_shipments_data], OrderShipmentsSerializer, update_fields)
+        logger.info('OrderShipments - created*')
+
+        custom_data = [
+            {"sale_order":new_sale_order_data[0]},
+            {"sale_order_items":items_data},
+            {"order_attachments":order_attachments},
+            {"order_shipments":order_shipments[0]},
+        ]
+
+        return build_response(1, "Record created successfully", custom_data, status.HTTP_201_CREATED)
+
+    '''@transaction.atomic
     def create(self, request, *args, **kwargs):
         """
         Handles the creation of sale order, sale order items, order attachments, and order shipments.
@@ -279,6 +385,9 @@ class SaleOrderViewSet(APIView):
             if not saleorder_data:
                 logger.error("Sale order creation failed.")
                 return build_response(0, "Sale order creation failed", [], status.HTTP_400_BAD_REQUEST)
+            elif status.HTTP_400_BAD_REQUEST in  saleorder_data:
+                return build_response(0, f"Validation error on sale order {saleorder_data[0]}", [], saleorder_data[1])
+
 
             sale_order_id = saleorder_data.get('sale_order_id')
             self.add_sale_order_id_to_items(sale_order_items_data, sale_order_id)
@@ -287,7 +396,8 @@ class SaleOrderViewSet(APIView):
             items_data, items_errors = create_multi_instance(sale_order_items_data, SaleOrderItemsSerializer)
             if not items_data:
                 logger.error("Sale order items creation failed.")
-                return build_response(0, "Sale order items creation failed", [], status.HTTP_400_BAD_REQUEST, items_errors)
+                return build_response(0,f"Validation error on sale order items {items_errors[0]}", [], items_errors[1])
+                # return build_response(0, "Sale order items creation failed", [], status.HTTP_400_BAD_REQUEST, items_errors)
 
             response_data = [
                 {"sale_order": saleorder_data},
@@ -336,7 +446,7 @@ class SaleOrderViewSet(APIView):
             return serializer.data
         except ValidationError as e:
             logger.error("Validation error on sale order: %s", str(e))  # Log validation error
-            return None
+            return [e, status.HTTP_400_BAD_REQUEST]
 
     def add_sale_order_id_to_items(self, sale_order_items_data, sale_order_id):
         """
@@ -374,7 +484,7 @@ class SaleOrderViewSet(APIView):
             return serializer.data, []
         except ValidationError as e:
             logger.error("Validation error on order shipments: %s", str(e))  # Log validation error
-            return None, [str(e)]
+            return None, [str(e)]'''
 
     def put(self, request, pk, *args, **kwargs):
         saleorder_data = items_data = attachments_data = shipments_data = response_data = None
@@ -425,3 +535,11 @@ class SaleOrderViewSet(APIView):
             response_data = build_response(0, "Record updation failed", [errors], status.HTTP_400_BAD_REQUEST)
         
         return response_data
+    
+class ResetSaleOrder(APIView):
+    def delete(self, request, *args, **kwargs):
+        SaleOrder.objects.all().delete()
+        # NOTE : SaleOrderItems will be deleted if SaleOrder gets deleted.
+        OrderAttachments.objects.all().delete()
+        OrderShipments.objects.all().delete()
+        return build_response(0, "Records deleted successfully", [], status.HTTP_204_NO_CONTENT)
