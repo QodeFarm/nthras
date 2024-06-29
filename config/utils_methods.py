@@ -8,6 +8,7 @@ from django.db import models
 import uuid,django_filters
 from django.db.models import Q
 from uuid import uuid4
+from uuid import UUID
 import base64
 import os
 import json
@@ -349,3 +350,11 @@ def generic_data_creation(self, valid_data, serializer_class, update_fields=None
         data_list.append(serializer.data)
 
     return data_list
+
+# Validates the input 'pk'
+def validate_input_pk(self, pk=None):
+    try:
+        UUID(pk, version=4)
+    except ValueError:
+        logger.info('Invalid UUID provided')
+        return build_response(0, "Invalid UUID provided", [], status.HTTP_404_NOT_FOUND)
