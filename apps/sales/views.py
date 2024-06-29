@@ -251,7 +251,7 @@ class SaleOrderViewSet(APIView):
             return build_response(0, "Record does not exist", [], status.HTTP_404_NOT_FOUND)
         except Exception as e:
             logger.error(f"Error deleting SaleOrder with ID {pk}: {str(e)}")
-            return build_response(0, "Record deletion failed due to an error", [], status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return build_response(0, "Record deletion failed due to an error", [], status.HTTP_404_NOT_FOUND)
 
     # Handling POST requests for creating
     def post(self, request, *args, **kwargs):   #To avoid the error this method should be written [error : "detail": "Method \"POST\" not allowed."]
@@ -279,7 +279,7 @@ class SaleOrderViewSet(APIView):
             if order_type is None and len(order_error) > 0:
                 order_error[0]['order_type'] = ["Specify type of order"]
             elif order_type is None:
-                order_error.append([{'order_type':"This field is required"}])
+                order_error.append([{'order_type':"This field is required."}])
             else:
                 order_type = get_object_or_none(OrderTypes, name=order_type)
                 if order_type is None and len(order_error) > 0:
@@ -296,25 +296,31 @@ class SaleOrderViewSet(APIView):
         order_attachments_data = given_data.pop('order_attachments', None)
         if order_attachments_data:
             attachment_error = validate_multiple_data(self, order_attachments_data ,OrderAttachmentsSerializer,['order_id','order_type_id'])
+        else:
+            attachment_error = [] # Since 'order_attachments' is optional, so making an error is empty list
 
         # Vlidated OrderShipments Data
         order_shipments_data = given_data.pop('order_shipments', None)
         if order_shipments_data:
             shipments_error = validate_multiple_data(self, [order_shipments_data] , OrderShipmentsSerializer,['order_id','order_type_id'])
+        else:
+            shipments_error = [] # Since 'order_shipments' is optional, so making an error is empty list
 
         # Ensure mandatory data is present
         if not sale_order_data or not sale_order_items_data:
             logger.error("Sale order and sale order items are mandatory but not provided.")
             return build_response(0, "Sale order and sale order items are mandatory", [], status.HTTP_400_BAD_REQUEST)
-
-        if order_error or item_error or attachment_error or shipments_error:
-            errors = {
-                "sale_order":order_error,
-                "sale_order_items":item_error,
-                "order_attachments":attachment_error,
-                "order_shipments":shipments_error,
-                }
-            
+        
+        errors = {}
+        if order_error:
+            errors["sale_order"] = order_error
+        if item_error:
+            errors["sale_order_items"] = item_error
+        if attachment_error:
+            errors['order_attachments'] = attachment_error
+        if shipments_error:
+            errors['order_shipments'] = shipments_error
+        if errors:
             return build_response(0, "ValidationError :",errors, status.HTTP_400_BAD_REQUEST)
         
         #---------------------- D A T A   C R E A T I O N ----------------------------#
